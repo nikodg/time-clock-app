@@ -46207,50 +46207,46 @@ var EmployeeActions = {
 
 module.exports = EmployeeActions;
 
-},{"../api/employeeApi":209,"../constants/actionTypes":221,"../dispatcher/appDispatcher":222}],208:[function(require,module,exports){
+},{"../api/employeeApi":209,"../constants/actionTypes":220,"../dispatcher/appDispatcher":222}],208:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
-var EmployeeApi = require('../api/employeeApi');
+// var EmployeeApi = require('../api/employeeApi');
+var API = require('../constants/apis');
 
 var InitializeActions = {
-	initApp: function() {
-		Dispatcher.dispatch({
-			actionType: ActionTypes.INITIALIZE,
-			initialData: {
-				employees: EmployeeApi.getAllEmployees()
-			}
-		});
+	initApp: function () {
+		API.getData('employees')
+			.done(function(data){
+				Dispatcher.dispatch({
+					type: ActionTypes.INITIALIZE,
+					data: data
+				});
+			});
 	}
 };
 
 module.exports = InitializeActions;
 
-},{"../api/employeeApi":209,"../constants/actionTypes":221,"../dispatcher/appDispatcher":222}],209:[function(require,module,exports){
+},{"../constants/actionTypes":220,"../constants/apis":221,"../dispatcher/appDispatcher":222}],209:[function(require,module,exports){
 "use strict";
-
-//This file is mocking a web API by hitting hard coded data.
-var employees = require('./employeeData').employees;
+var $ = require('jquery');
 var _ = require('lodash');
+var API = require('../constants/apis');
+var window = $;
 
-//This would be performed on the server in a real app. Just stubbing in.
-var _generateId = function(employee) {
-	return employee.firstName.toLowerCase() + '-' + employee.lastName.toLowerCase();
-};
-
-var _clone = function(item) {
-	return JSON.parse(JSON.stringify(item)); //return cloned copy so that the item is passed by value instead of by reference
-};
+var employees = [];
 
 var EmployeeApi = {
 	getAllEmployees: function() {
-		return _clone(employees); 
+		// return _clone(employees);
+		return API.getData('employees');
 	},
 
 	getEmployeeById: function(id) {
 		var employee = _.find(employees, {id: id});
-		return _clone(employee);
+		// return _clone(employee);
 	},
 	
 	saveEmployee: function(employee) {
@@ -46261,14 +46257,11 @@ var EmployeeApi = {
 			var existingEmployeeIndex = _.indexOf(employees, _.find(employees, {id: employee.id})); 
 			employees.splice(existingEmployeeIndex, 1, employee);
 		} else {
-			//Just simulating creation here.
-			//The server would generate ids for new employees in a real app.
-			//Cloning so copy returned is passed by value rather than by reference.
-			employee.id = _generateId(employee);
+			// employee.id = _generateId(employee);
 			employees.push(employee);
 		}
 
-		return _clone(employee);
+		// return _clone(employee);
 	},
 
 	deleteEmployee: function(id) {
@@ -46279,29 +46272,7 @@ var EmployeeApi = {
 
 module.exports = EmployeeApi;
 
-},{"./employeeData":210,"lodash":8}],210:[function(require,module,exports){
-module.exports = {
-	employees: 
-	[
-		{
-			id: 'cory-house', 
-			firstName: 'Cory', 
-			lastName: 'House'
-		},	
-		{
-			id: 'scott-allen', 
-			firstName: 'Scott', 
-			lastName: 'Allen'
-		},	
-		{
-			id: 'dan-wahlin', 
-			firstName: 'Dan', 
-			lastName: 'Wahlin'
-		}
-	]
-};
-
-},{}],211:[function(require,module,exports){
+},{"../constants/apis":221,"jquery":7,"lodash":8}],210:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46345,7 +46316,7 @@ var About = React.createClass({displayName: "About",
 
 module.exports = About;
 
-},{"react":205}],212:[function(require,module,exports){
+},{"react":205}],211:[function(require,module,exports){
 /*eslint-disable strict */ //Disabling check because we can't run strict mode. Need global vars.
 
 var React = require('react');
@@ -46368,7 +46339,7 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App;
 
-},{"./common/header":213,"jquery":7,"react":205,"react-router":35}],213:[function(require,module,exports){
+},{"./common/header":212,"jquery":7,"react":205,"react-router":35}],212:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46395,7 +46366,7 @@ var Header = React.createClass({displayName: "Header",
 });
 
 module.exports = Header;
-},{"react":205,"react-router":35}],214:[function(require,module,exports){
+},{"react":205,"react-router":35}],213:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46436,7 +46407,7 @@ var Input = React.createClass({displayName: "Input",
 
 module.exports = Input;
 
-},{"react":205}],215:[function(require,module,exports){
+},{"react":205}],214:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46476,7 +46447,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/textInput":214,"react":205}],216:[function(require,module,exports){
+},{"../common/textInput":213,"react":205}],215:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46526,7 +46497,7 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 
 module.exports = EmployeeList;
 
-},{"../../actions/employeeActions":207,"react":205,"react-router":35,"toastr":206}],217:[function(require,module,exports){
+},{"../../actions/employeeActions":207,"react":205,"react-router":35,"toastr":206}],216:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46569,7 +46540,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 module.exports = EmployeePage;
 
-},{"../../actions/employeeActions":207,"../../stores/employeeStore":225,"./employeeList":216,"react":205,"react-router":35}],218:[function(require,module,exports){
+},{"../../actions/employeeActions":207,"../../stores/employeeStore":225,"./employeeList":215,"react":205,"react-router":35}],217:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46664,7 +46635,7 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 
 module.exports = ManageEmployeePage;
 
-},{"../../actions/employeeActions":207,"../../stores/employeeStore":225,"./employeeForm":215,"react":205,"react-router":35,"toastr":206}],219:[function(require,module,exports){
+},{"../../actions/employeeActions":207,"../../stores/employeeStore":225,"./employeeForm":214,"react":205,"react-router":35,"toastr":206}],218:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46685,7 +46656,7 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home;
 
-},{"react":205,"react-router":35}],220:[function(require,module,exports){
+},{"react":205,"react-router":35}],219:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46705,7 +46676,7 @@ var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 
 module.exports = NotFoundPage;
 
-},{"react":205,"react-router":35}],221:[function(require,module,exports){
+},{"react":205,"react-router":35}],220:[function(require,module,exports){
 "use strict";
 
 var keyMirror = require('react/lib/keyMirror');
@@ -46717,7 +46688,35 @@ module.exports = keyMirror({
 	DELETE_EMPLOYEE: null
 });
 
-},{"react/lib/keyMirror":190}],222:[function(require,module,exports){
+},{"react/lib/keyMirror":190}],221:[function(require,module,exports){
+'use strict';
+
+var API = {
+    baseURL: 'https://time-clock-service.herokuapp.com/api/',
+    proxy: 'https://cors-anywhere.herokuapp.com/',
+    errorHandler: function (xhr, status, error) {
+        console.log('Failed ajax call status', status);
+        console.log('Failed ajax call error', error);
+        return false;
+    },
+    getData: function (path) {
+        var url = this.proxy + this.baseURL + path;
+        return $.ajax({
+            url: url,
+            method: 'GET',
+            contentType: 'application/json',
+            crossDomain: true,
+            success: function (data, status) {
+                return data;
+            },
+            error: this.errorHandler
+        });
+    }
+};
+
+module.exports = API;
+
+},{}],222:[function(require,module,exports){
 /*
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.
@@ -46775,7 +46774,7 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/about/aboutPage":211,"./components/app":212,"./components/employees/employeePage":217,"./components/employees/manageEmployeePage":218,"./components/homePage":219,"./components/notFoundPage":220,"react":205,"react-router":35}],225:[function(require,module,exports){
+},{"./components/about/aboutPage":210,"./components/app":211,"./components/employees/employeePage":216,"./components/employees/manageEmployeePage":217,"./components/homePage":218,"./components/notFoundPage":219,"react":205,"react-router":35}],225:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -46809,10 +46808,10 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 	}
 });
 
-Dispatcher.register(function(action) {
-	switch(action.actionType) {
+Dispatcher.register(function (action) {
+	switch(action.type) {
 		case ActionTypes.INITIALIZE:
-			_employees = action.initialData.employees;
+			_employees = action.data._embedded.employees;
 			EmployeeStore.emitChange();
 			break;
 		case ActionTypes.CREATE_EMPLOYEE:
@@ -46838,4 +46837,4 @@ Dispatcher.register(function(action) {
 
 module.exports = EmployeeStore;
 
-},{"../constants/actionTypes":221,"../dispatcher/appDispatcher":222,"events":2,"lodash":8,"object-assign":9}]},{},[223]);
+},{"../constants/actionTypes":220,"../dispatcher/appDispatcher":222,"events":2,"lodash":8,"object-assign":9}]},{},[223]);

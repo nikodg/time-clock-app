@@ -1,26 +1,20 @@
 "use strict";
-
-//This file is mocking a web API by hitting hard coded data.
-var employees = require('./employeeData').employees;
+var $ = require('jquery');
 var _ = require('lodash');
+var API = require('../constants/apis');
+var window = $;
 
-//This would be performed on the server in a real app. Just stubbing in.
-var _generateId = function(employee) {
-	return employee.firstName.toLowerCase() + '-' + employee.lastName.toLowerCase();
-};
-
-var _clone = function(item) {
-	return JSON.parse(JSON.stringify(item)); //return cloned copy so that the item is passed by value instead of by reference
-};
+var employees = [];
 
 var EmployeeApi = {
 	getAllEmployees: function() {
-		return _clone(employees); 
+		// return _clone(employees);
+		return API.getData('employees');
 	},
 
 	getEmployeeById: function(id) {
 		var employee = _.find(employees, {id: id});
-		return _clone(employee);
+		// return _clone(employee);
 	},
 	
 	saveEmployee: function(employee) {
@@ -31,14 +25,11 @@ var EmployeeApi = {
 			var existingEmployeeIndex = _.indexOf(employees, _.find(employees, {id: employee.id})); 
 			employees.splice(existingEmployeeIndex, 1, employee);
 		} else {
-			//Just simulating creation here.
-			//The server would generate ids for new employees in a real app.
-			//Cloning so copy returned is passed by value rather than by reference.
-			employee.id = _generateId(employee);
+			// employee.id = _generateId(employee);
 			employees.push(employee);
 		}
 
-		return _clone(employee);
+		// return _clone(employee);
 	},
 
 	deleteEmployee: function(id) {

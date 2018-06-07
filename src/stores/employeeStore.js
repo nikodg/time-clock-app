@@ -31,10 +31,10 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 	}
 });
 
-Dispatcher.register(function(action) {
-	switch(action.actionType) {
+Dispatcher.register(function (action) {
+	switch(action.type) {
 		case ActionTypes.INITIALIZE:
-			_employees = action.initialData.employees;
+			_employees = action.data._embedded.employees;
 			EmployeeStore.emitChange();
 			break;
 		case ActionTypes.CREATE_EMPLOYEE:

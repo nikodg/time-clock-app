@@ -25,7 +25,7 @@ var ListViewStore = assign({}, EventEmitter.prototype, {
 
 Dispatcher.register(function (action) {
     switch (action.actionType) {
-
+        default: console.log('ListViewStore');
     }
 });
 

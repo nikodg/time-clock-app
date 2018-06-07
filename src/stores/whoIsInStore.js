@@ -9,7 +9,7 @@ var CHANGE_EVENT = 'change';
 
 var _listViews = [];
 
-var ListViewStore = assign({}, EventEmitter.prototype, {
+var WhoIsInStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
         this.on(CHANGE_EVENT, callback);
     },
@@ -25,8 +25,8 @@ var ListViewStore = assign({}, EventEmitter.prototype, {
 
 Dispatcher.register(function (action) {
     switch (action.actionType) {
-
+        default: console.log('WhoIsInStore');
     }
 });
 
-module.exports = ListViewStore;
+module.exports = WhoIsInStore;
