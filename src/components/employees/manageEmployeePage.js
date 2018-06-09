@@ -22,7 +22,13 @@ var ManageEmployeePage = React.createClass({
 
 	getInitialState: function() {
 		return {
-			employee: { id: '', firstName: '', lastName: '' },
+			employee: {
+				id: null,
+				fullName: '',
+				fingerprintId: null,
+				pin: null,
+				createdDate: null
+			},
 			errors: {},
 			dirty: false
 		};
@@ -31,6 +37,7 @@ var ManageEmployeePage = React.createClass({
 	componentWillMount: function() {
 		var employeeId = this.props.params.id; //from the path '/employee:id'
 		if (employeeId) {
+			console.log(EmployeeStore.getEmployeeById(employeeId));
 			this.setState({employee: EmployeeStore.getEmployeeById(employeeId) });
 		}
 	},
@@ -47,13 +54,8 @@ var ManageEmployeePage = React.createClass({
 		var formIsValid = true;
 		this.state.errors = {}; //clear any previous errors.
 
-		if (this.state.employee.firstName.length < 3) {
-			this.state.errors.firstName = 'First name must be at least 3 characters.';
-			formIsValid = false;
-		}
-
-		if (this.state.employee.lastName.length < 3) {
-			this.state.errors.lastName = 'Last name must be at least 3 characters.';
+		if (this.state.employee.fullName.length < 3) {
+			this.state.errors.fullName = 'First name must be at least 3 characters.';
 			formIsValid = false;
 		}
 
@@ -75,7 +77,6 @@ var ManageEmployeePage = React.createClass({
 		}
 		
 		this.setState({dirty: false});
-		toastr.success('employee saved.');
 		this.transitionTo('employees');
 	},
 

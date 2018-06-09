@@ -1,9 +1,6 @@
 "use strict";
 
 var React = require('react');
-var Router = require('react-router');
-var Link = Router.Link;
-var WhoIsInActions = require('../../actions/whoIsInActions');
 
 var WhoIsInList = React.createClass({
     propTypes: {
@@ -14,9 +11,11 @@ var WhoIsInList = React.createClass({
         var createWhoIsInRow = function (whoIsIn) {
             return (
                 <tr key={whoIsIn.id}>
-                    <td><a href="#" onClick={this.deleteWhoIsIn.bind(this, whoIsIn.id)}>Delete</a></td>
-                    <td><Link to="manageWhoIsIn" params={{ id: whoIsIn.id }}>{whoIsIn.id}</Link></td>
-                    <td>{whoIsIn.firstName} {whoIsIn.lastName}</td>
+                    <td>{whoIsIn.id}</td>
+                    <td>{whoIsIn.fullName}</td>
+                    <td>{whoIsIn.in}</td>
+                    <td>{whoIsIn.date}</td>
+                    <td>{whoIsIn.time}</td>
                 </tr>
             );
         };
@@ -25,9 +24,11 @@ var WhoIsInList = React.createClass({
             <div>
                 <table className="table">
                     <thead>
-                        <th></th>
                         <th>ID</th>
                         <th>Name</th>
+                        <th>In/Out</th>
+                        <th>Date</th>
+                        <th>Time</th>
                     </thead>
                     <tbody>
                         {this.props.whoIsIns.map(createWhoIsInRow, this)}

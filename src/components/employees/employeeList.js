@@ -14,7 +14,6 @@ var EmployeeList = React.createClass({
 	deleteEmployee: function(id, event) {
 		event.preventDefault();
 		EmployeeActions.deleteEmployee(id);
-		toastr.success('employee Deleted');
 	},
 
 	render: function() {
@@ -23,7 +22,7 @@ var EmployeeList = React.createClass({
 				<tr key={employee.id}>
 					<td><a href="#" onClick={this.deleteEmployee.bind(this, employee.id)}>Delete</a></td>
 					<td><Link to="manageEmployee" params={{id: employee.id}}>{employee.id}</Link></td>
-					<td>{employee.firstName} {employee.lastName}</td>
+					<td>{employee.fullName}</td>
 				</tr>
 			);
 		};

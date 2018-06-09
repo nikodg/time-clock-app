@@ -27,7 +27,12 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 	},
 
 	getEmployeeById: function(id) {
-		return _.find(_employees, {id: id});
+		// return _.find(_employees, {id: id});
+
+		// TODO: ask typeof id
+		return _employees.find(function(employee){
+			return employee.id.toString() === id;
+		});
 	}
 });
 
@@ -38,18 +43,18 @@ Dispatcher.register(function (action) {
 			EmployeeStore.emitChange();
 			break;
 		case ActionTypes.CREATE_EMPLOYEE:
-			_employees.push(action.employee);
+			_employees.push(action.data);
 			EmployeeStore.emitChange();
 			break;
 		case ActionTypes.UPDATE_EMPLOYEE:
-			var existingEmployee = _.find(_employees, {id: action.employee.id});
+			var existingEmployee = _.find(_employees, {id: action.data.id});
 			var existingEmployeeIndex = _.indexOf(_employees, existingEmployee); 
-			_employees.splice(existingEmployeeIndex, 1, action.employee);
+			_employees.splice(existingEmployeeIndex, 1, action.data);
 			EmployeeStore.emitChange();
 			break;	
 		case ActionTypes.DELETE_EMPLOYEE:
 			_.remove(_employees, function(employee) {
-				return action.id === employee.id;
+				return action.data === employee.id;
 			});
 			EmployeeStore.emitChange();
 			break;

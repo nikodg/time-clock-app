@@ -14,11 +14,9 @@ var routes = (
     <Route name="employees" handler={require('./components/employees/employeePage')} />
     <Route name="addEmployee" path="employee" handler={require('./components/employees/manageEmployeePage')} />
     <Route name="manageEmployee" path="employee/:id" handler={require('./components/employees/manageEmployeePage')} />
-    <Route name="about" handler={require('./components/about/aboutPage')} />
     <NotFoundRoute handler={require('./components/notFoundPage')} />
-    <Redirect from="about-us" to="about" />
-    <Redirect from="awthurs" to="employees" />
-    <Redirect from="about/*" to="about" />
+    {/* <Redirect from="about-us" to="about" /> */}
+    {/* <Redirect from="about/*" to="about" /> */}
   </Route>
 );
 

@@ -5,7 +5,7 @@ var Input = require('../common/textInput');
 
 var EmployeeForm = React.createClass({
 	propTypes: {
-		employee:	React.PropTypes.object.isRequired,
+		employee: React.PropTypes.object.isRequired,
 		onSave:	React.PropTypes.func.isRequired,
 		onChange: React.PropTypes.func.isRequired,
 		errors: React.PropTypes.object
@@ -16,18 +16,11 @@ var EmployeeForm = React.createClass({
 			<form>
 				<h1>Manage employee</h1>
 				<Input
-					name="firstName"
-					label="First Name"
-					value={this.props.employee.firstName}
+					name="fullName"
+					label="Full Name"
+					value={this.props.employee.fullName}
 					onChange={this.props.onChange}
-					error={this.props.errors.firstName} />
-
-				<Input
-					name="lastName"
-					label="Last Name"
-					value={this.props.employee.lastName}
-					onChange={this.props.onChange}
-					error={this.props.errors.lastName} />
+					error={this.props.errors.fullName} />
 
 				<input type="submit" value="Save" className="btn btn-default" onClick={this.props.onSave} />
 			</form>

@@ -46174,62 +46174,83 @@ module.exports = require('./lib/React');
 var Dispatcher = require('../dispatcher/appDispatcher');
 var EmployeeApi = require('../api/employeeApi');
 var ActionTypes = require('../constants/actionTypes');
+var API = require('../constants/apis');
+var toastr = require('toastr');
 
 var EmployeeActions = {
 	createEmployee: function(employee) {
-		var newEmployee = EmployeeApi.saveEmployee(employee);
-
-		//Hey dispatcher, go tell all the stores that an employee was just created.
-		Dispatcher.dispatch({
-			actionType: ActionTypes.CREATE_EMPLOYEE,
-			employee: newEmployee
-		});
+		API.postData('employees', employee)
+			.done(function(response){
+				toastr.success('Employee saved.');
+				Dispatcher.dispatch({
+					type: ActionTypes.CREATE_EMPLOYEE,
+					data: employee
+				});
+			}).fail(function(){
+				toastr.error('Failed to save employee.');
+			});
 	},
 
 	updateEmployee: function(employee) {
-		var updatedEmployee = EmployeeApi.saveEmployee(employee);
-
-		Dispatcher.dispatch({
-			actionType: ActionTypes.UPDATE_EMPLOYEE,
-			employee: updatedEmployee
-		});
+		
+		API.patchData('employees', employee, employee.id)
+			.done(function(response){
+				toastr.success('Employee updated.');
+				Dispatcher.dispatch({
+					type: ActionTypes.UPDATE_EMPLOYEE,
+					data: employee
+				});
+			}).fail(function(){
+				toastr.error('Failed to update employee.');
+			});
 	},
 
 	deleteEmployee: function(id) {
-		EmployeeApi.deleteEmployee(id);
-
-		Dispatcher.dispatch({
-			actionType: ActionTypes.DELETE_EMPLOYEE,
-			id: id
-		});
+		API.deleteData('employees', id)
+			.done(function(response){
+				toastr.success('employee deleted.');
+				Dispatcher.dispatch({
+					type: ActionTypes.DELETE_EMPLOYEE,
+					data: id
+				});
+			}).fail(function(){
+				toastr.error('Failed to delete employee.');
+			});
 	}
 };
 
 module.exports = EmployeeActions;
 
-},{"../api/employeeApi":209,"../constants/actionTypes":220,"../dispatcher/appDispatcher":222}],208:[function(require,module,exports){
+},{"../api/employeeApi":209,"../constants/actionTypes":219,"../constants/apis":220,"../dispatcher/appDispatcher":221,"toastr":206}],208:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
 // var EmployeeApi = require('../api/employeeApi');
 var API = require('../constants/apis');
+var toastr = require('toastr');
 
 var InitializeActions = {
 	initApp: function () {
 		API.getData('employees')
 			.done(function(data){
+
+				// TODO: remove tempCount
+				API.tempCount = data.page.totalElements;
+
 				Dispatcher.dispatch({
 					type: ActionTypes.INITIALIZE,
 					data: data
 				});
+			}).fail(function(){
+				toastr.error('Failed to load employees.');
 			});
 	}
 };
 
 module.exports = InitializeActions;
 
-},{"../constants/actionTypes":220,"../constants/apis":221,"../dispatcher/appDispatcher":222}],209:[function(require,module,exports){
+},{"../constants/actionTypes":219,"../constants/apis":220,"../dispatcher/appDispatcher":221,"toastr":206}],209:[function(require,module,exports){
 "use strict";
 var $ = require('jquery');
 var _ = require('lodash');
@@ -46272,51 +46293,7 @@ var EmployeeApi = {
 
 module.exports = EmployeeApi;
 
-},{"../constants/apis":221,"jquery":7,"lodash":8}],210:[function(require,module,exports){
-"use strict";
-
-var React = require('react');
-
-var About = React.createClass({displayName: "About",
-	statics: {
-		willTransitionTo: function(transition, params, query, callback) {
-			if (!confirm('Are you sure you want to read a page that\'s this boring?')) {
-				transition.about();
-			} else {
-				callback();
-			}
-		},
-		
-		willTransitionFrom: function(transition, component) {
-			if (!confirm('Are you sure you want to leave a page that\'s this exciting?')) {
-				transition.about();
-			}
-		}
-	},
-	render: function () {
-		return (
-			React.createElement("div", null, 
-				React.createElement("h1", null, "About"), 
-				React.createElement("p", null, 
-					"This application uses the following technologies:", 
-					React.createElement("ul", null, 
-						React.createElement("li", null, "React"), 
-						React.createElement("li", null, "React Router"), 
-						React.createElement("li", null, "Flux"), 
-						React.createElement("li", null, "Node"), 
-						React.createElement("li", null, "Gulp"), 
-						React.createElement("li", null, "Browserify"), 
-						React.createElement("li", null, "Bootstrap")
-					)
-				)
-			)
-		); 
-	}
-});
-
-module.exports = About;
-
-},{"react":205}],211:[function(require,module,exports){
+},{"../constants/apis":220,"jquery":7,"lodash":8}],210:[function(require,module,exports){
 /*eslint-disable strict */ //Disabling check because we can't run strict mode. Need global vars.
 
 var React = require('react');
@@ -46339,7 +46316,7 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App;
 
-},{"./common/header":212,"jquery":7,"react":205,"react-router":35}],212:[function(require,module,exports){
+},{"./common/header":211,"jquery":7,"react":205,"react-router":35}],211:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46356,8 +46333,7 @@ var Header = React.createClass({displayName: "Header",
               ), 
               React.createElement("ul", {className: "nav navbar-nav"}, 
                 React.createElement("li", null, React.createElement(Link, {to: "app"}, "Home")), 
-                React.createElement("li", null, React.createElement(Link, {to: "employees"}, "Employees")), 
-                React.createElement("li", null, React.createElement(Link, {to: "about"}, "About"))
+                React.createElement("li", null, React.createElement(Link, {to: "employees"}, "Employees"))
               )
           )
         )
@@ -46366,7 +46342,7 @@ var Header = React.createClass({displayName: "Header",
 });
 
 module.exports = Header;
-},{"react":205,"react-router":35}],213:[function(require,module,exports){
+},{"react":205,"react-router":35}],212:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46407,7 +46383,7 @@ var Input = React.createClass({displayName: "Input",
 
 module.exports = Input;
 
-},{"react":205}],214:[function(require,module,exports){
+},{"react":205}],213:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46415,7 +46391,7 @@ var Input = require('../common/textInput');
 
 var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 	propTypes: {
-		employee:	React.PropTypes.object.isRequired,
+		employee: React.PropTypes.object.isRequired,
 		onSave:	React.PropTypes.func.isRequired,
 		onChange: React.PropTypes.func.isRequired,
 		errors: React.PropTypes.object
@@ -46426,18 +46402,11 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 			React.createElement("form", null, 
 				React.createElement("h1", null, "Manage employee"), 
 				React.createElement(Input, {
-					name: "firstName", 
-					label: "First Name", 
-					value: this.props.employee.firstName, 
+					name: "fullName", 
+					label: "Full Name", 
+					value: this.props.employee.fullName, 
 					onChange: this.props.onChange, 
-					error: this.props.errors.firstName}), 
-
-				React.createElement(Input, {
-					name: "lastName", 
-					label: "Last Name", 
-					value: this.props.employee.lastName, 
-					onChange: this.props.onChange, 
-					error: this.props.errors.lastName}), 
+					error: this.props.errors.fullName}), 
 
 				React.createElement("input", {type: "submit", value: "Save", className: "btn btn-default", onClick: this.props.onSave})
 			)
@@ -46447,7 +46416,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/textInput":213,"react":205}],215:[function(require,module,exports){
+},{"../common/textInput":212,"react":205}],214:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46464,7 +46433,6 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 	deleteEmployee: function(id, event) {
 		event.preventDefault();
 		EmployeeActions.deleteEmployee(id);
-		toastr.success('employee Deleted');
 	},
 
 	render: function() {
@@ -46473,7 +46441,7 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 				React.createElement("tr", {key: employee.id}, 
 					React.createElement("td", null, React.createElement("a", {href: "#", onClick: this.deleteEmployee.bind(this, employee.id)}, "Delete")), 
 					React.createElement("td", null, React.createElement(Link, {to: "manageEmployee", params: {id: employee.id}}, employee.id)), 
-					React.createElement("td", null, employee.firstName, " ", employee.lastName)
+					React.createElement("td", null, employee.fullName)
 				)
 			);
 		};
@@ -46497,7 +46465,7 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 
 module.exports = EmployeeList;
 
-},{"../../actions/employeeActions":207,"react":205,"react-router":35,"toastr":206}],216:[function(require,module,exports){
+},{"../../actions/employeeActions":207,"react":205,"react-router":35,"toastr":206}],215:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46540,7 +46508,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 module.exports = EmployeePage;
 
-},{"../../actions/employeeActions":207,"../../stores/employeeStore":225,"./employeeList":215,"react":205,"react-router":35}],217:[function(require,module,exports){
+},{"../../actions/employeeActions":207,"../../stores/employeeStore":224,"./employeeList":214,"react":205,"react-router":35}],216:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46565,7 +46533,13 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 
 	getInitialState: function() {
 		return {
-			employee: { id: '', firstName: '', lastName: '' },
+			employee: {
+				id: null,
+				fullName: '',
+				fingerprintId: null,
+				pin: null,
+				createdDate: null
+			},
 			errors: {},
 			dirty: false
 		};
@@ -46574,6 +46548,7 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 	componentWillMount: function() {
 		var employeeId = this.props.params.id; //from the path '/employee:id'
 		if (employeeId) {
+			console.log(EmployeeStore.getEmployeeById(employeeId));
 			this.setState({employee: EmployeeStore.getEmployeeById(employeeId) });
 		}
 	},
@@ -46590,13 +46565,8 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 		var formIsValid = true;
 		this.state.errors = {}; //clear any previous errors.
 
-		if (this.state.employee.firstName.length < 3) {
-			this.state.errors.firstName = 'First name must be at least 3 characters.';
-			formIsValid = false;
-		}
-
-		if (this.state.employee.lastName.length < 3) {
-			this.state.errors.lastName = 'Last name must be at least 3 characters.';
+		if (this.state.employee.fullName.length < 3) {
+			this.state.errors.fullName = 'First name must be at least 3 characters.';
 			formIsValid = false;
 		}
 
@@ -46618,7 +46588,6 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 		}
 		
 		this.setState({dirty: false});
-		toastr.success('employee saved.');
 		this.transitionTo('employees');
 	},
 
@@ -46635,7 +46604,7 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 
 module.exports = ManageEmployeePage;
 
-},{"../../actions/employeeActions":207,"../../stores/employeeStore":225,"./employeeForm":214,"react":205,"react-router":35,"toastr":206}],218:[function(require,module,exports){
+},{"../../actions/employeeActions":207,"../../stores/employeeStore":224,"./employeeForm":213,"react":205,"react-router":35,"toastr":206}],217:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46647,8 +46616,8 @@ var Home = React.createClass({displayName: "Home",
 		return (
 			React.createElement("div", {className: "jumbotron"}, 
 				React.createElement("h1", null, "Pluralsight Administration"), 
-				React.createElement("p", null, "React, React Router, and Flux for ultra-responsive web apps."), 
-				React.createElement(Link, {to: "about", className: "btn btn-primary btn-lg"}, "Learn more")
+				React.createElement("p", null, "React, React Router, and Flux for ultra-responsive web apps.")
+				/* <Link to="about" className="btn btn-primary btn-lg">Learn more</Link> */
 			)
 		);
 	}
@@ -46656,7 +46625,7 @@ var Home = React.createClass({displayName: "Home",
 
 module.exports = Home;
 
-},{"react":205,"react-router":35}],219:[function(require,module,exports){
+},{"react":205,"react-router":35}],218:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46676,7 +46645,7 @@ var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 
 module.exports = NotFoundPage;
 
-},{"react":205,"react-router":35}],220:[function(require,module,exports){
+},{"react":205,"react-router":35}],219:[function(require,module,exports){
 "use strict";
 
 var keyMirror = require('react/lib/keyMirror');
@@ -46688,12 +46657,14 @@ module.exports = keyMirror({
 	DELETE_EMPLOYEE: null
 });
 
-},{"react/lib/keyMirror":190}],221:[function(require,module,exports){
+},{"react/lib/keyMirror":190}],220:[function(require,module,exports){
 'use strict';
 
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
-    proxy: 'https://cors-anywhere.herokuapp.com/',
+    //proxy: 'https://cors-anywhere.herokuapp.com/',
+    proxy: '',
+    tempCount: 0, // TODO: remove tempCount
     errorHandler: function (xhr, status, error) {
         console.log('Failed ajax call status', status);
         console.log('Failed ajax call error', error);
@@ -46706,8 +46677,52 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            success: function (data, status) {
-                return data;
+            success: function (response, status) {
+                return response;
+            },
+            error: this.errorHandler
+        });
+    },
+    postData: function (path, data) {
+        data.id = this.tempCount++;
+        var url = this.proxy + this.baseURL + path;
+        var parsedData = JSON.stringify(data);
+        return $.ajax({
+            url: url,
+            method: 'POST',
+            data: parsedData,
+            contentType: 'application/json',
+            crossDomain: true,
+            success: function (response, status) {
+                return response;
+            },
+            error: this.errorHandler
+        });
+    },
+    patchData: function (path, data, id) {
+        var url = this.proxy + this.baseURL + path + '/' + id;
+        var parsedData = JSON.stringify(data);
+        return $.ajax({
+            url: url,
+            method: 'PATCH',
+            data: parsedData,
+            contentType: 'application/json',
+            crossDomain: true,
+            success: function (response, status) {
+                return response;
+            },
+            error: this.errorHandler
+        });
+    },
+    deleteData: function (path, id) {
+        var url = this.proxy + this.baseURL + path + '/' + id;
+        return $.ajax({
+            url: url,
+            method: 'DELETE',
+            contentType: 'application/json',
+            crossDomain: true,
+            success: function (response, status) {
+                return response;
             },
             error: this.errorHandler
         });
@@ -46716,7 +46731,7 @@ var API = {
 
 module.exports = API;
 
-},{}],222:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 /*
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.
@@ -46734,7 +46749,7 @@ var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":4}],223:[function(require,module,exports){
+},{"flux":4}],222:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46747,7 +46762,7 @@ InitializeActions.initApp();
 Router.run(routes, function(Handler) {
 	React.render(React.createElement(Handler, null), document.getElementById('app'));
 });
-},{"./actions/initializeActions":208,"./routes":224,"react":205,"react-router":35}],224:[function(require,module,exports){
+},{"./actions/initializeActions":208,"./routes":223,"react":205,"react-router":35}],223:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -46764,17 +46779,15 @@ var routes = (
     React.createElement(Route, {name: "employees", handler: require('./components/employees/employeePage')}), 
     React.createElement(Route, {name: "addEmployee", path: "employee", handler: require('./components/employees/manageEmployeePage')}), 
     React.createElement(Route, {name: "manageEmployee", path: "employee/:id", handler: require('./components/employees/manageEmployeePage')}), 
-    React.createElement(Route, {name: "about", handler: require('./components/about/aboutPage')}), 
-    React.createElement(NotFoundRoute, {handler: require('./components/notFoundPage')}), 
-    React.createElement(Redirect, {from: "about-us", to: "about"}), 
-    React.createElement(Redirect, {from: "awthurs", to: "employees"}), 
-    React.createElement(Redirect, {from: "about/*", to: "about"})
+    React.createElement(NotFoundRoute, {handler: require('./components/notFoundPage')})
+    /* <Redirect from="about-us" to="about" /> */
+    /* <Redirect from="about/*" to="about" /> */
   )
 );
 
 module.exports = routes;
 
-},{"./components/about/aboutPage":210,"./components/app":211,"./components/employees/employeePage":216,"./components/employees/manageEmployeePage":217,"./components/homePage":218,"./components/notFoundPage":219,"react":205,"react-router":35}],225:[function(require,module,exports){
+},{"./components/app":210,"./components/employees/employeePage":215,"./components/employees/manageEmployeePage":216,"./components/homePage":217,"./components/notFoundPage":218,"react":205,"react-router":35}],224:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -46804,7 +46817,12 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 	},
 
 	getEmployeeById: function(id) {
-		return _.find(_employees, {id: id});
+		// return _.find(_employees, {id: id});
+
+		// TODO: ask typeof id
+		return _employees.find(function(employee){
+			return employee.id.toString() === id;
+		});
 	}
 });
 
@@ -46815,18 +46833,19 @@ Dispatcher.register(function (action) {
 			EmployeeStore.emitChange();
 			break;
 		case ActionTypes.CREATE_EMPLOYEE:
-			_employees.push(action.employee);
+			_employees.push(action.data);
 			EmployeeStore.emitChange();
 			break;
 		case ActionTypes.UPDATE_EMPLOYEE:
-			var existingEmployee = _.find(_employees, {id: action.employee.id});
+		console.log(action.data);
+			var existingEmployee = _.find(_employees, {id: action.data.id});
 			var existingEmployeeIndex = _.indexOf(_employees, existingEmployee); 
-			_employees.splice(existingEmployeeIndex, 1, action.employee);
+			_employees.splice(existingEmployeeIndex, 1, action.data);
 			EmployeeStore.emitChange();
 			break;	
 		case ActionTypes.DELETE_EMPLOYEE:
 			_.remove(_employees, function(employee) {
-				return action.id === employee.id;
+				return action.data === employee.id;
 			});
 			EmployeeStore.emitChange();
 			break;
@@ -46837,4 +46856,4 @@ Dispatcher.register(function (action) {
 
 module.exports = EmployeeStore;
 
-},{"../constants/actionTypes":220,"../dispatcher/appDispatcher":222,"events":2,"lodash":8,"object-assign":9}]},{},[223]);
+},{"../constants/actionTypes":219,"../dispatcher/appDispatcher":221,"events":2,"lodash":8,"object-assign":9}]},{},[222]);
