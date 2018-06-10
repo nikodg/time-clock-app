@@ -10,6 +10,7 @@ var CHANGE_EVENT = 'change';
 var _employees = [];
 
 var EmployeeStore = assign({}, EventEmitter.prototype, {
+
 	addChangeListener: function(callback) {
 		this.on(CHANGE_EVENT, callback);
 	},
@@ -38,26 +39,31 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 
 Dispatcher.register(function (action) {
 	switch(action.type) {
-		case ActionTypes.INITIALIZE:
+		
+		case ActionTypes.INITIALIZE_EMPLOYEES:
 			_employees = action.data._embedded.employees;
 			EmployeeStore.emitChange();
 			break;
+
 		case ActionTypes.CREATE_EMPLOYEE:
 			_employees.push(action.data);
 			EmployeeStore.emitChange();
 			break;
+
 		case ActionTypes.UPDATE_EMPLOYEE:
 			var existingEmployee = _.find(_employees, {id: action.data.id});
 			var existingEmployeeIndex = _.indexOf(_employees, existingEmployee); 
 			_employees.splice(existingEmployeeIndex, 1, action.data);
 			EmployeeStore.emitChange();
 			break;	
+
 		case ActionTypes.DELETE_EMPLOYEE:
 			_.remove(_employees, function(employee) {
 				return action.data === employee.id;
 			});
 			EmployeeStore.emitChange();
 			break;
+
 		default:
 			// no op
 	}

@@ -45,6 +45,13 @@ var EmployeeActions = {
 			}).fail(function(){
 				toastr.error('Failed to delete employee.');
 			});
+	},
+
+	checkEmployee: function (id) {
+		Dispatcher.dispatch({
+			type: ActionTypes.CHECK_EMPLOYEE,
+			data: id
+		});
 	}
 };
 

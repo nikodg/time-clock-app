@@ -7,7 +7,7 @@ var assign = require('object-assign');
 var _ = require('lodash');
 var CHANGE_EVENT = 'change';
 
-var _listViews = [];
+var _whoIsIns = [];
 
 var WhoIsInStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -20,12 +20,21 @@ var WhoIsInStore = assign({}, EventEmitter.prototype, {
 
     emitChange: function () {
         this.emit(CHANGE_EVENT);
+    },
+
+    getAllWhoIsIn: function () {
+        return _whoIsIns;
     }
 });
 
 Dispatcher.register(function (action) {
     switch (action.actionType) {
-        default: console.log('WhoIsInStore');
+        case ActionTypes.INITIALIZE_WHOISIN:
+            _whoIsIns = action.data._embedded.whoisin;
+            WhoIsInStore.emitChange();
+            break;
+
+        default: // No Op
     }
 });
 

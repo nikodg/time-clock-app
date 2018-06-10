@@ -11,6 +11,7 @@
   "dependencies": {
     "bootstrap": "^3.3.5",
     "browserify": "^11.0.1",
+    "css-modulesify": "^0.28.0",
     "flux": "^2.0.3",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
@@ -19,8 +20,10 @@
     "gulp-open": "^1.0.0",
     "jquery": "^2.1.4",
     "lodash": "^3.10.0",
+    "moment": "^2.22.2",
     "object-assign": "^3.0.0",
     "react": "^0.13.3",
+    "react-day-picker": "^7.1.9",
     "react-router": "^0.13.3",
     "reactify": "^1.1.1",
     "toastr": "2.1.0",

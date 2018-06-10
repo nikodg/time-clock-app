@@ -4,7 +4,6 @@ var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
 var EmployeeActions = require('../../actions/employeeActions');
-var toastr = require('toastr');
 
 var EmployeeList = React.createClass({
 	propTypes: {

@@ -10,13 +10,29 @@ var ListViewList = React.createClass({
         listViews: React.PropTypes.array.isRequired
     },
 
+    deleteListView: function (id, event) {
+        event.preventDefault();
+        ListViewActions.deleteListView(id);
+    },
+
+    computeHours: function (timeIn, timeOut) {
+        return '-';
+    },
+
     render: function () {
         var createListViewRow = function (listView) {
             return (
                 <tr key={listView.id}>
-                    <td><a href="#" onClick={this.deleteListView.bind(this, listView.id)}>Delete</a></td>
-                    <td><Link to="manageListView" params={{ id: listView.id }}>{listView.id}</Link></td>
-                    <td>{listView.firstName} {listView.lastName}</td>
+                    <td>{listView.fullName}</td>
+                    <td>{listView.date}</td>
+                    <td>{listView.in}</td>
+                    <td>{listView.out}</td>
+                    <td>{this.computeHours(listView.in, listView.out)}</td>
+                    <td>{listView.attendance}</td>
+                    <td>
+                        <Link to="manageListView" params={{ id: listView.id }}>Edit</Link>
+                        <a href="#" onClick={this.deleteListView.bind(this, listView.id)}>Delete</a>
+                    </td>
                 </tr>
             );
         };
@@ -25,9 +41,13 @@ var ListViewList = React.createClass({
             <div>
                 <table className="table">
                     <thead>
-                        <th></th>
-                        <th>ID</th>
                         <th>Name</th>
+                        <th className="text-center">Date</th>
+                        <th className="text-center">In</th>
+                        <th className="text-center">Out</th>
+                        <th className="text-center">Hours</th>
+                        <th>Attendance</th>
+                        <th className="text-center">Actions</th>
                     </thead>
                     <tbody>
                         {this.props.listViews.map(createListViewRow, this)}

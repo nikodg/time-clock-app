@@ -10,7 +10,7 @@ var WhoIsInList = require('./whoIsInList');
 var WhoIsInPage = React.createClass({
     getInitialState: function () {
         return {
-            whoIsIns: WhoIsInStore.getAllWhoIsIns()
+            whoIsIns: WhoIsInStore.getAllWhoIsIn()
         };
     },
 

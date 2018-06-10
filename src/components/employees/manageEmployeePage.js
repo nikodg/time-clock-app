@@ -5,7 +5,6 @@ var Router = require('react-router');
 var EmployeeForm = require('./employeeForm');
 var EmployeeActions = require('../../actions/employeeActions');
 var EmployeeStore = require('../../stores/employeeStore');
-var toastr = require('toastr');
 
 var ManageEmployeePage = React.createClass({
 	mixins: [
@@ -37,7 +36,6 @@ var ManageEmployeePage = React.createClass({
 	componentWillMount: function() {
 		var employeeId = this.props.params.id; //from the path '/employee:id'
 		if (employeeId) {
-			console.log(EmployeeStore.getEmployeeById(employeeId));
 			this.setState({employee: EmployeeStore.getEmployeeById(employeeId) });
 		}
 	},

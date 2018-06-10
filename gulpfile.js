@@ -8,6 +8,7 @@ var reactify = require('reactify');  // Transforms React JSX to JS
 var source = require('vinyl-source-stream'); // Use conventional text streams with Gulp
 var concat = require('gulp-concat'); //Concatenates files
 var lint = require('gulp-eslint'); //Lint JS files, including JSX
+var cssModulesify = require('css-modulesify');
 
 var config = {
 	port: 9005,
@@ -19,7 +20,8 @@ var config = {
 		css: [
       		'node_modules/bootstrap/dist/css/bootstrap.min.css',
       		'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
-      		'node_modules/toastr/toastr.css'
+			'node_modules/toastr/toastr.css',
+			'node_modules/react-day-picker/lib/style.css'
     	],
 		dist: './dist',
 		mainJs: './src/main.js'
