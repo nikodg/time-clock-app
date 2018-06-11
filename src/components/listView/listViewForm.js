@@ -21,21 +21,27 @@ var EmployeeForm = React.createClass({
                     label="Date"
                     value={this.props.record.date}
                     onChange={this.props.onChange}
-                    error={this.props.errors.date} />
+                    error={this.props.errors.date}
+                    flatPickr="date"
+                    id="dayDate" />
                     
                 <TextInput
                     name="timeIn"
                     label="Time In"
                     value={this.props.record.timeIn}
                     onChange={this.props.onChange}
-                    error={this.props.errors.timeIn} />
+                    error={this.props.errors.timeIn}
+                    flatPickr="time"
+                    id="dayIn" />
 
                 <TextInput
                     name="timeOut"
                     label="Time Out"
                     value={this.props.record.timeOut}
                     onChange={this.props.onChange}
-                    error={this.props.errors.timeOut} />
+                    error={this.props.errors.timeOut}
+                    flatPickr="time"
+                    id="dayOut" />
 
                 <CheckboxInput
                     name="working"

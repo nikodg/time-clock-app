@@ -2,8 +2,6 @@
 
 var React = require('react');
 var Router = require('react-router');
-var DayPickerInput = require('react-day-picker/DayPickerInput');
-var Link = Router.Link;
 
 var Home = React.createClass({
 
@@ -69,10 +67,6 @@ var Home = React.createClass({
 						</label>
 					);
 				}.bind(this))}
-
-				<div>
-					<DayPickerInput onDayChange={this.eventHandler} />
-				</div>
 			</div>
 		);
 	}

@@ -1,6 +1,7 @@
 "use strict";
 
 var React = require('react');
+var flatpickr = require("flatpickr");
 
 var TextInput = React.createClass({
   propTypes: {
@@ -10,6 +11,23 @@ var TextInput = React.createClass({
     placeholder: React.PropTypes.string,
     value: React.PropTypes.string,
     error: React.PropTypes.string
+  },
+
+  componentDidMount: function () {
+    if (this.props.flatPickr) {
+      var fpID = '#' + this.props.id;
+      var fpOptions = {};
+
+      if (this.props.flatPickr === 'time'){
+        fpOptions = {
+          enableTime: true,
+          noCalendar: true,
+          dateFormat: "h:i K"
+        };
+      }
+
+      flatpickr(fpID, fpOptions);
+    }
   },
 
   render: function () {
@@ -23,6 +41,7 @@ var TextInput = React.createClass({
         <label htmlFor={this.props.name}>{this.props.label}</label>
         <div className="field">
           <input type="text"
+            id={this.props.id}
             name={this.props.name}
             className="form-control"
             placeholder={this.props.placeholder}

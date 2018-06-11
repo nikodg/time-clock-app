@@ -51,6 +51,7 @@ var ManageListView = React.createClass({
     },
 
     setListViewState: function (event) {
+        console.log(event.target.value);
         this.setState({ dirty: true });
         var field = event.target.name;
         var value = event.target.value;
