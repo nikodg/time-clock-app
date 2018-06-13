@@ -66,6 +66,19 @@ var API = {
             },
             error: this.errorHandler
         });
+    },
+    searchData: function (path, keyword) {
+        var url = this.proxy + this.baseURL + path + 'search/findByName?name=' + keyword;
+        return $.ajax({
+            url: url,
+            method: 'GET',
+            contentType: 'application/json',
+            crossDomain: true,
+            success: function (response, status) {
+                return response;
+            },
+            error: this.errorHandler
+        });
     }
 };
 

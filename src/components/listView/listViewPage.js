@@ -3,6 +3,7 @@
 var React = require('react');
 var Router = require('react-router');
 var Link = require('react-router').Link;
+var moment = require('moment');
 var ListViewStore = require('../../stores/listViewStore');
 var ListViewActions = require('../../actions/listViewActions');
 var ListViewList = require('./listViewList');
@@ -13,8 +14,8 @@ var ListViewPage = React.createClass({
     getInitialState: function () {
         return {
             listViews: ListViewStore.getAllListView(),
-            fromDate: '',
-            toDate: '',
+            dateFrom: moment().format('YYYY-MM-DD'),
+            dateTo: moment().format('YYYY-MM-DD'),
             keyword: '',
             leave: '',
             selectOptions: [
@@ -23,7 +24,8 @@ var ListViewPage = React.createClass({
                 {label: 'Vacation', value: 'Vacation'},
                 {label: 'Personal', value: 'Personal'},
                 {label: 'Other', value: 'Other'}
-            ]
+            ],
+            dirty: false
         };
     },
 
@@ -45,7 +47,21 @@ var ListViewPage = React.createClass({
         var field = event.target.name;
         var value = event.target.value;
         this.state[field] = value;
+
+        if (field !== 'keyword') {
+            this.filterListView();
+        }
         return this.setState({ employee: this.state.employee });
+    },
+
+    filterListView: function(){
+        ListViewActions.getListView(this.state.keyword, this.state.dateFrom, this.state.dateTo);
+    },
+
+    searchList: function (event) {
+        if (event.keyCode === 13) {
+            this.filterListView();
+        }
     },
 
     render: function () {
@@ -56,7 +72,7 @@ var ListViewPage = React.createClass({
                         <h1>List View</h1>
                     </div>
                     <div className="col-lg-6 col-md-6 col-sm-12 text-right">
-                        <Link to="addListView" className="btn btn-default">Add Entry</Link>
+                        <Link to="addListView" className="btn btn-default header-button">Add Entry</Link>
 
                         {/* TODO: Add Absence Page
                         <Link to="addAbsence" className="btn btn-default">Add Absence</Link> */}
@@ -65,24 +81,34 @@ var ListViewPage = React.createClass({
                 <div className="row">
                     <div className="col-lg-3 col-md-6 col-sm-12">
                         <TextInput
-                            name="fromDate"
+                            name="dateFrom"
                             label=""
-                            value={this.state.fromDate}
-                            onChange={this.setListViewState} />
+                            value={this.state.dateFrom}
+                            onChange={this.setListViewState}
+                            id="dateFrom"
+                            flatPickr="date"
+                            icon="calendar" />
                     </div>
                     <div className="col-lg-3 col-md-6 col-sm-12">
                         <TextInput
-                            name="toDate"
+                            name="dateTo"
                             label=""
-                            value={this.state.toDate}
-                            onChange={this.setListViewState} />
+                            value={this.state.dateTo}
+                            onChange={this.setListViewState}
+                            id="dateTo"
+                            flatPickr="date"
+                            icon="calendar" />
                     </div>
                     <div className="col-lg-3 col-md-6 col-sm-12">
                         <TextInput
                             name="keyword"
                             label=""
                             value={this.state.keyword}
-                            onChange={this.setListViewState} />
+                            onChange={this.setListViewState}
+                            onKeyUp={this.searchList}
+                            onClick={this.filterListView}
+                            placeholder="Search by Name"
+                            btnIcon="search" />
                     </div>
                     <div className="col-lg-3 col-md-6 col-sm-12">
                         <SelectInput

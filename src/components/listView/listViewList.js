@@ -23,12 +23,15 @@ var ListViewList = React.createClass({
         var createListViewRow = function (listView) {
             return (
                 <tr key={listView.id}>
+                    <td>{listView.employeeId}</td>
                     <td>{listView.fullName}</td>
-                    <td>{listView.date}</td>
                     <td>{listView.in}</td>
                     <td>{listView.out}</td>
-                    <td>{this.computeHours(listView.in, listView.out)}</td>
-                    <td>{listView.attendance}</td>
+                    {/* <td>{this.computeHours(listView.in, listView.out)}</td> */}
+                    <td>{listView.workHours}</td>
+                    <td>{listView.Overtime}</td>
+                    <td>{listView.Undertime}</td>
+                    <td>{listView.Absent}</td>
                     <td>
                         <Link to="manageListView" params={{ id: listView.id }}>Edit</Link>
                         <a href="#" onClick={this.deleteListView.bind(this, listView.id)}>Delete</a>
@@ -41,12 +44,14 @@ var ListViewList = React.createClass({
             <div>
                 <table className="table">
                     <thead>
+                        <th>Employee ID</th>
                         <th>Name</th>
-                        <th className="text-center">Date</th>
-                        <th className="text-center">In</th>
-                        <th className="text-center">Out</th>
-                        <th className="text-center">Hours</th>
-                        <th>Attendance</th>
+                        <th className="text-center">Time In</th>
+                        <th className="text-center">Time Out</th>
+                        <th className="text-center">Work Hours</th>
+                        <th className="text-center">Overtime</th>
+                        <th className="text-center">Undertime</th>
+                        <th className="text-center">Absent</th>
                         <th className="text-center">Actions</th>
                     </thead>
                     <tbody>

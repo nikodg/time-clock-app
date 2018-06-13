@@ -2,11 +2,10 @@
 
 var React = require('react');
 var Input = require('../common/textInput');
-var SelectInput = require('../common/selectInput');
 
-var EmployeeForm = React.createClass({
+var CompanyForm = React.createClass({
 	propTypes: {
-		employee: React.PropTypes.object.isRequired,
+		company: React.PropTypes.object.isRequired,
 		onSave:	React.PropTypes.func.isRequired,
 		onChange: React.PropTypes.func.isRequired,
 		errors: React.PropTypes.object
@@ -23,24 +22,11 @@ var EmployeeForm = React.createClass({
 				<div className="row">
 					<div className="col-lg-6 col-md-7 col-sm-12">
 						<Input
-							name="fullName"
-							label="Full Name"
-							value={this.props.employee.fullName}
+							name="name"
+							label="Company Name"
+							value={this.props.company.name}
 							onChange={this.props.onChange}
-							error={this.props.errors.fullName} />
-
-					</div>
-				</div>
-				<div className="row">
-					<div className="col-lg-6 col-md-7 col-sm-12">
-						<SelectInput
-							name="company"
-							label="Company"
-							value={this.props.company}
-							options={this.props.companies}
-							onChange={this.props.onChange}
-							error={this.props.errors.company} />
-
+							error={this.props.errors.name} />
 					</div>
 				</div>
 				<div className="row">
@@ -56,4 +42,4 @@ var EmployeeForm = React.createClass({
 	}
 });
 
-module.exports = EmployeeForm;
+module.exports = CompanyForm;

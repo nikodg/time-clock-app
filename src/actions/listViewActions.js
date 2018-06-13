@@ -7,6 +7,21 @@ var toastr = require('toastr');
 
 var ListViewActions = {
 
+    getListView: function (keyword, dateFrom, dateTo) {
+        var url = 'employeeTimes/search/listView?employeeName=' + keyword + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo;
+
+        API.getData(url)
+            .done(function (data) {
+
+            Dispatcher.dispatch({
+                type: ActionTypes.INITIALIZE_LISTVIEW,
+                data: data
+            });
+
+            }).fail(function () {
+                toastr.error('Failed to load who is in.');
+            });
+    },
 
     updateListView: function (listView) {
 

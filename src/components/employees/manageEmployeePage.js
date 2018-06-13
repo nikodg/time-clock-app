@@ -2,9 +2,11 @@
 
 var React = require('react');
 var Router = require('react-router');
+var Redirect = require('react-router').Redirect;
 var EmployeeForm = require('./employeeForm');
 var EmployeeActions = require('../../actions/employeeActions');
 var EmployeeStore = require('../../stores/employeeStore');
+var CompanyStore = require('../../stores/companyStore');
 
 var ManageEmployeePage = React.createClass({
 	mixins: [
@@ -12,6 +14,12 @@ var ManageEmployeePage = React.createClass({
 	],
 
 	statics: {
+		willTransitionTo: function (transition, component) {
+			if (CompanyStore.getAllCompanies().length === 0) {
+				alert('Please add a company first.');
+				transition.abort();
+			}
+		},
 		willTransitionFrom: function(transition, component) {
 			if (component.state.dirty && !confirm('Leave without saving?')) {
 				transition.abort();
@@ -20,14 +28,29 @@ var ManageEmployeePage = React.createClass({
 	},
 
 	getInitialState: function() {
+
+		var companyOptions = [];
+		var companies = CompanyStore.getAllCompanies();
+
+		companies.forEach(function(company){
+			var option = {
+				label: company.name,
+				value: company.id
+			};
+
+			companyOptions.push(option);
+		});
+
 		return {
 			employee: {
 				id: null,
 				fullName: '',
 				fingerprintId: null,
 				pin: null,
-				createdDate: null
+				createdDate: null,
+				company: companyOptions[0].value
 			},
+			companies: companyOptions,
 			errors: {},
 			dirty: false
 		};
@@ -36,7 +59,9 @@ var ManageEmployeePage = React.createClass({
 	componentWillMount: function() {
 		var employeeId = this.props.params.id; //from the path '/employee:id'
 		if (employeeId) {
-			this.setState({employee: EmployeeStore.getEmployeeById(employeeId) });
+			var employee = EmployeeStore.getEmployeeById(employeeId);
+			employee.company = employee.company.id;
+			this.setState({employee: employee});
 		}
 	},
 
@@ -54,6 +79,11 @@ var ManageEmployeePage = React.createClass({
 
 		if (this.state.employee.fullName.length < 3) {
 			this.state.errors.fullName = 'First name must be at least 3 characters.';
+			formIsValid = false;
+		}
+
+		if (this.state.employee.company.length === '') {
+			this.state.errors.company = 'Please select a company.';
 			formIsValid = false;
 		}
 
@@ -82,6 +112,7 @@ var ManageEmployeePage = React.createClass({
 		return (
 			<EmployeeForm
 				employee={this.state.employee}
+				companies={this.state.companies}
 				onChange={this.setEmployeeState}
 				onSave={this.saveEmployee}
 				errors={this.state.errors} />

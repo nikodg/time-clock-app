@@ -17,11 +17,15 @@ var config = {
 		html: './src/*.html',
 		js: './src/**/*.js',
 		images: './src/images/*',
+		fonts: [
+			'node_modules/bootstrap/dist/fonts/*',
+		],
 		css: [
       		'node_modules/bootstrap/dist/css/bootstrap.min.css',
       		'node_modules/bootstrap/dist/css/bootstrap-theme.min.css',
 			'node_modules/toastr/toastr.css',
 			'node_modules/flatpickr/dist/flatpickr.min.css',
+			'./src/app.css'
     	],
 		dist: './dist',
 		mainJs: './src/main.js'
@@ -46,6 +50,12 @@ gulp.task('open', ['connect'], function() {
 gulp.task('html', function() {
 	gulp.src(config.paths.html)
 		.pipe(gulp.dest(config.paths.dist))
+		.pipe(connect.reload());
+});
+
+gulp.task('fonts', function () {
+	gulp.src(config.paths.fonts)
+		.pipe(gulp.dest(config.paths.dist + '/fonts'))
 		.pipe(connect.reload());
 });
 
@@ -86,6 +96,7 @@ gulp.task('lint', function() {
 gulp.task('watch', function() {
 	gulp.watch(config.paths.html, ['html']);
 	gulp.watch(config.paths.js, ['js', 'lint']);
+	gulp.watch('./src/app.css', ['css']);
 });
 
-gulp.task('default', ['html', 'js', 'css', 'images', 'lint', 'open', 'watch']);
+gulp.task('default', ['html', 'js', 'css', 'images', 'fonts', 'lint', 'open', 'watch']);

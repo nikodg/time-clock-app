@@ -3,32 +3,33 @@
 var React = require('react');
 var Router = require('react-router');
 var Link = require('react-router').Link;
-var EmployeeStore = require('../../stores/employeeStore');
-var EmployeeActions = require('../../actions/employeeActions');
-var EmployeeList = require('./employeeList');
+var CompanyStore = require('../../stores/companyStore');
+var CompanyActions = require('../../actions/companyActions');
+var CompanyList = require('./companyList');
 var TextInput = require('../common/textInput');
 
-var EmployeePage = React.createClass({
+var CompanyPage = React.createClass({
 	getInitialState: function() {
 		return {
-			employees: EmployeeStore.getAllEmployees()
+			companies: CompanyStore.getAllCompanies(),
+			keyword: ''
 		};
 	},
 
 	componentWillMount: function() {
-		EmployeeStore.addChangeListener(this._onChange);
+		CompanyStore.addChangeListener(this._onChange);
 	},
 
 	//Clean up when this component is unmounted
 	componentWillUnmount: function() {
-		EmployeeStore.removeChangeListener(this._onChange);
+		CompanyStore.removeChangeListener(this._onChange);
 	},
 
 	_onChange: function() {
-		this.setState({ employees: EmployeeStore.getAllEmployees() });
+		this.setState({ companies: CompanyStore.getAllCompanies() });
 	},
 
-	setEmployeePageState: function (event) {
+	setCompanyPageState: function (event) {
 		this.setState({ dirty: true });
 		var field = event.target.name;
 		var value = event.target.value;
@@ -38,8 +39,12 @@ var EmployeePage = React.createClass({
 
 	searchList: function (event) {
 		if (event.keyCode === 13) {
-			EmployeeActions.searchList(event.target.value);
+			this.searchData();
 		}
+	},
+
+	searchData: function () {
+		CompanyActions.searchList(this.state.keyword);
 	},
 
 	render: function() {
@@ -47,10 +52,10 @@ var EmployeePage = React.createClass({
 			<div>
 				<div className="row">
 					<div className="col-lg-6 col-md-6 col-sm-12">
-						<h1>Employees</h1>
+						<h1>Companies</h1>
 					</div>
 					<div className="col-lg-6 col-md-6 col-sm-12 text-right">
-						<Link to="addEmployee" className="btn btn-default header-button">Add employee</Link>
+						<Link to="addCompany" className="btn btn-default header-button">Add Company</Link>
 					</div>
 				</div>
 
@@ -60,15 +65,16 @@ var EmployeePage = React.createClass({
 							name="keyword"
 							label=""
 							value={this.state.keyword}
-							onChange={this.setEmployeePageState}
+							onChange={this.setCompanyPageState}
 							onKeyUp={this.searchList}
+							onClick={this.searchData}
 							placeholder="Search by Name"
 							btnIcon="search" />
 					</div>
 				</div>
 				<div className="row">
 					<div className="col-lg-12 col-md-12 col-sm-12">
-						<EmployeeList employees={this.state.employees} />
+						<CompanyList companies={this.state.companies} />
 					</div>
 				</div>
 			</div>
@@ -76,4 +82,4 @@ var EmployeePage = React.createClass({
 	}
 });
 
-module.exports = EmployeePage;
+module.exports = CompanyPage;

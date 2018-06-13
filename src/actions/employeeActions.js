@@ -7,7 +7,26 @@ var API = require('../constants/apis');
 var toastr = require('toastr');
 
 var EmployeeActions = {
+
+	getEmployees: function () {
+
+		API.getData('employees')
+			.done(function (data) {
+
+				Dispatcher.dispatch({
+					type: ActionTypes.INITIALIZE_EMPLOYEES,
+					data: data
+				});
+			}).fail(function () {
+				toastr.error('Failed to load employees.');
+			});
+	},
+
 	createEmployee: function(employee) {
+
+		var fullLink = 'http://time-clock-service.herokuapp.com/api/companies/' + employee.company;
+		employee.company = fullLink;
+
 		API.postData('employees', employee)
 			.done(function(response){
 				toastr.success('Employee saved.');
@@ -20,7 +39,10 @@ var EmployeeActions = {
 			});
 	},
 
-	updateEmployee: function(employee) {
+	updateEmployee: function (employee) {
+
+		var fullLink = 'http://time-clock-service.herokuapp.com/api/companies/' + employee.company;
+		employee.company = fullLink;
 		
 		API.patchData('employees', employee, employee.id)
 			.done(function(response){
@@ -47,11 +69,18 @@ var EmployeeActions = {
 			});
 	},
 
-	checkEmployee: function (id) {
-		Dispatcher.dispatch({
-			type: ActionTypes.CHECK_EMPLOYEE,
-			data: id
-		});
+	searchList: function (keyword) {
+		toastr.info('Searching employees...');
+		API.searchData('companies', keyword)
+			.done(function (response) {
+				Dispatcher.dispatch({
+					type: ActionTypes.SEARCH_EMPLOYEE,
+					data: response
+				});
+			}).fail(function () {
+				toastr.remove();
+				toastr.error('Failed to search employee.');
+			});
 	}
 };
 

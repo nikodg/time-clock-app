@@ -7,6 +7,7 @@ var ListViewActions = require('../../actions/listViewActions');
 var ListViewStore = require('../../stores/listViewStore');
 var EmployeeChecklist = require('../employees/employeeChecklist');
 var EmployeeStore = require('../../stores/employeeStore');
+var moment = require('moment');
 
 var ManageListView = React.createClass({
     mixins: [
@@ -25,11 +26,10 @@ var ManageListView = React.createClass({
         return {
             record: {
                 id: null,
-                date: '',
-                in: '',
-                out: '',
-                notes: '',
-                working: false
+                dateTimeIn: moment().format('MM/DD/YYYY hh:mm A'),
+                dateTimeOut: moment().format('MM/DD/YYYY hh:mm A'),
+                working: false,
+                notes: ''
             },
             employees: EmployeeStore.getAllEmployees(),
             errors: {},
@@ -67,18 +67,13 @@ var ManageListView = React.createClass({
         var formIsValid = true;
         this.state.errors = {}; //clear any previous errors.
 
-        if (this.state.record.date.length < 3) {
-            this.state.errors.date = 'Invalid date.';
-            formIsValid = false;
-        }
-
-        if (this.state.record.in.length < 3) {
-            this.state.errors.in = 'Invalid in time.';
+        if (this.state.record.dateTimeIn.length < 3) {
+            this.state.errors.dateTimeIn = 'Invalid date and time in.';
             formIsValid = false;
         }
 
         if (this.state.record.out.length < 3) {
-            this.state.errors.out = 'Invalid out time.';
+            this.state.errors.out = 'Invalid date and time out.';
             formIsValid = false;
         }
 
@@ -108,17 +103,20 @@ var ManageListView = React.createClass({
 
             return (
                 <div className="row">
-                    <div className="col-lg-6 col-md-6 col-sm-12">
-                        <EmployeeChecklist
-                            employees={this.state.employees}
-                            listener={this.getEmployeeChecklist} />
+                    <div className="col-lg-12 col-md-12 col-sm-12">
+                        <h1>Add Entry</h1>
                     </div>
-                    <div className="col-lg-6 col-md-6 col-sm-12">
+                    <div className="col-lg-6 col-md-5 col-sm-12">
                         <ListViewForm
                             record={this.state.record}
                             onChange={this.setListViewState}
                             onSave={this.saveListView}
                             errors={this.state.errors} />
+                    </div>
+                    <div className="col-lg-6 col-md-7 col-sm-12">
+                        <EmployeeChecklist
+                            employees={this.state.employees}
+                            listener={this.getEmployeeChecklist} />
                     </div>
                 </div>
             );
@@ -126,12 +124,18 @@ var ManageListView = React.createClass({
         } else {
 
             return (
-
-                <ListViewForm
-                    record={this.state.record}
-                    onChange={this.setListViewState}
-                    onSave={this.saveListView}
-                    errors={this.state.errors} />
+                <div className="row">
+                    <div className="col-lg-12 col-md-12 col-sm-12">
+                        <h1>Edit Entry</h1>
+                    </div>
+                    <div className="col-lg-6 col-md-5 col-sm-12">
+                        <ListViewForm
+                            record={this.state.record}
+                            onChange={this.setListViewState}
+                            onSave={this.saveListView}
+                            errors={this.state.errors} />
+                    </div>
+                </div>
             );
         }
     }

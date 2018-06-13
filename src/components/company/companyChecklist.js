@@ -6,49 +6,49 @@ var _ = require('lodash');
 var Link = Router.Link;
 var CheckboxInput = require('../common/checkboxInput');
 
-var EmployeeChecklist = React.createClass({
+var CompanyChecklist = React.createClass({
     
     propTypes: {
-        employees: React.PropTypes.array.isRequired
+        companies: React.PropTypes.array.isRequired
     },
 
     getInitialState: function() {
         
-        var employeesState = JSON.parse(JSON.stringify(this.props.employees));
+        var companiesState = JSON.parse(JSON.stringify(this.props.companies));
 
-        employeesState.forEach(function(employee){
-            employee.checkState = false;
+        companiesState.forEach(function(company){
+            company.checkState = false;
         });
 
         return {
             checkAll: false,
             checkList: [],
-            employees: employeesState
+            companies: companiesState
         };
     },
 
-    checkEmployee: function (event) {
+    checkCompany: function (event) {
 
-        var employeeId = parseInt(event.target.value);
-        var checkListIndex = this.state.checkList.indexOf(employeeId);
-        var employee = _.find(this.state.employees, { id: employeeId });
+        var companyId = parseInt(event.target.value);
+        var checkListIndex = this.state.checkList.indexOf(companyId);
+        var company = _.find(this.state.companies, { id: companyId });
 
         if (checkListIndex > -1) {
             this.state.checkList.splice(checkListIndex, 1);
         } else {
-            this.state.checkList.push(employeeId);
+            this.state.checkList.push(companyId);
         }
         
-        employee.checkState = !employee.checkState;
+        company.checkState = !company.checkState;
         this.state.checkAll = false;
 
-        if (this.state.checkList.length === this.state.employees.length){
+        if (this.state.checkList.length === this.state.companies.length){
             this.state.checkAll = true;
         }
 
         this.setState({
             checkList: this.state.checkList,
-            employees: this.state.employees
+            companies: this.state.companies
         });
         this.props.listener(this.state.checkList);
     },
@@ -57,17 +57,17 @@ var EmployeeChecklist = React.createClass({
 
         var checkAll = !this.state.checkAll;
         this.state.checkList = [];
-        this.state.employees.forEach(function (employee) {
-            employee.checkState = checkAll;
+        this.state.companies.forEach(function (company) {
+            company.checkState = checkAll;
 
             if (checkAll) {
-                this.state.checkList.push(employee.id);
+                this.state.checkList.push(company.id);
             }
         }.bind(this));
 
         this.setState({
             checkAll: checkAll,
-            employees: this.state.employees,
+            companies: this.state.companies,
             checkList: this.state.checkList
         });
 
@@ -76,18 +76,18 @@ var EmployeeChecklist = React.createClass({
 
     render: function () {
         
-        var createEmployeeRow = function (employee) {
+        var createCompanyRow = function (company) {
             return (
-                <tr key={employee.id}>
+                <tr key={company.id}>
                     <td>
                         <CheckboxInput
-                            name={employee.id}
+                            name={company.id}
                             label=""
-                            value={employee.id}
-                            checkState={employee.checkState}
-                            onChange={this.checkEmployee} />
+                            value={company.id}
+                            checkState={company.checkState}
+                            onChange={this.checkCompany} />
                     </td>
-                    <td>{employee.fullName}</td>
+                    <td>{company.fullName}</td>
                 </tr>
             );
         };
@@ -107,7 +107,7 @@ var EmployeeChecklist = React.createClass({
                         <th>Name</th>
                     </thead>
                     <tbody>
-                        {this.state.employees.map(createEmployeeRow, this)}
+                        {this.state.companies.map(createCompanyRow, this)}
                     </tbody>
                 </table>
             </div>
@@ -115,4 +115,4 @@ var EmployeeChecklist = React.createClass({
     }
 });
 
-module.exports = EmployeeChecklist;
+module.exports = CompanyChecklist;
