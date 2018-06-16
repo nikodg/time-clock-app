@@ -54799,7 +54799,7 @@ var API = {
         });
     },
     searchData: function (path, keyword) {
-        var url = this.proxy + this.baseURL + path + 'search/findByName?name=' + keyword;
+        var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;
         return $.ajax({
             url: url,
             method: 'GET',
