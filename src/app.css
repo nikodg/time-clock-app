@@ -24,3 +24,27 @@ th.checkbox-column {
 h1 {
     margin-bottom: 30px;
 }
+
+.navbar-default .navbar-nav>li>a.active {
+    background-color: #f3f3f3;
+}
+
+th.action {
+    width: 120px;
+}
+
+td.action a {
+    padding: 0 5px;
+}
+.input.error {
+    color: #a94442;
+}
+
+input.form-control.flatpickr-input {
+    background-color: #fff;
+}
+
+textarea.form-control {
+    resize: none;
+    min-height: 100px;
+}

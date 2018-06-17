@@ -8,6 +8,7 @@ var WhoIsInActions = require('../../actions/whoIsInActions');
 var WhoIsInList = require('./whoIsInList');
 
 var WhoIsInPage = React.createClass({
+    
     getInitialState: function () {
         return {
             whoIsIns: WhoIsInStore.getAllWhoIsIn()
@@ -24,7 +25,7 @@ var WhoIsInPage = React.createClass({
     },
 
     _onChange: function () {
-        this.setState({ whoIsIns: WhoIsInStore.getAllWhoIsIns() });
+        this.setState({ whoIsIns: WhoIsInStore.getAllWhoIsIn() });
     },
 
     render: function () {

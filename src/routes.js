@@ -23,6 +23,7 @@ var routes = (
 
     <Route name="listView" path="list-view" handler={require('./components/listView/listViewPage')} />
     <Route name="addListView" path="record" handler={require('./components/listView/manageListView')} />
+    <Route name="addAbsence" path="absence" handler={require('./components/listView/manageListView')} />
     <Route name="manageListView" path="record/:id" handler={require('./components/listView/manageListView')} />
     
     <NotFoundRoute handler={require('./components/notFoundPage')} />

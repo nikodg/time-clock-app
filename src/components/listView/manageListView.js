@@ -35,27 +35,49 @@ var ManageListView = React.createClass({
             errors: {},
             dirty: false,
             withList: false,
-            selectedEmployees: []
+            selectedEmployees: [],
+            withLeaveField: false,
+            leaveOptions: ListViewStore.getLeaveOptions()
         };
     },
 
     componentWillMount: function () {
 
-        var listViewId = this.props.params.id; //from the path '/listView:id'
+        var currentRoute = window.location.hash;
+        var listViewId = this.props.params.id;
         
         if (listViewId) {
-            this.setState({ listView: ListViewStore.getListViewById(listViewId) });
+
+            this.setState({ 
+                record: ListViewStore.getRecordById(listViewId)
+            });
+
         } else {
-            this.setState({withList: true});
+
+            this.setState({
+                withList: true
+            });
+        }
+
+        if (currentRoute === '#/absence') {
+            this.setState({ withLeaveField: true });
         }
     },
 
     setListViewState: function (event) {
-        console.log(event.target.value);
         this.setState({ dirty: true });
         var field = event.target.name;
         var value = event.target.value;
+
+        if (field === 'working' && event.target.type === 'checkbox'){
+            value = !(value === 'true');
+
+            if (value) {
+                this.state.record.dateTimeOut = '';
+            }
+        }
         this.state.record[field] = value;
+        this.listViewFormIsValid();
         return this.setState({ record: this.state.record });
     },
 
@@ -72,8 +94,8 @@ var ManageListView = React.createClass({
             formIsValid = false;
         }
 
-        if (this.state.record.out.length < 3) {
-            this.state.errors.out = 'Invalid date and time out.';
+        if (this.state.record.dateTimeOut.length < 3 && !this.state.record.working) {
+            this.state.errors.dateTimeOut = 'Invalid date and time out.';
             formIsValid = false;
         }
 
@@ -88,7 +110,7 @@ var ManageListView = React.createClass({
             return;
         }
 
-        if (this.state.listView.id) {
+        if (this.state.record.id) {
             ListViewActions.updateListView(this.state.record);
         } else {
             ListViewActions.createListView(this.state.record, this.state.selectedEmployees);
@@ -104,14 +126,17 @@ var ManageListView = React.createClass({
             return (
                 <div className="row">
                     <div className="col-lg-12 col-md-12 col-sm-12">
-                        <h1>Add Entry</h1>
+                        <h1>{this.state.withLeaveField ? 'Add Absence' : 'Add Entry'}</h1>
                     </div>
                     <div className="col-lg-6 col-md-5 col-sm-12">
                         <ListViewForm
                             record={this.state.record}
                             onChange={this.setListViewState}
                             onSave={this.saveListView}
-                            errors={this.state.errors} />
+                            errors={this.state.errors}
+                            currentRoute={this.state.currentRoute}
+                            withLeaveField={this.state.withLeaveField}
+                            leaveOptions={this.state.leaveOptions} />
                     </div>
                     <div className="col-lg-6 col-md-7 col-sm-12">
                         <EmployeeChecklist

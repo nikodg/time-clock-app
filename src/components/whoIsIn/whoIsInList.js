@@ -1,6 +1,7 @@
 "use strict";
 
 var React = require('react');
+var moment = require('moment');
 
 var WhoIsInList = React.createClass({
     propTypes: {
@@ -8,14 +9,19 @@ var WhoIsInList = React.createClass({
     },
 
     render: function () {
+
+        var formatTime = function(date, time){
+            var dateTime = date + ' ' + time;
+            return moment(dateTime).format('hh:mm A');
+        };
+        
         var createWhoIsInRow = function (whoIsIn) {
             return (
-                <tr key={whoIsIn.id}>
-                    <td>{whoIsIn.id}</td>
-                    <td>{whoIsIn.fullName}</td>
-                    <td>{whoIsIn.in}</td>
-                    <td>{whoIsIn.date}</td>
-                    <td>{whoIsIn.time}</td>
+                <tr key={whoIsIn.time}>
+                    <td>{whoIsIn.name}</td>
+                    <td className="text-center">{whoIsIn.status}</td>
+                    <td className="text-center">{whoIsIn.date}</td>
+                    <td className="text-center">{formatTime(whoIsIn.date, whoIsIn.time)}</td>
                 </tr>
             );
         };
@@ -24,11 +30,10 @@ var WhoIsInList = React.createClass({
             <div>
                 <table className="table">
                     <thead>
-                        <th>ID</th>
                         <th>Name</th>
-                        <th>In/Out</th>
-                        <th>Date</th>
-                        <th>Time</th>
+                        <th className="text-center">In/Out</th>
+                        <th className="text-center">Date</th>
+                        <th className="text-center">Time</th>
                     </thead>
                     <tbody>
                         {this.props.whoIsIns.map(createWhoIsInRow, this)}

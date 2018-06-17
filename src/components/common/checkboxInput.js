@@ -24,6 +24,7 @@ var CheckboxInput = React.createClass({
                             value={this.props.value}
                             onChange={this.props.onChange}
                             checked={this.props.checkState} />
+                            
                         {this.props.label}
                 </label>
                 <div className="input">{this.props.error}</div>

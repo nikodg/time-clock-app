@@ -21,7 +21,7 @@ var CompanyList = React.createClass({
 				<tr key={company.id}>
 					<td><Link to="manageCompany" params={{id: company.id}}>{company.id}</Link></td>
 					<td>{company.name}</td>
-					<td>
+					<td className="text-center action">
 						<Link to="manageCompany" params={{ id: company.id }}>Edit</Link>
 						<a href="#" onClick={this.deleteCompany.bind(this, company.id)}>Delete</a>
 					</td>
@@ -35,7 +35,7 @@ var CompanyList = React.createClass({
 					<thead>
 						<th>ID</th>
 						<th>Name</th>
-						<th>Actions</th>
+						<th className="text-center action">Actions</th>
 					</thead>
 					<tbody>
 						{this.props.companies.map(createCompanyRow, this)}

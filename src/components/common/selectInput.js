@@ -18,7 +18,7 @@ var SelectInput = React.createClass({
       if (this.props.value === option.value) {
 
         return (
-          <option key={index} selected value={option.value}>{option.label}</option>
+          <option key={index} value={option.value}>{option.label}</option>
         );
 
       } else {
@@ -44,9 +44,10 @@ var SelectInput = React.createClass({
             className="form-control"
             placeholder={this.props.placeholder}
             ref={this.props.name}
-            onChange={this.props.onChange}>
+            onChange={this.props.onChange}
+            defaultValue={this.props.value}>
 
-            <option disabled value="">- Select {this.props.name} -</option>
+            <option disabled>{this.props.placeholder}</option>
             {this.props.options.map(createOption, this)}
             
           </select>

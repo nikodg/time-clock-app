@@ -2,9 +2,9 @@
 
 var React = require('react');
 var flatpickr = require("flatpickr");
-var moment = require('moment');
 
 var TextInput = React.createClass({
+  
   propTypes: {
     name: React.PropTypes.string.isRequired,
     label: React.PropTypes.string.isRequired,
@@ -15,6 +15,7 @@ var TextInput = React.createClass({
   },
 
   componentDidMount: function () {
+
     if (this.props.flatPickr) {
       var fpID = '#' + this.props.id;
       var fpOptions = {};
@@ -26,7 +27,7 @@ var TextInput = React.createClass({
             enableTime: true,
             noCalendar: true,
             dateFormat: "h:i K",
-            defaultDate: moment().format('hh:mm A')
+            defaultDate: this.props.value
           };
           break;
 
@@ -34,7 +35,7 @@ var TextInput = React.createClass({
           fpOptions = {
             enableTime: true,
             dateFormat: "m/d/Y h:i K",
-            defaultDate: moment().format('YYYY-MM-DD hh:mm A')
+            defaultDate: this.props.value
           };
           break;
 
@@ -44,6 +45,7 @@ var TextInput = React.createClass({
 
       flatpickr(fpID, fpOptions);
     }
+
   },
 
   render: function () {
@@ -68,9 +70,10 @@ var TextInput = React.createClass({
               ref={this.props.name}
               value={this.props.value}
               onChange={this.props.onChange}
-              onKeyUp={this.props.onKeyUp} />
-            <div className="input">{this.props.error}</div>
+              onKeyUp={this.props.onKeyUp}
+              disabled={this.props.disabled ? 'disabled' : ''} />
           </div>
+          <div className="input">{this.props.error}</div>
         </div>
       );
 
@@ -89,8 +92,8 @@ var TextInput = React.createClass({
               ref={this.props.name}
               value={this.props.value}
               onChange={this.props.onChange}
-              onKeyUp={this.props.onKeyUp} />
-            <div className="input">{this.props.error}</div>
+              onKeyUp={this.props.onKeyUp}
+              disabled={this.props.disabled ? 'disabled' : ''} />
 
             <span className="input-group-btn">
               <button
@@ -100,10 +103,12 @@ var TextInput = React.createClass({
             </span>
 
           </div>
+          <div className="input">{this.props.error}</div>
         </div>
       );
       
     } else {
+
       return (
         <div className={wrapperClass}>
           <label htmlFor={this.props.name}>{this.props.label}</label>
@@ -116,9 +121,10 @@ var TextInput = React.createClass({
               ref={this.props.name}
               value={this.props.value}
               onChange={this.props.onChange}
-              onKeyUp={this.props.onKeyUp} />
-            <div className="input">{this.props.error}</div>
+              onKeyUp={this.props.onKeyUp}
+              disabled={this.props.disabled ? 'disabled' : ''} />
           </div>
+          <div className="input">{this.props.error}</div>
         </div>
       );
     }

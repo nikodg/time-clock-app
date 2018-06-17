@@ -1,5 +1,6 @@
 "use strict";
 
+var moment = require('moment');
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
@@ -17,22 +18,28 @@ var ListViewList = React.createClass({
 
     computeHours: function (timeIn, timeOut) {
         return '-';
-    },
+    },  
 
     render: function () {
+
+        var formatDateTime = function (dateTime) {
+            if (!dateTime) { return ''; }
+            return moment(dateTime).format('YYYY-MM-DD hh:mm A');
+        };
+
         var createListViewRow = function (listView) {
             return (
                 <tr key={listView.id}>
-                    <td>{listView.employeeId}</td>
-                    <td>{listView.fullName}</td>
-                    <td>{listView.in}</td>
-                    <td>{listView.out}</td>
+                    <td>{listView.employee.id}</td>
+                    <td>{listView.employee.fullName}</td>
+                    <td className="text-center">{formatDateTime(listView.timeIn)}</td>
+                    <td className="text-center">{formatDateTime(listView.timeOut)}</td>
                     {/* <td>{this.computeHours(listView.in, listView.out)}</td> */}
-                    <td>{listView.workHours}</td>
-                    <td>{listView.Overtime}</td>
-                    <td>{listView.Undertime}</td>
-                    <td>{listView.Absent}</td>
-                    <td>
+                    <td>{listView.hoursWorked}</td>
+                    <td>{listView.overtime}</td>
+                    <td>{listView.undertime}</td>
+                    <td>{listView.absent}</td>
+                    <td className="text-center action">
                         <Link to="manageListView" params={{ id: listView.id }}>Edit</Link>
                         <a href="#" onClick={this.deleteListView.bind(this, listView.id)}>Delete</a>
                     </td>
@@ -52,7 +59,7 @@ var ListViewList = React.createClass({
                         <th className="text-center">Overtime</th>
                         <th className="text-center">Undertime</th>
                         <th className="text-center">Absent</th>
-                        <th className="text-center">Actions</th>
+                        <th className="text-center action">Actions</th>
                     </thead>
                     <tbody>
                         {this.props.listViews.map(createListViewRow, this)}

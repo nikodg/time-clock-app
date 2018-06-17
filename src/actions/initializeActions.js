@@ -13,7 +13,7 @@ var InitializeActions = {
 
 		var today = moment().format('YYYY-MM-DD');
 
-		ListViewActions.getListView('', today, today);
+		ListViewActions.getListView('', today, today, '');
 		WhoIsInActions.getWhoIsIn();
 		EmployeeActions.getEmployees();
 		CompanyActions.getCompanies();

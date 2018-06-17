@@ -52999,7 +52999,7 @@ var InitializeActions = {
 
 		var today = moment().format('YYYY-MM-DD');
 
-		ListViewActions.getListView('', today, today);
+		ListViewActions.getListView('', today, today, '');
 		WhoIsInActions.getWhoIsIn();
 		EmployeeActions.getEmployees();
 		CompanyActions.getCompanies();
@@ -53016,10 +53016,34 @@ var ActionTypes = require('../constants/actionTypes');
 var API = require('../constants/apis');
 var toastr = require('toastr');
 
+var employeeId = function(id){
+    return {id: id};
+};
+
 var ListViewActions = {
 
-    getListView: function (keyword, dateFrom, dateTo) {
-        var url = 'employeeTimes/search/listView?employeeName=' + keyword + '&dateFrom=' + dateFrom + '&dateTo=' + dateTo;
+    createListView: function (record, employees) {
+
+        record.employeeList = employees;
+        console.log(record);
+        API.postData('employeeTimes/addEntry', record)
+            .done(function (data) {
+
+                Dispatcher.dispatch({
+                    type: ActionTypes.INITIALIZE_LISTVIEW,
+                    data: data
+                });
+
+            }).fail(function () {
+                toastr.error('Failed to load list view.');
+            });
+    },
+
+    getListView: function (keyword, dateFrom, dateTo, leaveType) {
+        var url = 'employeeTimes/search/listView?employeeName=' + keyword;
+        url += '&dateFrom=' + dateFrom;
+        url += '&dateTo=' + dateTo;
+        url += '&leaveType=' + leaveType;
 
         API.getData(url)
             .done(function (data) {
@@ -53030,7 +53054,7 @@ var ListViewActions = {
             });
 
             }).fail(function () {
-                toastr.error('Failed to load who is in.');
+                toastr.error('Failed to load list view.');
             });
     },
 
@@ -53049,7 +53073,7 @@ var ListViewActions = {
     },
 
     deleteListView: function (id) {
-        API.deleteData('listview', id)
+        API.deleteData('employeeTimes', id)
             .done(function (response) {
                 toastr.success('Record deleted.');
                 Dispatcher.dispatch({
@@ -53078,7 +53102,6 @@ var WhoIsInActions = {
 
         API.getData('whoIsIn')
             .done(function (data) {
-
                 Dispatcher.dispatch({
                     type: ActionTypes.INITIALIZE_WHOISIN,
                     data: data
@@ -53185,6 +53208,7 @@ var CheckboxInput = React.createClass({displayName: "CheckboxInput",
                             value: this.props.value, 
                             onChange: this.props.onChange, 
                             checked: this.props.checkState}), 
+                            
                         this.props.label
                 ), 
                 React.createElement("div", {className: "input"}, this.props.error)
@@ -53245,7 +53269,7 @@ var SelectInput = React.createClass({displayName: "SelectInput",
       if (this.props.value === option.value) {
 
         return (
-          React.createElement("option", {key: index, selected: true, value: option.value}, option.label)
+          React.createElement("option", {key: index, value: option.value}, option.label)
         );
 
       } else {
@@ -53271,9 +53295,10 @@ var SelectInput = React.createClass({displayName: "SelectInput",
             className: "form-control", 
             placeholder: this.props.placeholder, 
             ref: this.props.name, 
-            onChange: this.props.onChange}, 
+            onChange: this.props.onChange, 
+            defaultValue: this.props.value}, 
 
-            React.createElement("option", {disabled: true, value: ""}, "- Select ", this.props.name, " -"), 
+            React.createElement("option", {disabled: true}, this.props.placeholder), 
             this.props.options.map(createOption, this)
             
           ), 
@@ -53291,9 +53316,9 @@ module.exports = SelectInput;
 
 var React = require('react');
 var flatpickr = require("flatpickr");
-var moment = require('moment');
 
 var TextInput = React.createClass({displayName: "TextInput",
+  
   propTypes: {
     name: React.PropTypes.string.isRequired,
     label: React.PropTypes.string.isRequired,
@@ -53304,6 +53329,7 @@ var TextInput = React.createClass({displayName: "TextInput",
   },
 
   componentDidMount: function () {
+
     if (this.props.flatPickr) {
       var fpID = '#' + this.props.id;
       var fpOptions = {};
@@ -53315,7 +53341,7 @@ var TextInput = React.createClass({displayName: "TextInput",
             enableTime: true,
             noCalendar: true,
             dateFormat: "h:i K",
-            defaultDate: moment().format('hh:mm A')
+            defaultDate: this.props.value
           };
           break;
 
@@ -53323,7 +53349,7 @@ var TextInput = React.createClass({displayName: "TextInput",
           fpOptions = {
             enableTime: true,
             dateFormat: "m/d/Y h:i K",
-            defaultDate: moment().format('YYYY-MM-DD hh:mm A')
+            defaultDate: this.props.value
           };
           break;
 
@@ -53333,6 +53359,7 @@ var TextInput = React.createClass({displayName: "TextInput",
 
       flatpickr(fpID, fpOptions);
     }
+
   },
 
   render: function () {
@@ -53357,9 +53384,10 @@ var TextInput = React.createClass({displayName: "TextInput",
               ref: this.props.name, 
               value: this.props.value, 
               onChange: this.props.onChange, 
-              onKeyUp: this.props.onKeyUp}), 
-            React.createElement("div", {className: "input"}, this.props.error)
-          )
+              onKeyUp: this.props.onKeyUp, 
+              disabled: this.props.disabled ? 'disabled' : ''})
+          ), 
+          React.createElement("div", {className: "input"}, this.props.error)
         )
       );
 
@@ -53378,8 +53406,8 @@ var TextInput = React.createClass({displayName: "TextInput",
               ref: this.props.name, 
               value: this.props.value, 
               onChange: this.props.onChange, 
-              onKeyUp: this.props.onKeyUp}), 
-            React.createElement("div", {className: "input"}, this.props.error), 
+              onKeyUp: this.props.onKeyUp, 
+              disabled: this.props.disabled ? 'disabled' : ''}), 
 
             React.createElement("span", {className: "input-group-btn"}, 
               React.createElement("button", {
@@ -53388,11 +53416,13 @@ var TextInput = React.createClass({displayName: "TextInput",
                 type: "button"})
             )
 
-          )
+          ), 
+          React.createElement("div", {className: "input"}, this.props.error)
         )
       );
       
     } else {
+
       return (
         React.createElement("div", {className: wrapperClass}, 
           React.createElement("label", {htmlFor: this.props.name}, this.props.label), 
@@ -53405,9 +53435,10 @@ var TextInput = React.createClass({displayName: "TextInput",
               ref: this.props.name, 
               value: this.props.value, 
               onChange: this.props.onChange, 
-              onKeyUp: this.props.onKeyUp}), 
-            React.createElement("div", {className: "input"}, this.props.error)
-          )
+              onKeyUp: this.props.onKeyUp, 
+              disabled: this.props.disabled ? 'disabled' : ''})
+          ), 
+          React.createElement("div", {className: "input"}, this.props.error)
         )
       );
     }
@@ -53416,7 +53447,7 @@ var TextInput = React.createClass({displayName: "TextInput",
 
 module.exports = TextInput;
 
-},{"flatpickr":4,"moment":10,"react":207}],220:[function(require,module,exports){
+},{"flatpickr":4,"react":207}],220:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53529,7 +53560,7 @@ var CompanyList = React.createClass({displayName: "CompanyList",
 				React.createElement("tr", {key: company.id}, 
 					React.createElement("td", null, React.createElement(Link, {to: "manageCompany", params: {id: company.id}}, company.id)), 
 					React.createElement("td", null, company.name), 
-					React.createElement("td", null, 
+					React.createElement("td", {className: "text-center action"}, 
 						React.createElement(Link, {to: "manageCompany", params: { id: company.id}}, "Edit"), 
 						React.createElement("a", {href: "#", onClick: this.deleteCompany.bind(this, company.id)}, "Delete")
 					)
@@ -53543,7 +53574,7 @@ var CompanyList = React.createClass({displayName: "CompanyList",
 					React.createElement("thead", null, 
 						React.createElement("th", null, "ID"), 
 						React.createElement("th", null, "Name"), 
-						React.createElement("th", null, "Actions")
+						React.createElement("th", {className: "text-center action"}, "Actions")
 					), 
 					React.createElement("tbody", null, 
 						this.props.companies.map(createCompanyRow, this)
@@ -53938,7 +53969,7 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 				React.createElement("tr", {key: employee.id}, 
 					React.createElement("td", null, React.createElement(Link, {to: "manageEmployee", params: {id: employee.id}}, employee.id)), 
 					React.createElement("td", null, employee.fullName), 
-					React.createElement("td", null, 
+					React.createElement("td", {className: "text-center action"}, 
 						React.createElement(Link, {to: "manageEmployee", params: { id: employee.id}}, "Edit"), 
 						React.createElement("a", {href: "#", onClick: this.deleteEmployee.bind(this, employee.id)}, "Delete")
 					)
@@ -53952,7 +53983,7 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 					React.createElement("thead", null, 
 						React.createElement("th", null, "ID"), 
 						React.createElement("th", null, "Name"), 
-						React.createElement("th", null, "Actions")
+						React.createElement("th", {className: "text-center action"}, "Actions")
 					), 
 					React.createElement("tbody", null, 
 						this.props.employees.map(createEmployeeRow, this)
@@ -54178,6 +54209,8 @@ var React = require('react');
 var TextInput = require('../common/textInput');
 var TextareaInput = require('../common/textareaInput');
 var CheckboxInput = require('../common/checkboxInput');
+var SelectInput = require('../common/selectInput');
+var ListViewStore = require('../../stores/listViewStore');
 
 var EmployeeForm = React.createClass({displayName: "EmployeeForm",
     propTypes: {
@@ -54191,7 +54224,18 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
         return (
             React.createElement("form", null, 
                 React.createElement("div", {className: "row"}, 
-                    React.createElement("div", {className: "col-lg-6 col-md-12 col-sm-12"}, 
+
+                    React.createElement("div", {className: this.props.withLeaveField ? 'col-lg-12 col-md-12 col-sm-12' : 'hidden'}, 
+                        React.createElement(SelectInput, {
+                            name: "leaveType", 
+                            label: "Type of Leave", 
+                            placeholder: "Please select type of leave", 
+                            value: this.props.leaveType, 
+                            options: this.props.leaveOptions, 
+                            onChange: this.props.onChange})
+                    ), 
+
+                    React.createElement("div", {className: this.props.record.working ? 'col-lg-12' : 'col-lg-6' + ' col-md-12 col-sm-12'}, 
                         React.createElement(TextInput, {
                             name: "dateTimeIn", 
                             label: "Date & Time In", 
@@ -54203,19 +54247,22 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
                             id: "dateTimeIn"})
 
                     ), 
-                    React.createElement("div", {className: "col-lg-6 col-md-12 col-sm-12"}, 
+
+                    React.createElement("div", {className: this.props.record.working ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}, 
 
                         React.createElement(TextInput, {
                             name: "dateTimeOut", 
                             label: "Date & Time Out", 
-                            value: this.props.record.dateTimeIn, 
+                            value: this.props.record.dateTimeOut, 
                             onChange: this.props.onChange, 
                             error: this.props.errors.dateTimeOut, 
+                            disabled: this.props.record.working, 
                             flatPickr: "datetime", 
                             icon: "calendar", 
                             id: "dateTimeOut"})
 
                     ), 
+
                     React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
 
                         React.createElement(TextareaInput, {
@@ -54226,7 +54273,8 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
                             error: this.props.errors.notes})
 
                     ), 
-                    React.createElement("div", {className: "col-lg-6 col-md-12 col-sm-12"}, 
+
+                    React.createElement("div", {className: this.props.withLeaveField ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}, 
 
                         React.createElement(CheckboxInput, {
                             name: "working", 
@@ -54236,7 +54284,8 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
                             error: this.props.errors.working})
 
                     ), 
-                    React.createElement("div", {className: "col-lg-6 col-md-12 col-sm-12 text-right"}, 
+
+                    React.createElement("div", {className: this.props.withLeaveField ? 'col-lg-12' : 'col-lg-6' + 'col-md-12 col-sm-12 text-right'}, 
                         React.createElement("input", {type: "submit", 
                             value: "Save", 
                             className: "btn btn-default btn-block", 
@@ -54250,9 +54299,10 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/checkboxInput":216,"../common/textInput":219,"../common/textareaInput":220,"react":207}],231:[function(require,module,exports){
+},{"../../stores/listViewStore":244,"../common/checkboxInput":216,"../common/selectInput":218,"../common/textInput":219,"../common/textareaInput":220,"react":207}],231:[function(require,module,exports){
 "use strict";
 
+var moment = require('moment');
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
@@ -54270,22 +54320,28 @@ var ListViewList = React.createClass({displayName: "ListViewList",
 
     computeHours: function (timeIn, timeOut) {
         return '-';
-    },
+    },  
 
     render: function () {
+
+        var formatDateTime = function (dateTime) {
+            if (!dateTime) { return ''; }
+            return moment(dateTime).format('YYYY-MM-DD hh:mm A');
+        };
+
         var createListViewRow = function (listView) {
             return (
                 React.createElement("tr", {key: listView.id}, 
-                    React.createElement("td", null, listView.employeeId), 
-                    React.createElement("td", null, listView.fullName), 
-                    React.createElement("td", null, listView.in), 
-                    React.createElement("td", null, listView.out), 
+                    React.createElement("td", null, listView.employee.id), 
+                    React.createElement("td", null, listView.employee.fullName), 
+                    React.createElement("td", {className: "text-center"}, formatDateTime(listView.timeIn)), 
+                    React.createElement("td", {className: "text-center"}, formatDateTime(listView.timeOut)), 
                     /* <td>{this.computeHours(listView.in, listView.out)}</td> */
-                    React.createElement("td", null, listView.workHours), 
-                    React.createElement("td", null, listView.Overtime), 
-                    React.createElement("td", null, listView.Undertime), 
-                    React.createElement("td", null, listView.Absent), 
-                    React.createElement("td", null, 
+                    React.createElement("td", null, listView.hoursWorked), 
+                    React.createElement("td", null, listView.overtime), 
+                    React.createElement("td", null, listView.undertime), 
+                    React.createElement("td", null, listView.absent), 
+                    React.createElement("td", {className: "text-center action"}, 
                         React.createElement(Link, {to: "manageListView", params: { id: listView.id}}, "Edit"), 
                         React.createElement("a", {href: "#", onClick: this.deleteListView.bind(this, listView.id)}, "Delete")
                     )
@@ -54305,7 +54361,7 @@ var ListViewList = React.createClass({displayName: "ListViewList",
                         React.createElement("th", {className: "text-center"}, "Overtime"), 
                         React.createElement("th", {className: "text-center"}, "Undertime"), 
                         React.createElement("th", {className: "text-center"}, "Absent"), 
-                        React.createElement("th", {className: "text-center"}, "Actions")
+                        React.createElement("th", {className: "text-center action"}, "Actions")
                     ), 
                     React.createElement("tbody", null, 
                         this.props.listViews.map(createListViewRow, this)
@@ -54318,7 +54374,7 @@ var ListViewList = React.createClass({displayName: "ListViewList",
 
 module.exports = ListViewList;
 
-},{"../../actions/listViewActions":212,"react":207,"react-router":37}],232:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"moment":10,"react":207,"react-router":37}],232:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54332,20 +54388,15 @@ var TextInput = require('../common/textInput');
 var SelectInput = require('../common/selectInput');
 
 var ListViewPage = React.createClass({displayName: "ListViewPage",
+
     getInitialState: function () {
         return {
             listViews: ListViewStore.getAllListView(),
             dateFrom: moment().format('YYYY-MM-DD'),
             dateTo: moment().format('YYYY-MM-DD'),
             keyword: '',
-            leave: '',
-            selectOptions: [
-                {label: 'Holiday', value: 'Holiday'},
-                {label: 'Sick', value: 'Sick'},
-                {label: 'Vacation', value: 'Vacation'},
-                {label: 'Personal', value: 'Personal'},
-                {label: 'Other', value: 'Other'}
-            ],
+            leaveType: '',
+            selectOptions: ListViewStore.getLeaveOptions(),
             dirty: false
         };
     },
@@ -54364,6 +54415,7 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
     },
 
     setListViewState: function (event) {
+        console.log(event.target.value);
         this.setState({ dirty: true });
         var field = event.target.name;
         var value = event.target.value;
@@ -54372,11 +54424,11 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
         if (field !== 'keyword') {
             this.filterListView();
         }
-        return this.setState({ employee: this.state.employee });
+        return this.setState({ field: this.state[field] });
     },
 
     filterListView: function(){
-        ListViewActions.getListView(this.state.keyword, this.state.dateFrom, this.state.dateTo);
+        ListViewActions.getListView(this.state.keyword, this.state.dateFrom, this.state.dateTo, this.state.leaveType);
     },
 
     searchList: function (event) {
@@ -54393,10 +54445,8 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
                         React.createElement("h1", null, "List View")
                     ), 
                     React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-12 text-right"}, 
-                        React.createElement(Link, {to: "addListView", className: "btn btn-default header-button"}, "Add Entry")
-
-                        /* TODO: Add Absence Page
-                        <Link to="addAbsence" className="btn btn-default">Add Absence</Link> */
+                        React.createElement(Link, {to: "addListView", className: "btn btn-default header-button"}, "Add Entry"), 
+                        React.createElement(Link, {to: "addAbsence", className: "btn btn-default header-button"}, "Add Absence")
                     )
                 ), 
                 React.createElement("div", {className: "row"}, 
@@ -54433,9 +54483,10 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
                     ), 
                     React.createElement("div", {className: "col-lg-3 col-md-6 col-sm-12"}, 
                         React.createElement(SelectInput, {
-                            name: "Leave", 
+                            name: "leaveType", 
                             label: "", 
-                            value: this.state.leave, 
+                            placeholder: "Please select type of leave", 
+                            value: this.state.leaveType, 
                             options: this.state.selectOptions, 
                             onChange: this.setListViewState})
                     )
@@ -54487,27 +54538,49 @@ var ManageListView = React.createClass({displayName: "ManageListView",
             errors: {},
             dirty: false,
             withList: false,
-            selectedEmployees: []
+            selectedEmployees: [],
+            withLeaveField: false,
+            leaveOptions: ListViewStore.getLeaveOptions()
         };
     },
 
     componentWillMount: function () {
 
-        var listViewId = this.props.params.id; //from the path '/listView:id'
+        var currentRoute = window.location.hash;
+        var listViewId = this.props.params.id;
         
         if (listViewId) {
-            this.setState({ listView: ListViewStore.getListViewById(listViewId) });
+
+            this.setState({ 
+                record: ListViewStore.getRecordById(listViewId)
+            });
+
         } else {
-            this.setState({withList: true});
+
+            this.setState({
+                withList: true
+            });
+        }
+
+        if (currentRoute === '#/absence') {
+            this.setState({ withLeaveField: true });
         }
     },
 
     setListViewState: function (event) {
-        console.log(event.target.value);
         this.setState({ dirty: true });
         var field = event.target.name;
         var value = event.target.value;
+
+        if (field === 'working' && event.target.type === 'checkbox'){
+            value = !(value === 'true');
+
+            if (value) {
+                this.state.record.dateTimeOut = '';
+            }
+        }
         this.state.record[field] = value;
+        this.listViewFormIsValid();
         return this.setState({ record: this.state.record });
     },
 
@@ -54524,8 +54597,8 @@ var ManageListView = React.createClass({displayName: "ManageListView",
             formIsValid = false;
         }
 
-        if (this.state.record.out.length < 3) {
-            this.state.errors.out = 'Invalid date and time out.';
+        if (this.state.record.dateTimeOut.length < 3 && !this.state.record.working) {
+            this.state.errors.dateTimeOut = 'Invalid date and time out.';
             formIsValid = false;
         }
 
@@ -54540,7 +54613,7 @@ var ManageListView = React.createClass({displayName: "ManageListView",
             return;
         }
 
-        if (this.state.listView.id) {
+        if (this.state.record.id) {
             ListViewActions.updateListView(this.state.record);
         } else {
             ListViewActions.createListView(this.state.record, this.state.selectedEmployees);
@@ -54556,14 +54629,17 @@ var ManageListView = React.createClass({displayName: "ManageListView",
             return (
                 React.createElement("div", {className: "row"}, 
                     React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
-                        React.createElement("h1", null, "Add Entry")
+                        React.createElement("h1", null, this.state.withLeaveField ? 'Add Absence' : 'Add Entry')
                     ), 
                     React.createElement("div", {className: "col-lg-6 col-md-5 col-sm-12"}, 
                         React.createElement(ListViewForm, {
                             record: this.state.record, 
                             onChange: this.setListViewState, 
                             onSave: this.saveListView, 
-                            errors: this.state.errors})
+                            errors: this.state.errors, 
+                            currentRoute: this.state.currentRoute, 
+                            withLeaveField: this.state.withLeaveField, 
+                            leaveOptions: this.state.leaveOptions})
                     ), 
                     React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12"}, 
                         React.createElement(EmployeeChecklist, {
@@ -54619,6 +54695,7 @@ module.exports = NotFoundPage;
 "use strict";
 
 var React = require('react');
+var moment = require('moment');
 
 var WhoIsInList = React.createClass({displayName: "WhoIsInList",
     propTypes: {
@@ -54626,14 +54703,19 @@ var WhoIsInList = React.createClass({displayName: "WhoIsInList",
     },
 
     render: function () {
+
+        var formatTime = function(date, time){
+            var dateTime = date + ' ' + time;
+            return moment(dateTime).format('hh:mm A');
+        };
+        
         var createWhoIsInRow = function (whoIsIn) {
             return (
-                React.createElement("tr", {key: whoIsIn.id}, 
-                    React.createElement("td", null, whoIsIn.id), 
-                    React.createElement("td", null, whoIsIn.fullName), 
-                    React.createElement("td", null, whoIsIn.in), 
-                    React.createElement("td", null, whoIsIn.date), 
-                    React.createElement("td", null, whoIsIn.time)
+                React.createElement("tr", {key: whoIsIn.time}, 
+                    React.createElement("td", null, whoIsIn.name), 
+                    React.createElement("td", {className: "text-center"}, whoIsIn.status), 
+                    React.createElement("td", {className: "text-center"}, whoIsIn.date), 
+                    React.createElement("td", {className: "text-center"}, formatTime(whoIsIn.date, whoIsIn.time))
                 )
             );
         };
@@ -54642,11 +54724,10 @@ var WhoIsInList = React.createClass({displayName: "WhoIsInList",
             React.createElement("div", null, 
                 React.createElement("table", {className: "table"}, 
                     React.createElement("thead", null, 
-                        React.createElement("th", null, "ID"), 
                         React.createElement("th", null, "Name"), 
-                        React.createElement("th", null, "In/Out"), 
-                        React.createElement("th", null, "Date"), 
-                        React.createElement("th", null, "Time")
+                        React.createElement("th", {className: "text-center"}, "In/Out"), 
+                        React.createElement("th", {className: "text-center"}, "Date"), 
+                        React.createElement("th", {className: "text-center"}, "Time")
                     ), 
                     React.createElement("tbody", null, 
                         this.props.whoIsIns.map(createWhoIsInRow, this)
@@ -54659,7 +54740,7 @@ var WhoIsInList = React.createClass({displayName: "WhoIsInList",
 
 module.exports = WhoIsInList;
 
-},{"react":207}],236:[function(require,module,exports){
+},{"moment":10,"react":207}],236:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54670,6 +54751,7 @@ var WhoIsInActions = require('../../actions/whoIsInActions');
 var WhoIsInList = require('./whoIsInList');
 
 var WhoIsInPage = React.createClass({displayName: "WhoIsInPage",
+    
     getInitialState: function () {
         return {
             whoIsIns: WhoIsInStore.getAllWhoIsIn()
@@ -54686,7 +54768,7 @@ var WhoIsInPage = React.createClass({displayName: "WhoIsInPage",
     },
 
     _onChange: function () {
-        this.setState({ whoIsIns: WhoIsInStore.getAllWhoIsIns() });
+        this.setState({ whoIsIns: WhoIsInStore.getAllWhoIsIn() });
     },
 
     render: function () {
@@ -54872,6 +54954,7 @@ var routes = (
 
     React.createElement(Route, {name: "listView", path: "list-view", handler: require('./components/listView/listViewPage')}), 
     React.createElement(Route, {name: "addListView", path: "record", handler: require('./components/listView/manageListView')}), 
+    React.createElement(Route, {name: "addAbsence", path: "absence", handler: require('./components/listView/manageListView')}), 
     React.createElement(Route, {name: "manageListView", path: "record/:id", handler: require('./components/listView/manageListView')}), 
     
     React.createElement(NotFoundRoute, {handler: require('./components/notFoundPage')})
@@ -55049,6 +55132,14 @@ var _ = require('lodash');
 var CHANGE_EVENT = 'change';
 
 var _listView = [];
+var _leaveOptions = [
+    { label: 'Present', value: '' },
+    { label: 'Holiday', value: 'Holiday' },
+    { label: 'Sick', value: 'Sick' },
+    { label: 'Vacation', value: 'Vacation' },
+    { label: 'Personal', value: 'Personal' },
+    { label: 'Other', value: 'Other' }
+];
 
 var ListViewStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -55066,22 +55157,23 @@ var ListViewStore = assign({}, EventEmitter.prototype, {
     getAllListView: function () {
         return _listView;
     },
+    
+    getLeaveOptions: function () {
+        return _leaveOptions;
+    },
 
     getRecordById: function (id) {
-        // return _.find(_listViews, {id: id});
-
-        // TODO: ask typeof id
         return _listView.find(function (listView) {
-            return listView.id.toString() === id;
+            return listView.id === id;
         });
     }
 });
 
 Dispatcher.register(function (action) {
-    switch (action.actionType) {
+    switch (action.type) {
 
         case ActionTypes.INITIALIZE_LISTVIEW:
-            _listView = action.data._embedded.listview;
+            _listView = action.data;
             ListViewStore.emitChange();
             break;
 
@@ -55136,9 +55228,12 @@ var WhoIsInStore = assign({}, EventEmitter.prototype, {
 });
 
 Dispatcher.register(function (action) {
-    switch (action.actionType) {
+    
+    switch (action.type) {
         case ActionTypes.INITIALIZE_WHOISIN:
-            _whoIsIns = action.data._embedded.whoisin;
+            if (Object.keys(action.data).length) {
+                _whoIsIns = action.data._embedded.whoIsIns;
+            }
             WhoIsInStore.emitChange();
             break;
 

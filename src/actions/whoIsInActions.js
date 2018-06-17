@@ -11,7 +11,6 @@ var WhoIsInActions = {
 
         API.getData('whoIsIn')
             .done(function (data) {
-
                 Dispatcher.dispatch({
                     type: ActionTypes.INITIALIZE_WHOISIN,
                     data: data

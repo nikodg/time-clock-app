@@ -28,9 +28,12 @@ var WhoIsInStore = assign({}, EventEmitter.prototype, {
 });
 
 Dispatcher.register(function (action) {
-    switch (action.actionType) {
+    
+    switch (action.type) {
         case ActionTypes.INITIALIZE_WHOISIN:
-            _whoIsIns = action.data._embedded.whoisin;
+            if (Object.keys(action.data).length) {
+                _whoIsIns = action.data._embedded.whoIsIns;
+            }
             WhoIsInStore.emitChange();
             break;
 

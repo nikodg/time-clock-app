@@ -11,20 +11,15 @@ var TextInput = require('../common/textInput');
 var SelectInput = require('../common/selectInput');
 
 var ListViewPage = React.createClass({
+
     getInitialState: function () {
         return {
             listViews: ListViewStore.getAllListView(),
             dateFrom: moment().format('YYYY-MM-DD'),
             dateTo: moment().format('YYYY-MM-DD'),
             keyword: '',
-            leave: '',
-            selectOptions: [
-                {label: 'Holiday', value: 'Holiday'},
-                {label: 'Sick', value: 'Sick'},
-                {label: 'Vacation', value: 'Vacation'},
-                {label: 'Personal', value: 'Personal'},
-                {label: 'Other', value: 'Other'}
-            ],
+            leaveType: '',
+            selectOptions: ListViewStore.getLeaveOptions(),
             dirty: false
         };
     },
@@ -43,6 +38,7 @@ var ListViewPage = React.createClass({
     },
 
     setListViewState: function (event) {
+        console.log(event.target.value);
         this.setState({ dirty: true });
         var field = event.target.name;
         var value = event.target.value;
@@ -51,11 +47,11 @@ var ListViewPage = React.createClass({
         if (field !== 'keyword') {
             this.filterListView();
         }
-        return this.setState({ employee: this.state.employee });
+        return this.setState({ field: this.state[field] });
     },
 
     filterListView: function(){
-        ListViewActions.getListView(this.state.keyword, this.state.dateFrom, this.state.dateTo);
+        ListViewActions.getListView(this.state.keyword, this.state.dateFrom, this.state.dateTo, this.state.leaveType);
     },
 
     searchList: function (event) {
@@ -73,9 +69,7 @@ var ListViewPage = React.createClass({
                     </div>
                     <div className="col-lg-6 col-md-6 col-sm-12 text-right">
                         <Link to="addListView" className="btn btn-default header-button">Add Entry</Link>
-
-                        {/* TODO: Add Absence Page
-                        <Link to="addAbsence" className="btn btn-default">Add Absence</Link> */}
+                        <Link to="addAbsence" className="btn btn-default header-button">Add Absence</Link>
                     </div>
                 </div>
                 <div className="row">
@@ -112,9 +106,10 @@ var ListViewPage = React.createClass({
                     </div>
                     <div className="col-lg-3 col-md-6 col-sm-12">
                         <SelectInput
-                            name="Leave"
+                            name="leaveType"
                             label=""
-                            value={this.state.leave}
+                            placeholder="Please select type of leave"
+                            value={this.state.leaveType}
                             options={this.state.selectOptions}
                             onChange={this.setListViewState} />
                     </div>

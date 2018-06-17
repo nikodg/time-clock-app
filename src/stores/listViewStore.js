@@ -8,6 +8,14 @@ var _ = require('lodash');
 var CHANGE_EVENT = 'change';
 
 var _listView = [];
+var _leaveOptions = [
+    { label: 'Present', value: '' },
+    { label: 'Holiday', value: 'Holiday' },
+    { label: 'Sick', value: 'Sick' },
+    { label: 'Vacation', value: 'Vacation' },
+    { label: 'Personal', value: 'Personal' },
+    { label: 'Other', value: 'Other' }
+];
 
 var ListViewStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -25,22 +33,23 @@ var ListViewStore = assign({}, EventEmitter.prototype, {
     getAllListView: function () {
         return _listView;
     },
+    
+    getLeaveOptions: function () {
+        return _leaveOptions;
+    },
 
     getRecordById: function (id) {
-        // return _.find(_listViews, {id: id});
-
-        // TODO: ask typeof id
         return _listView.find(function (listView) {
-            return listView.id.toString() === id;
+            return listView.id === id;
         });
     }
 });
 
 Dispatcher.register(function (action) {
-    switch (action.actionType) {
+    switch (action.type) {
 
         case ActionTypes.INITIALIZE_LISTVIEW:
-            _listView = action.data._embedded.listview;
+            _listView = action.data;
             ListViewStore.emitChange();
             break;
 
