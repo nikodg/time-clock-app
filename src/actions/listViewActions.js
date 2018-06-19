@@ -28,6 +28,21 @@ var ListViewActions = {
             });
     },
 
+    createAbsence: function (record) {
+
+        API.postData('employeeTimes/addAbsence', record)
+            .done(function (data) {
+
+                Dispatcher.dispatch({
+                    type: ActionTypes.INITIALIZE_LISTVIEW,
+                    data: data
+                });
+
+            }).fail(function () {
+                toastr.error('Failed to load list view.');
+            });
+    },
+
     getListView: function (keyword, dateFrom, dateTo, leaveType) {
         var url = 'employeeTimes/search/listView?employeeName=' + keyword;
         url += '&dateFrom=' + dateFrom;

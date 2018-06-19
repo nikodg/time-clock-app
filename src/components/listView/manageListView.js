@@ -23,27 +23,47 @@ var ManageListView = React.createClass({
     },
 
     getInitialState: function () {
-        return {
-            record: {
-                id: null,
+
+        var currentRoute = window.location.hash;
+        var record = {};
+        var withLeaveField = false;
+        var leaveOptions = JSON.parse(JSON.stringify(ListViewStore.getLeaveOptions()));
+        leaveOptions.shift();
+
+
+        if (currentRoute === '#/absence') {
+            record = {
+                dateTimeIn: moment().format('MM/DD/YYYY'),
+                dateTimeOut: moment().format('MM/DD/YYYY'),
+                working: false,
+                notes: ''
+            };
+            withLeaveField = true;
+        } else {
+            record = {
                 dateTimeIn: moment().format('MM/DD/YYYY hh:mm A'),
                 dateTimeOut: moment().format('MM/DD/YYYY hh:mm A'),
                 working: false,
                 notes: ''
-            },
+            };
+        }
+
+        
+        return {
+            record: record,
             employees: EmployeeStore.getAllEmployees(),
             errors: {},
             dirty: false,
             withList: false,
             selectedEmployees: [],
-            withLeaveField: false,
-            leaveOptions: ListViewStore.getLeaveOptions()
+            withLeaveField: withLeaveField,
+            leaveOptions: leaveOptions,
+            currentRoute: ''
         };
     },
 
     componentWillMount: function () {
 
-        var currentRoute = window.location.hash;
         var listViewId = this.props.params.id;
         
         if (listViewId) {
@@ -58,10 +78,6 @@ var ManageListView = React.createClass({
                 withList: true
             });
         }
-
-        if (currentRoute === '#/absence') {
-            this.setState({ withLeaveField: true });
-        }
     },
 
     setListViewState: function (event) {
@@ -72,13 +88,13 @@ var ManageListView = React.createClass({
         if (field === 'working' && event.target.type === 'checkbox'){
             value = !(value === 'true');
 
-            if (value) {
+            if (value && !this.state.withLeaveField) {
                 this.state.record.dateTimeOut = '';
             }
         }
         this.state.record[field] = value;
         this.listViewFormIsValid();
-        return this.setState({ record: this.state.record });
+        return this.setState({record: this.state.record});
     },
 
     getEmployeeChecklist: function (checklist) {
@@ -112,6 +128,18 @@ var ManageListView = React.createClass({
 
         if (this.state.record.id) {
             ListViewActions.updateListView(this.state.record);
+        } else if (this.state.currentRoute === '#/absence'){
+
+            var leaveData = {
+                dateFrom: this.state.record.dateTimeIn,
+                dateTo: this.state.record.dateTimeOut,
+                absent: this.state.record.working ? 4 : 8,
+                leaveType: this.state.record.leaveType,
+                notes: this.state.record.notes,
+                employeeList: this.state.selectedEmployees
+            };
+
+            ListViewActions.createAbsence(leaveData);
         } else {
             ListViewActions.createListView(this.state.record, this.state.selectedEmployees);
         }

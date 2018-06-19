@@ -19,8 +19,17 @@ var TextInput = React.createClass({
     if (this.props.flatPickr) {
       var fpID = '#' + this.props.id;
       var fpOptions = {};
-
+      
       switch (this.props.flatPickr) {
+
+        case 'date':
+          fpOptions = {
+            enableTime: false,
+            noCalendar: true,
+            dateFormat: "m/d/Y",
+            defaultDate: this.props.value
+          };
+          break;
 
         case 'time':
           fpOptions = {

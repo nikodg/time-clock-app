@@ -53039,6 +53039,21 @@ var ListViewActions = {
             });
     },
 
+    createAbsence: function (record) {
+
+        API.postData('employeeTimes/addAbsence', record)
+            .done(function (data) {
+
+                Dispatcher.dispatch({
+                    type: ActionTypes.INITIALIZE_LISTVIEW,
+                    data: data
+                });
+
+            }).fail(function () {
+                toastr.error('Failed to load list view.');
+            });
+    },
+
     getListView: function (keyword, dateFrom, dateTo, leaveType) {
         var url = 'employeeTimes/search/listView?employeeName=' + keyword;
         url += '&dateFrom=' + dateFrom;
@@ -53333,8 +53348,17 @@ var TextInput = React.createClass({displayName: "TextInput",
     if (this.props.flatPickr) {
       var fpID = '#' + this.props.id;
       var fpOptions = {};
-
+      
       switch (this.props.flatPickr) {
+
+        case 'date':
+          fpOptions = {
+            enableTime: false,
+            noCalendar: true,
+            dateFormat: "m/d/Y",
+            defaultDate: this.props.value
+          };
+          break;
 
         case 'time':
           fpOptions = {
@@ -54210,7 +54234,6 @@ var TextInput = require('../common/textInput');
 var TextareaInput = require('../common/textareaInput');
 var CheckboxInput = require('../common/checkboxInput');
 var SelectInput = require('../common/selectInput');
-var ListViewStore = require('../../stores/listViewStore');
 
 var EmployeeForm = React.createClass({displayName: "EmployeeForm",
     propTypes: {
@@ -54218,6 +54241,18 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
         onSave: React.PropTypes.func.isRequired,
         onChange: React.PropTypes.func.isRequired,
         errors: React.PropTypes.object
+    },
+
+    getInitialState: function(){
+        var iState = {
+            flatPickrFormat: 'datetime'
+        };
+
+        if (this.props.withLeaveField) {
+            iState.flatPickrFormat = 'date';
+        }
+
+        return iState;
     },
 
     render: function () {
@@ -54235,20 +54270,20 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
                             onChange: this.props.onChange})
                     ), 
 
-                    React.createElement("div", {className: this.props.record.working ? 'col-lg-12' : 'col-lg-6' + ' col-md-12 col-sm-12'}, 
+                    React.createElement("div", {className: this.props.record.working && !this.props.withLeaveField ? 'col-lg-12' : 'col-lg-6' + ' col-md-12 col-sm-12'}, 
                         React.createElement(TextInput, {
                             name: "dateTimeIn", 
                             label: "Date & Time In", 
                             value: this.props.record.dateTimeIn, 
                             onChange: this.props.onChange, 
                             error: this.props.errors.dateTimeIn, 
-                            flatPickr: "datetime", 
+                            flatPickr: this.state.flatPickrFormat, 
                             icon: "calendar", 
                             id: "dateTimeIn"})
 
                     ), 
 
-                    React.createElement("div", {className: this.props.record.working ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}, 
+                    React.createElement("div", {className: this.props.record.working || this.props.withLeaveField ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}, 
 
                         React.createElement(TextInput, {
                             name: "dateTimeOut", 
@@ -54257,7 +54292,21 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
                             onChange: this.props.onChange, 
                             error: this.props.errors.dateTimeOut, 
                             disabled: this.props.record.working, 
-                            flatPickr: "datetime", 
+                            flatPickr: this.state.flatPickrFormat, 
+                            icon: "calendar", 
+                            id: "dateTimeOut"})
+
+                    ), 
+
+                    React.createElement("div", {className:  this.props.withLeaveField ? 'col-lg-6 col-md-12 col-sm-12' : 'hidden'}, 
+
+                        React.createElement(TextInput, {
+                            name: "dateTimeOut", 
+                            label: "Date & Time Out", 
+                            value: this.props.record.dateTimeOut, 
+                            onChange: this.props.onChange, 
+                            error: this.props.errors.dateTimeOut, 
+                            flatPickr: this.state.flatPickrFormat, 
                             icon: "calendar", 
                             id: "dateTimeOut"})
 
@@ -54274,18 +54323,18 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
                     ), 
 
-                    React.createElement("div", {className: this.props.withLeaveField ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}, 
+                    React.createElement("div", {className: "col-lg-6 col-md-12 col-sm-12"}, 
 
                         React.createElement(CheckboxInput, {
                             name: "working", 
-                            label: "Working", 
+                            label: this.props.withLeaveField ? 'Half Day' : 'Working', 
                             value: this.props.record.working, 
                             onChange: this.props.onChange, 
                             error: this.props.errors.working})
 
                     ), 
 
-                    React.createElement("div", {className: this.props.withLeaveField ? 'col-lg-12' : 'col-lg-6' + 'col-md-12 col-sm-12 text-right'}, 
+                    React.createElement("div", {className: "col-lg-6 col-md-12 col-sm-12 text-right"}, 
                         React.createElement("input", {type: "submit", 
                             value: "Save", 
                             className: "btn btn-default btn-block", 
@@ -54299,7 +54348,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../../stores/listViewStore":244,"../common/checkboxInput":216,"../common/selectInput":218,"../common/textInput":219,"../common/textareaInput":220,"react":207}],231:[function(require,module,exports){
+},{"../common/checkboxInput":216,"../common/selectInput":218,"../common/textInput":219,"../common/textareaInput":220,"react":207}],231:[function(require,module,exports){
 "use strict";
 
 var moment = require('moment');
@@ -54526,27 +54575,47 @@ var ManageListView = React.createClass({displayName: "ManageListView",
     },
 
     getInitialState: function () {
-        return {
-            record: {
-                id: null,
+
+        var currentRoute = window.location.hash;
+        var record = {};
+        var withLeaveField = false;
+        var leaveOptions = JSON.parse(JSON.stringify(ListViewStore.getLeaveOptions()));
+        leaveOptions.shift();
+
+
+        if (currentRoute === '#/absence') {
+            record = {
+                dateTimeIn: moment().format('MM/DD/YYYY'),
+                dateTimeOut: moment().format('MM/DD/YYYY'),
+                working: false,
+                notes: ''
+            };
+            withLeaveField = true;
+        } else {
+            record = {
                 dateTimeIn: moment().format('MM/DD/YYYY hh:mm A'),
                 dateTimeOut: moment().format('MM/DD/YYYY hh:mm A'),
                 working: false,
                 notes: ''
-            },
+            };
+        }
+
+        
+        return {
+            record: record,
             employees: EmployeeStore.getAllEmployees(),
             errors: {},
             dirty: false,
             withList: false,
             selectedEmployees: [],
-            withLeaveField: false,
-            leaveOptions: ListViewStore.getLeaveOptions()
+            withLeaveField: withLeaveField,
+            leaveOptions: leaveOptions,
+            currentRoute: ''
         };
     },
 
     componentWillMount: function () {
 
-        var currentRoute = window.location.hash;
         var listViewId = this.props.params.id;
         
         if (listViewId) {
@@ -54561,10 +54630,6 @@ var ManageListView = React.createClass({displayName: "ManageListView",
                 withList: true
             });
         }
-
-        if (currentRoute === '#/absence') {
-            this.setState({ withLeaveField: true });
-        }
     },
 
     setListViewState: function (event) {
@@ -54575,13 +54640,13 @@ var ManageListView = React.createClass({displayName: "ManageListView",
         if (field === 'working' && event.target.type === 'checkbox'){
             value = !(value === 'true');
 
-            if (value) {
+            if (value && !this.state.withLeaveField) {
                 this.state.record.dateTimeOut = '';
             }
         }
         this.state.record[field] = value;
         this.listViewFormIsValid();
-        return this.setState({ record: this.state.record });
+        return this.setState({record: this.state.record});
     },
 
     getEmployeeChecklist: function (checklist) {
@@ -54615,6 +54680,18 @@ var ManageListView = React.createClass({displayName: "ManageListView",
 
         if (this.state.record.id) {
             ListViewActions.updateListView(this.state.record);
+        } else if (this.state.currentRoute === '#/absence'){
+
+            var leaveData = {
+                dateFrom: this.state.record.dateTimeIn,
+                dateTo: this.state.record.dateTimeOut,
+                absent: this.state.record.working ? 4 : 8,
+                leaveType: this.state.record.leaveType,
+                notes: this.state.record.notes,
+                employeeList: this.state.selectedEmployees
+            };
+
+            ListViewActions.createAbsence(leaveData);
         } else {
             ListViewActions.createListView(this.state.record, this.state.selectedEmployees);
         }

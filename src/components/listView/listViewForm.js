@@ -5,7 +5,6 @@ var TextInput = require('../common/textInput');
 var TextareaInput = require('../common/textareaInput');
 var CheckboxInput = require('../common/checkboxInput');
 var SelectInput = require('../common/selectInput');
-var ListViewStore = require('../../stores/listViewStore');
 
 var EmployeeForm = React.createClass({
     propTypes: {
@@ -13,6 +12,18 @@ var EmployeeForm = React.createClass({
         onSave: React.PropTypes.func.isRequired,
         onChange: React.PropTypes.func.isRequired,
         errors: React.PropTypes.object
+    },
+
+    getInitialState: function(){
+        var iState = {
+            flatPickrFormat: 'datetime'
+        };
+
+        if (this.props.withLeaveField) {
+            iState.flatPickrFormat = 'date';
+        }
+
+        return iState;
     },
 
     render: function () {
@@ -30,20 +41,20 @@ var EmployeeForm = React.createClass({
                             onChange={this.props.onChange} />
                     </div>
 
-                    <div className={this.props.record.working ? 'col-lg-12' : 'col-lg-6' + ' col-md-12 col-sm-12'}>
+                    <div className={this.props.record.working && !this.props.withLeaveField ? 'col-lg-12' : 'col-lg-6' + ' col-md-12 col-sm-12'}>
                         <TextInput
                             name="dateTimeIn"
                             label="Date &amp; Time In"
                             value={this.props.record.dateTimeIn}
                             onChange={this.props.onChange}
                             error={this.props.errors.dateTimeIn}
-                            flatPickr="datetime"
+                            flatPickr={this.state.flatPickrFormat}
                             icon='calendar'
                             id="dateTimeIn" />
 
                     </div>
 
-                    <div className={this.props.record.working ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}>
+                    <div className={this.props.record.working || this.props.withLeaveField ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}>
 
                         <TextInput
                             name="dateTimeOut"
@@ -52,7 +63,21 @@ var EmployeeForm = React.createClass({
                             onChange={this.props.onChange}
                             error={this.props.errors.dateTimeOut}
                             disabled={this.props.record.working}
-                            flatPickr="datetime"
+                            flatPickr={this.state.flatPickrFormat}
+                            icon='calendar'
+                            id="dateTimeOut" />
+
+                    </div>
+
+                    <div className={ this.props.withLeaveField ? 'col-lg-6 col-md-12 col-sm-12' : 'hidden' }>
+
+                        <TextInput
+                            name="dateTimeOut"
+                            label="Date &amp; Time Out"
+                            value={this.props.record.dateTimeOut}
+                            onChange={this.props.onChange}
+                            error={this.props.errors.dateTimeOut}
+                            flatPickr={this.state.flatPickrFormat}
                             icon='calendar'
                             id="dateTimeOut" />
 
@@ -69,18 +94,18 @@ var EmployeeForm = React.createClass({
 
                     </div>
 
-                    <div className={this.props.withLeaveField ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}>
+                    <div className="col-lg-6 col-md-12 col-sm-12">
 
                         <CheckboxInput
                             name="working"
-                            label="Working"
+                            label={this.props.withLeaveField ? 'Half Day' : 'Working'}
                             value={this.props.record.working}
                             onChange={this.props.onChange}
                             error={this.props.errors.working} />
 
                     </div>
 
-                    <div className={this.props.withLeaveField ? 'col-lg-12' : 'col-lg-6' + 'col-md-12 col-sm-12 text-right'}>
+                    <div className="col-lg-6 col-md-12 col-sm-12 text-right">
                         <input type="submit" 
                             value="Save" 
                             className="btn btn-default btn-block"
