@@ -8,9 +8,11 @@ var toastr = require('toastr');
 
 var EmployeeActions = {
 
-	getEmployees: function () {
+	getEmployees: function (pageNumber, pageSize) {
 
-		API.getData('employees')
+		var url = 'employees?page=' + pageNumber + '&size=' + pageSize;
+
+		API.getData(url)
 			.done(function (data) {
 
 				Dispatcher.dispatch({
@@ -71,7 +73,7 @@ var EmployeeActions = {
 
 	searchList: function (keyword) {
 		toastr.info('Searching employees...');
-		API.searchData('companies', keyword)
+		API.searchData('employees', keyword)
 			.done(function (response) {
 				Dispatcher.dispatch({
 					type: ActionTypes.SEARCH_EMPLOYEE,

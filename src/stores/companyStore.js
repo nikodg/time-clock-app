@@ -66,7 +66,6 @@ Dispatcher.register(function (action) {
             break;
 
         case ActionTypes.SEARCH_COMPANY:
-            console.log('SEARCH_COMPANY', action.data);
             _companies = action.data._embedded.companies;
             toastr.clear();
             CompanyStore.emitChange();

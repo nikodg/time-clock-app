@@ -34,7 +34,10 @@ var CompanyPage = React.createClass({
 		var field = event.target.name;
 		var value = event.target.value;
 		this.state[field] = value;
-		return this.setState({ employee: this.state.employee });
+
+		if (this.state.keyword === '') {
+			CompanyActions.getCompanies();
+		}
 	},
 
 	searchList: function (event) {

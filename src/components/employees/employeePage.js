@@ -11,7 +11,10 @@ var TextInput = require('../common/textInput');
 var EmployeePage = React.createClass({
 	getInitialState: function() {
 		return {
-			employees: EmployeeStore.getAllEmployees()
+			employees: EmployeeStore.getAllEmployees(),
+			keyword: '',
+			pageNumber: 0,
+			pageSize: 10
 		};
 	},
 
@@ -28,18 +31,35 @@ var EmployeePage = React.createClass({
 		this.setState({ employees: EmployeeStore.getAllEmployees() });
 	},
 
+	getEmployees: function() {
+		EmployeeActions.getEmployees(this.state.pageNumber, this.state.pageSize);
+	},
+
 	setEmployeePageState: function (event) {
 		this.setState({ dirty: true });
 		var field = event.target.name;
 		var value = event.target.value;
 		this.state[field] = value;
-		return this.setState({ employee: this.state.employee });
+
+		if (this.state.keyword === '') {
+			this.getEmployees();
+		}
 	},
 
 	searchList: function (event) {
 		if (event.keyCode === 13) {
 			EmployeeActions.searchList(event.target.value);
 		}
+	},
+
+	previousPage: function(){
+		this.state.pageNumber--;
+		console.log('prev page', this.state.pageNumber);
+	},
+
+	nextPage: function () {
+		this.state.pageNumber++;
+		console.log('next page', this.state.pageNumber);
 	},
 
 	render: function() {
@@ -69,6 +89,14 @@ var EmployeePage = React.createClass({
 				<div className="row">
 					<div className="col-lg-12 col-md-12 col-sm-12">
 						<EmployeeList employees={this.state.employees} />
+					</div>
+				</div>
+				<div className="row">
+					<div className="col-lg-12 col-md-12 col-sm-12">
+						<div class="btn-group" role="group" aria-label="...">
+							<button type="button" class="btn btn-default" onClick={this.previousPage}>Prev</button>
+							<button type="button" class="btn btn-default" onClick={this.nextPage}>Next</button>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -6,6 +6,7 @@ var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 var _ = require('lodash');
 var CHANGE_EVENT = 'change';
+var toastr = require('toastr');
 
 var _employees = [];
 
@@ -61,6 +62,12 @@ Dispatcher.register(function (action) {
 			_.remove(_employees, function(employee) {
 				return action.data === employee.id;
 			});
+			EmployeeStore.emitChange();
+			break;
+
+		case ActionTypes.SEARCH_EMPLOYEE:
+			_employees = action.data._embedded.employees;
+			toastr.clear();
 			EmployeeStore.emitChange();
 			break;
 

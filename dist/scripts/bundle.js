@@ -52905,9 +52905,11 @@ var toastr = require('toastr');
 
 var EmployeeActions = {
 
-	getEmployees: function () {
+	getEmployees: function (pageNumber, pageSize) {
 
-		API.getData('employees')
+		var url = 'employees?page=' + pageNumber + '&size=' + pageSize;
+
+		API.getData(url)
 			.done(function (data) {
 
 				Dispatcher.dispatch({
@@ -52968,7 +52970,7 @@ var EmployeeActions = {
 
 	searchList: function (keyword) {
 		toastr.info('Searching employees...');
-		API.searchData('companies', keyword)
+		API.searchData('employees', keyword)
 			.done(function (response) {
 				Dispatcher.dispatch({
 					type: ActionTypes.SEARCH_EMPLOYEE,
@@ -53001,7 +53003,7 @@ var InitializeActions = {
 
 		ListViewActions.getListView('', today, today, '');
 		WhoIsInActions.getWhoIsIn();
-		EmployeeActions.getEmployees();
+		EmployeeActions.getEmployees(0, 10);
 		CompanyActions.getCompanies();
 	}
 };
@@ -53648,7 +53650,10 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 		var field = event.target.name;
 		var value = event.target.value;
 		this.state[field] = value;
-		return this.setState({ employee: this.state.employee });
+
+		if (this.state.keyword === '') {
+			CompanyActions.getCompanies();
+		}
 	},
 
 	searchList: function (event) {
@@ -54034,7 +54039,10 @@ var TextInput = require('../common/textInput');
 var EmployeePage = React.createClass({displayName: "EmployeePage",
 	getInitialState: function() {
 		return {
-			employees: EmployeeStore.getAllEmployees()
+			employees: EmployeeStore.getAllEmployees(),
+			keyword: '',
+			pageNumber: 0,
+			pageSize: 10
 		};
 	},
 
@@ -54051,18 +54059,35 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 		this.setState({ employees: EmployeeStore.getAllEmployees() });
 	},
 
+	getEmployees: function() {
+		EmployeeActions.getEmployees(this.state.pageNumber, this.state.pageSize);
+	},
+
 	setEmployeePageState: function (event) {
 		this.setState({ dirty: true });
 		var field = event.target.name;
 		var value = event.target.value;
 		this.state[field] = value;
-		return this.setState({ employee: this.state.employee });
+
+		if (this.state.keyword === '') {
+			this.getEmployees();
+		}
 	},
 
 	searchList: function (event) {
 		if (event.keyCode === 13) {
 			EmployeeActions.searchList(event.target.value);
 		}
+	},
+
+	previousPage: function(){
+		this.state.pageNumber--;
+		console.log('prev page', this.state.pageNumber);
+	},
+
+	nextPage: function () {
+		this.state.pageNumber++;
+		console.log('next page', this.state.pageNumber);
 	},
 
 	render: function() {
@@ -54092,6 +54117,14 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 				React.createElement("div", {className: "row"}, 
 					React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
 						React.createElement(EmployeeList, {employees: this.state.employees})
+					)
+				), 
+				React.createElement("div", {className: "row"}, 
+					React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
+						React.createElement("div", {class: "btn-group", role: "group", "aria-label": "..."}, 
+							React.createElement("button", {type: "button", class: "btn btn-default", onClick: this.previousPage}, "Prev"), 
+							React.createElement("button", {type: "button", class: "btn btn-default", onClick: this.nextPage}, "Next")
+						)
 					)
 				)
 			)
@@ -55111,7 +55144,6 @@ Dispatcher.register(function (action) {
             break;
 
         case ActionTypes.SEARCH_COMPANY:
-            console.log('SEARCH_COMPANY', action.data);
             _companies = action.data._embedded.companies;
             toastr.clear();
             CompanyStore.emitChange();
@@ -55133,6 +55165,7 @@ var EventEmitter = require('events').EventEmitter;
 var assign = require('object-assign');
 var _ = require('lodash');
 var CHANGE_EVENT = 'change';
+var toastr = require('toastr');
 
 var _employees = [];
 
@@ -55191,6 +55224,12 @@ Dispatcher.register(function (action) {
 			EmployeeStore.emitChange();
 			break;
 
+		case ActionTypes.SEARCH_EMPLOYEE:
+			_employees = action.data._embedded.employees;
+			toastr.clear();
+			EmployeeStore.emitChange();
+			break;
+
 		default:
 			// no op
 	}
@@ -55198,7 +55237,7 @@ Dispatcher.register(function (action) {
 
 module.exports = EmployeeStore;
 
-},{"../constants/actionTypes":237,"../dispatcher/appDispatcher":239,"events":2,"lodash":9,"object-assign":11}],244:[function(require,module,exports){
+},{"../constants/actionTypes":237,"../dispatcher/appDispatcher":239,"events":2,"lodash":9,"object-assign":11,"toastr":208}],244:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
