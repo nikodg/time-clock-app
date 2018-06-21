@@ -7,9 +7,11 @@ var toastr = require('toastr');
 
 var CompanyActions = {
 
-    getCompanies: function () {
+    getCompanies: function (pageNumber, pageSize) {
 
-        API.getData('companies')
+        var url = 'companies?page=' + pageNumber + '&size=' + pageSize;
+
+        API.getData(url)
             .done(function (data) {
 
                 Dispatcher.dispatch({

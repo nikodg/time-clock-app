@@ -9,6 +9,7 @@ var CHANGE_EVENT = 'change';
 var toastr = require('toastr');
 
 var _companies = [];
+var _pagination;
 
 var CompanyStore = assign({}, EventEmitter.prototype, {
 
@@ -29,12 +30,13 @@ var CompanyStore = assign({}, EventEmitter.prototype, {
     },
 
     getCompanyById: function (id) {
-        // return _.find(_companies, {id: id});
-
-        // TODO: ask typeof id
         return _companies.find(function (company) {
             return company.id.toString() === id;
         });
+    },
+
+    getPagination: function () {
+        return _pagination;
     }
 });
 
@@ -43,6 +45,11 @@ Dispatcher.register(function (action) {
 
         case ActionTypes.INITIALIZE_COMPANIES:
             _companies = action.data._embedded.companies;
+
+            if (action.data.page) {
+                _pagination = action.data.page;
+            }
+
             CompanyStore.emitChange();
             break;
 

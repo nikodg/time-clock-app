@@ -9,6 +9,7 @@ var CHANGE_EVENT = 'change';
 var toastr = require('toastr');
 
 var _employees = [];
+var _pagination;
 
 var EmployeeStore = assign({}, EventEmitter.prototype, {
 
@@ -29,12 +30,13 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 	},
 
 	getEmployeeById: function(id) {
-		// return _.find(_employees, {id: id});
-
-		// TODO: ask typeof id
 		return _employees.find(function(employee){
 			return employee.id.toString() === id;
 		});
+	},
+
+	getPagination: function () {
+		return _pagination;
 	}
 });
 
@@ -43,6 +45,11 @@ Dispatcher.register(function (action) {
 		
 		case ActionTypes.INITIALIZE_EMPLOYEES:
 			_employees = action.data._embedded.employees;
+			
+			if (action.data.page) {
+				_pagination = action.data.page;
+			}
+			
 			EmployeeStore.emitChange();
 			break;
 
@@ -67,6 +74,9 @@ Dispatcher.register(function (action) {
 
 		case ActionTypes.SEARCH_EMPLOYEE:
 			_employees = action.data._embedded.employees;
+			if (action.data.page) {
+				_pagination = action.data.page;
+			}
 			toastr.clear();
 			EmployeeStore.emitChange();
 			break;

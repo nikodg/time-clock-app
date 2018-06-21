@@ -16,7 +16,7 @@ var InitializeActions = {
 		ListViewActions.getListView('', today, today, '');
 		WhoIsInActions.getWhoIsIn();
 		EmployeeActions.getEmployees(0, 10);
-		CompanyActions.getCompanies();
+		CompanyActions.getCompanies(0, 10);
 	}
 };
 

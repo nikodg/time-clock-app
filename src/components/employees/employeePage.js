@@ -7,14 +7,16 @@ var EmployeeStore = require('../../stores/employeeStore');
 var EmployeeActions = require('../../actions/employeeActions');
 var EmployeeList = require('./employeeList');
 var TextInput = require('../common/textInput');
+var Paginator = require('../common/paginator');
 
 var EmployeePage = React.createClass({
-	getInitialState: function() {
+	getInitialState: function () {
+
 		return {
 			employees: EmployeeStore.getAllEmployees(),
+			pagination: EmployeeStore.getPagination(),
 			keyword: '',
-			pageNumber: 0,
-			pageSize: 10
+			searched: false
 		};
 	},
 
@@ -22,17 +24,20 @@ var EmployeePage = React.createClass({
 		EmployeeStore.addChangeListener(this._onChange);
 	},
 
-	//Clean up when this component is unmounted
 	componentWillUnmount: function() {
 		EmployeeStore.removeChangeListener(this._onChange);
 	},
 
-	_onChange: function() {
-		this.setState({ employees: EmployeeStore.getAllEmployees() });
+	_onChange: function () {
+
+		this.setState({
+			employees: EmployeeStore.getAllEmployees(),
+			pagination: EmployeeStore.getPagination()
+		});
 	},
 
 	getEmployees: function() {
-		EmployeeActions.getEmployees(this.state.pageNumber, this.state.pageSize);
+		EmployeeActions.getEmployees(this.state.pagination.number, this.state.pagination.size);
 	},
 
 	setEmployeePageState: function (event) {
@@ -42,24 +47,31 @@ var EmployeePage = React.createClass({
 		this.state[field] = value;
 
 		if (this.state.keyword === '') {
+			this.setState({ searched: false });
 			this.getEmployees();
 		}
 	},
 
 	searchList: function (event) {
 		if (event.keyCode === 13) {
+			this.setState({ searched: true });
 			EmployeeActions.searchList(event.target.value);
 		}
 	},
 
 	previousPage: function(){
-		this.state.pageNumber--;
-		console.log('prev page', this.state.pageNumber);
+		this.state.pagination.number--;
+		this.getEmployees();
 	},
 
 	nextPage: function () {
-		this.state.pageNumber++;
-		console.log('next page', this.state.pageNumber);
+		this.state.pagination.number++;
+		this.getEmployees();
+	},
+
+	goToPageNumber: function (pageNumber) {
+		console.log(pageNumber);
+		EmployeeActions.getEmployees(pageNumber, this.state.pagination.size);
 	},
 
 	render: function() {
@@ -75,7 +87,17 @@ var EmployeePage = React.createClass({
 				</div>
 
 				<div className="row">
-					<div className="col-lg-offset-8 col-md-offset-7 col-lg-4 col-md-5 col-sm-12">
+					<div className="col-lg-8 col-md-7 col-sm-12">
+						{(this.state.pagination && !this.state.searched) ? 
+							<Paginator 
+								previousPage={this.previousPage}
+								nextPage={this.nextPage}
+								currentPage={this.state.pagination.number}
+								totalPages={this.state.pagination.totalPages}
+								goToPageNumber={this.goToPageNumber} /> : ''
+						}
+					</div>
+					<div className="col-lg-4 col-md-5 col-sm-12">
 						<TextInput
 							name="keyword"
 							label=""
@@ -89,14 +111,6 @@ var EmployeePage = React.createClass({
 				<div className="row">
 					<div className="col-lg-12 col-md-12 col-sm-12">
 						<EmployeeList employees={this.state.employees} />
-					</div>
-				</div>
-				<div className="row">
-					<div className="col-lg-12 col-md-12 col-sm-12">
-						<div class="btn-group" role="group" aria-label="...">
-							<button type="button" class="btn btn-default" onClick={this.previousPage}>Prev</button>
-							<button type="button" class="btn btn-default" onClick={this.nextPage}>Next</button>
-						</div>
 					</div>
 				</div>
 			</div>

@@ -7,12 +7,15 @@ var CompanyStore = require('../../stores/companyStore');
 var CompanyActions = require('../../actions/companyActions');
 var CompanyList = require('./companyList');
 var TextInput = require('../common/textInput');
+var Paginator = require('../common/paginator');
 
 var CompanyPage = React.createClass({
 	getInitialState: function() {
 		return {
 			companies: CompanyStore.getAllCompanies(),
-			keyword: ''
+			pagination: CompanyStore.getPagination(),
+			keyword: '',
+			searched: false
 		};
 	},
 
@@ -26,7 +29,14 @@ var CompanyPage = React.createClass({
 	},
 
 	_onChange: function() {
-		this.setState({ companies: CompanyStore.getAllCompanies() });
+		this.setState({ 
+			companies: CompanyStore.getAllCompanies(),
+			pagination: CompanyStore.getPagination()
+		});
+	},
+
+	getCompanies: function () {
+		CompanyActions.getCompanies(this.state.pagination.number, this.state.pagination.size);
 	},
 
 	setCompanyPageState: function (event) {
@@ -36,18 +46,34 @@ var CompanyPage = React.createClass({
 		this.state[field] = value;
 
 		if (this.state.keyword === '') {
+			this.setState({ searched: false });
 			CompanyActions.getCompanies();
 		}
 	},
 
 	searchList: function (event) {
 		if (event.keyCode === 13) {
+			this.setState({ searched: true });
 			this.searchData();
 		}
 	},
 
 	searchData: function () {
 		CompanyActions.searchList(this.state.keyword);
+	},
+
+	previousPage: function () {
+		this.state.pagination.number--;
+		this.getCompanies();
+	},
+
+	nextPage: function () {
+		this.state.pagination.number++;
+		this.getCompanies();
+	},
+
+	goToPageNumber: function (pageNumber) {
+		CompanyActions.getCompanies(pageNumber, this.state.pagination.size);
 	},
 
 	render: function() {
@@ -63,7 +89,17 @@ var CompanyPage = React.createClass({
 				</div>
 
 				<div className="row">
-					<div className="col-lg-offset-8 col-md-offset-7 col-lg-4 col-md-5 col-sm-12">
+					<div className="col-lg-8 col-md-7 col-sm-12">
+						{(this.state.pagination && !this.state.searched) ?
+							<Paginator
+								previousPage={this.previousPage}
+								nextPage={this.nextPage}
+								currentPage={this.state.pagination.number}
+								totalPages={this.state.pagination.totalPages}
+								goToPageNumber={this.goToPageNumber} /> : ''
+						}
+					</div>
+					<div className="col-lg-4 col-md-5 col-sm-12">
 						<TextInput
 							name="keyword"
 							label=""
@@ -75,6 +111,7 @@ var CompanyPage = React.createClass({
 							btnIcon="search" />
 					</div>
 				</div>
+
 				<div className="row">
 					<div className="col-lg-12 col-md-12 col-sm-12">
 						<CompanyList companies={this.state.companies} />

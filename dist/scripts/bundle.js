@@ -52823,9 +52823,11 @@ var toastr = require('toastr');
 
 var CompanyActions = {
 
-    getCompanies: function () {
+    getCompanies: function (pageNumber, pageSize) {
 
-        API.getData('companies')
+        var url = 'companies?page=' + pageNumber + '&size=' + pageSize;
+
+        API.getData(url)
             .done(function (data) {
 
                 Dispatcher.dispatch({
@@ -52894,7 +52896,7 @@ var CompanyActions = {
 
 module.exports = CompanyActions;
 
-},{"../constants/actionTypes":237,"../constants/apis":238,"../dispatcher/appDispatcher":239,"toastr":208}],210:[function(require,module,exports){
+},{"../constants/actionTypes":238,"../constants/apis":239,"../dispatcher/appDispatcher":240,"toastr":208}],210:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -52985,7 +52987,7 @@ var EmployeeActions = {
 
 module.exports = EmployeeActions;
 
-},{"../api/employeeApi":214,"../constants/actionTypes":237,"../constants/apis":238,"../dispatcher/appDispatcher":239,"toastr":208}],211:[function(require,module,exports){
+},{"../api/employeeApi":214,"../constants/actionTypes":238,"../constants/apis":239,"../dispatcher/appDispatcher":240,"toastr":208}],211:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -53004,13 +53006,13 @@ var InitializeActions = {
 		ListViewActions.getListView('', today, today, '');
 		WhoIsInActions.getWhoIsIn();
 		EmployeeActions.getEmployees(0, 10);
-		CompanyActions.getCompanies();
+		CompanyActions.getCompanies(0, 10);
 	}
 };
 
 module.exports = InitializeActions;
 
-},{"../actions/companyActions":209,"../actions/employeeActions":210,"../actions/listViewActions":212,"../actions/whoIsInActions":213,"../constants/actionTypes":237,"../dispatcher/appDispatcher":239,"moment":10}],212:[function(require,module,exports){
+},{"../actions/companyActions":209,"../actions/employeeActions":210,"../actions/listViewActions":212,"../actions/whoIsInActions":213,"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"moment":10}],212:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -53105,7 +53107,7 @@ var ListViewActions = {
 
 module.exports = ListViewActions;
 
-},{"../constants/actionTypes":237,"../constants/apis":238,"../dispatcher/appDispatcher":239,"toastr":208}],213:[function(require,module,exports){
+},{"../constants/actionTypes":238,"../constants/apis":239,"../dispatcher/appDispatcher":240,"toastr":208}],213:[function(require,module,exports){
 "use strict";
 
 var API = require('../constants/apis');
@@ -53132,7 +53134,7 @@ var WhoIsInActions = {
 
 module.exports = WhoIsInActions;
 
-},{"../constants/actionTypes":237,"../constants/apis":238,"../dispatcher/appDispatcher":239,"toastr":208}],214:[function(require,module,exports){
+},{"../constants/actionTypes":238,"../constants/apis":239,"../dispatcher/appDispatcher":240,"toastr":208}],214:[function(require,module,exports){
 "use strict";
 var $ = require('jquery');
 var _ = require('lodash');
@@ -53175,7 +53177,7 @@ var EmployeeApi = {
 
 module.exports = EmployeeApi;
 
-},{"../constants/apis":238,"jquery":8,"lodash":9}],215:[function(require,module,exports){
+},{"../constants/apis":239,"jquery":8,"lodash":9}],215:[function(require,module,exports){
 /*eslint-disable strict */ //Disabling check because we can't run strict mode. Need global vars.
 
 var React = require('react');
@@ -53266,6 +53268,67 @@ var Header = React.createClass({displayName: "Header",
 
 module.exports = Header;
 },{"react":207,"react-router":37}],218:[function(require,module,exports){
+'use strict';
+var React = require('react');
+
+var Paginator = React.createClass({displayName: "Paginator",
+
+    previousPage: function(event){
+        event.preventDefault();
+        this.props.previousPage();
+    },
+
+    nextPage: function (event) {
+        event.preventDefault();
+        this.props.nextPage();
+    },
+
+    goToPageNumber: function (pageNumber, event) {
+        event.preventDefault();
+        this.props.goToPageNumber(pageNumber);
+    },
+    
+    render: function(){
+
+        var renderPageNumbers = function(){
+
+            var pageNumberEls = [];
+            for (var i = 0; i < this.props.totalPages; i++) {
+                pageNumberEls.push(
+                    React.createElement("li", {key: i, className: this.props.currentPage === i ? 'active' : ''}, 
+                        React.createElement("a", {href: "#", onClick: this.goToPageNumber.bind(this, i)}, 
+                            i + 1
+                        )
+                    )
+                );
+            }
+
+            return pageNumberEls;
+        };
+
+        return (
+            React.createElement("nav", {"aria-label": "Page navigation"}, 
+                React.createElement("ul", {className: "pagination"}, 
+                    React.createElement("li", null, 
+                        React.createElement("a", {href: "#", "aria-label": "Previous", onClick: this.previousPage}, 
+                            React.createElement("span", {"aria-hidden": "true"}, "«")
+                        )
+                    ), 
+                    renderPageNumbers.call(this), 
+                    React.createElement("li", null, 
+                        React.createElement("a", {href: "#", "aria-label": "Next", onClick: this.nextPage}, 
+                            React.createElement("span", {"aria-hidden": "true"}, "»")
+                        )
+                    )
+                )
+            )
+        );
+    }
+});
+
+module.exports = Paginator;
+
+},{"react":207}],219:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53328,7 +53391,7 @@ var SelectInput = React.createClass({displayName: "SelectInput",
 
 module.exports = SelectInput;
 
-},{"react":207}],219:[function(require,module,exports){
+},{"react":207}],220:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53473,7 +53536,7 @@ var TextInput = React.createClass({displayName: "TextInput",
 
 module.exports = TextInput;
 
-},{"flatpickr":4,"react":207}],220:[function(require,module,exports){
+},{"flatpickr":4,"react":207}],221:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53515,7 +53578,7 @@ var TextareaInput = React.createClass({displayName: "TextareaInput",
 
 module.exports = TextareaInput;
 
-},{"react":207}],221:[function(require,module,exports){
+},{"react":207}],222:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53562,7 +53625,7 @@ var CompanyForm = React.createClass({displayName: "CompanyForm",
 
 module.exports = CompanyForm;
 
-},{"../common/textInput":219,"react":207}],222:[function(require,module,exports){
+},{"../common/textInput":220,"react":207}],223:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53613,7 +53676,7 @@ var CompanyList = React.createClass({displayName: "CompanyList",
 
 module.exports = CompanyList;
 
-},{"../../actions/companyActions":209,"react":207,"react-router":37}],223:[function(require,module,exports){
+},{"../../actions/companyActions":209,"react":207,"react-router":37}],224:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53623,12 +53686,15 @@ var CompanyStore = require('../../stores/companyStore');
 var CompanyActions = require('../../actions/companyActions');
 var CompanyList = require('./companyList');
 var TextInput = require('../common/textInput');
+var Paginator = require('../common/paginator');
 
 var CompanyPage = React.createClass({displayName: "CompanyPage",
 	getInitialState: function() {
 		return {
 			companies: CompanyStore.getAllCompanies(),
-			keyword: ''
+			pagination: CompanyStore.getPagination(),
+			keyword: '',
+			searched: false
 		};
 	},
 
@@ -53642,7 +53708,14 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 	},
 
 	_onChange: function() {
-		this.setState({ companies: CompanyStore.getAllCompanies() });
+		this.setState({ 
+			companies: CompanyStore.getAllCompanies(),
+			pagination: CompanyStore.getPagination()
+		});
+	},
+
+	getCompanies: function () {
+		CompanyActions.getCompanies(this.state.pagination.number, this.state.pagination.size);
 	},
 
 	setCompanyPageState: function (event) {
@@ -53652,18 +53725,34 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 		this.state[field] = value;
 
 		if (this.state.keyword === '') {
+			this.setState({ searched: false });
 			CompanyActions.getCompanies();
 		}
 	},
 
 	searchList: function (event) {
 		if (event.keyCode === 13) {
+			this.setState({ searched: true });
 			this.searchData();
 		}
 	},
 
 	searchData: function () {
 		CompanyActions.searchList(this.state.keyword);
+	},
+
+	previousPage: function () {
+		this.state.pagination.number--;
+		this.getCompanies();
+	},
+
+	nextPage: function () {
+		this.state.pagination.number++;
+		this.getCompanies();
+	},
+
+	goToPageNumber: function (pageNumber) {
+		CompanyActions.getCompanies(pageNumber, this.state.pagination.size);
 	},
 
 	render: function() {
@@ -53679,7 +53768,17 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 				), 
 
 				React.createElement("div", {className: "row"}, 
-					React.createElement("div", {className: "col-lg-offset-8 col-md-offset-7 col-lg-4 col-md-5 col-sm-12"}, 
+					React.createElement("div", {className: "col-lg-8 col-md-7 col-sm-12"}, 
+						(this.state.pagination && !this.state.searched) ?
+							React.createElement(Paginator, {
+								previousPage: this.previousPage, 
+								nextPage: this.nextPage, 
+								currentPage: this.state.pagination.number, 
+								totalPages: this.state.pagination.totalPages, 
+								goToPageNumber: this.goToPageNumber}) : ''
+						
+					), 
+					React.createElement("div", {className: "col-lg-4 col-md-5 col-sm-12"}, 
 						React.createElement(TextInput, {
 							name: "keyword", 
 							label: "", 
@@ -53691,6 +53790,7 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 							btnIcon: "search"})
 					)
 				), 
+
 				React.createElement("div", {className: "row"}, 
 					React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
 						React.createElement(CompanyList, {companies: this.state.companies})
@@ -53703,7 +53803,7 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 
 module.exports = CompanyPage;
 
-},{"../../actions/companyActions":209,"../../stores/companyStore":242,"../common/textInput":219,"./companyList":222,"react":207,"react-router":37}],224:[function(require,module,exports){
+},{"../../actions/companyActions":209,"../../stores/companyStore":243,"../common/paginator":218,"../common/textInput":220,"./companyList":223,"react":207,"react-router":37}],225:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53793,7 +53893,7 @@ var ManageCompanyPage = React.createClass({displayName: "ManageCompanyPage",
 
 module.exports = ManageCompanyPage;
 
-},{"../../actions/companyActions":209,"../../stores/companyStore":242,"./companyForm":221,"react":207,"react-router":37}],225:[function(require,module,exports){
+},{"../../actions/companyActions":209,"../../stores/companyStore":243,"./companyForm":222,"react":207,"react-router":37}],226:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53913,7 +54013,7 @@ var EmployeeChecklist = React.createClass({displayName: "EmployeeChecklist",
 
 module.exports = EmployeeChecklist;
 
-},{"../common/checkboxInput":216,"lodash":9,"react":207,"react-router":37}],226:[function(require,module,exports){
+},{"../common/checkboxInput":216,"lodash":9,"react":207,"react-router":37}],227:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53974,7 +54074,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/selectInput":218,"../common/textInput":219,"react":207}],227:[function(require,module,exports){
+},{"../common/selectInput":219,"../common/textInput":220,"react":207}],228:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54025,7 +54125,7 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 
 module.exports = EmployeeList;
 
-},{"../../actions/employeeActions":210,"react":207,"react-router":37}],228:[function(require,module,exports){
+},{"../../actions/employeeActions":210,"react":207,"react-router":37}],229:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54035,14 +54135,16 @@ var EmployeeStore = require('../../stores/employeeStore');
 var EmployeeActions = require('../../actions/employeeActions');
 var EmployeeList = require('./employeeList');
 var TextInput = require('../common/textInput');
+var Paginator = require('../common/paginator');
 
 var EmployeePage = React.createClass({displayName: "EmployeePage",
-	getInitialState: function() {
+	getInitialState: function () {
+
 		return {
 			employees: EmployeeStore.getAllEmployees(),
+			pagination: EmployeeStore.getPagination(),
 			keyword: '',
-			pageNumber: 0,
-			pageSize: 10
+			searched: false
 		};
 	},
 
@@ -54050,17 +54152,20 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 		EmployeeStore.addChangeListener(this._onChange);
 	},
 
-	//Clean up when this component is unmounted
 	componentWillUnmount: function() {
 		EmployeeStore.removeChangeListener(this._onChange);
 	},
 
-	_onChange: function() {
-		this.setState({ employees: EmployeeStore.getAllEmployees() });
+	_onChange: function () {
+
+		this.setState({
+			employees: EmployeeStore.getAllEmployees(),
+			pagination: EmployeeStore.getPagination()
+		});
 	},
 
 	getEmployees: function() {
-		EmployeeActions.getEmployees(this.state.pageNumber, this.state.pageSize);
+		EmployeeActions.getEmployees(this.state.pagination.number, this.state.pagination.size);
 	},
 
 	setEmployeePageState: function (event) {
@@ -54070,24 +54175,31 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 		this.state[field] = value;
 
 		if (this.state.keyword === '') {
+			this.setState({ searched: false });
 			this.getEmployees();
 		}
 	},
 
 	searchList: function (event) {
 		if (event.keyCode === 13) {
+			this.setState({ searched: true });
 			EmployeeActions.searchList(event.target.value);
 		}
 	},
 
 	previousPage: function(){
-		this.state.pageNumber--;
-		console.log('prev page', this.state.pageNumber);
+		this.state.pagination.number--;
+		this.getEmployees();
 	},
 
 	nextPage: function () {
-		this.state.pageNumber++;
-		console.log('next page', this.state.pageNumber);
+		this.state.pagination.number++;
+		this.getEmployees();
+	},
+
+	goToPageNumber: function (pageNumber) {
+		console.log(pageNumber);
+		EmployeeActions.getEmployees(pageNumber, this.state.pagination.size);
 	},
 
 	render: function() {
@@ -54103,7 +54215,17 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 				), 
 
 				React.createElement("div", {className: "row"}, 
-					React.createElement("div", {className: "col-lg-offset-8 col-md-offset-7 col-lg-4 col-md-5 col-sm-12"}, 
+					React.createElement("div", {className: "col-lg-8 col-md-7 col-sm-12"}, 
+						(this.state.pagination && !this.state.searched) ? 
+							React.createElement(Paginator, {
+								previousPage: this.previousPage, 
+								nextPage: this.nextPage, 
+								currentPage: this.state.pagination.number, 
+								totalPages: this.state.pagination.totalPages, 
+								goToPageNumber: this.goToPageNumber}) : ''
+						
+					), 
+					React.createElement("div", {className: "col-lg-4 col-md-5 col-sm-12"}, 
 						React.createElement(TextInput, {
 							name: "keyword", 
 							label: "", 
@@ -54118,14 +54240,6 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 					React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
 						React.createElement(EmployeeList, {employees: this.state.employees})
 					)
-				), 
-				React.createElement("div", {className: "row"}, 
-					React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
-						React.createElement("div", {class: "btn-group", role: "group", "aria-label": "..."}, 
-							React.createElement("button", {type: "button", class: "btn btn-default", onClick: this.previousPage}, "Prev"), 
-							React.createElement("button", {type: "button", class: "btn btn-default", onClick: this.nextPage}, "Next")
-						)
-					)
 				)
 			)
 		);
@@ -54134,7 +54248,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 module.exports = EmployeePage;
 
-},{"../../actions/employeeActions":210,"../../stores/employeeStore":243,"../common/textInput":219,"./employeeList":227,"react":207,"react-router":37}],229:[function(require,module,exports){
+},{"../../actions/employeeActions":210,"../../stores/employeeStore":244,"../common/paginator":218,"../common/textInput":220,"./employeeList":228,"react":207,"react-router":37}],230:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54259,7 +54373,7 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 
 module.exports = ManageEmployeePage;
 
-},{"../../actions/employeeActions":210,"../../stores/companyStore":242,"../../stores/employeeStore":243,"./employeeForm":226,"react":207,"react-router":37}],230:[function(require,module,exports){
+},{"../../actions/employeeActions":210,"../../stores/companyStore":243,"../../stores/employeeStore":244,"./employeeForm":227,"react":207,"react-router":37}],231:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54381,7 +54495,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/checkboxInput":216,"../common/selectInput":218,"../common/textInput":219,"../common/textareaInput":220,"react":207}],231:[function(require,module,exports){
+},{"../common/checkboxInput":216,"../common/selectInput":219,"../common/textInput":220,"../common/textareaInput":221,"react":207}],232:[function(require,module,exports){
 "use strict";
 
 var moment = require('moment');
@@ -54456,7 +54570,7 @@ var ListViewList = React.createClass({displayName: "ListViewList",
 
 module.exports = ListViewList;
 
-},{"../../actions/listViewActions":212,"moment":10,"react":207,"react-router":37}],232:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"moment":10,"react":207,"react-router":37}],233:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54582,7 +54696,7 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
 
 module.exports = ListViewPage;
 
-},{"../../actions/listViewActions":212,"../../stores/listViewStore":244,"../common/selectInput":218,"../common/textInput":219,"./listViewList":231,"moment":10,"react":207,"react-router":37}],233:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"../../stores/listViewStore":245,"../common/selectInput":219,"../common/textInput":220,"./listViewList":232,"moment":10,"react":207,"react-router":37}],234:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54781,7 +54895,7 @@ var ManageListView = React.createClass({displayName: "ManageListView",
 
 module.exports = ManageListView;
 
-},{"../../actions/listViewActions":212,"../../stores/employeeStore":243,"../../stores/listViewStore":244,"../employees/employeeChecklist":225,"./listViewForm":230,"moment":10,"react":207,"react-router":37}],234:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"../../stores/employeeStore":244,"../../stores/listViewStore":245,"../employees/employeeChecklist":226,"./listViewForm":231,"moment":10,"react":207,"react-router":37}],235:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54801,7 +54915,7 @@ var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 
 module.exports = NotFoundPage;
 
-},{"react":207,"react-router":37}],235:[function(require,module,exports){
+},{"react":207,"react-router":37}],236:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54850,7 +54964,7 @@ var WhoIsInList = React.createClass({displayName: "WhoIsInList",
 
 module.exports = WhoIsInList;
 
-},{"moment":10,"react":207}],236:[function(require,module,exports){
+},{"moment":10,"react":207}],237:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54893,7 +55007,7 @@ var WhoIsInPage = React.createClass({displayName: "WhoIsInPage",
 
 module.exports = WhoIsInPage;
 
-},{"../../actions/whoIsInActions":213,"../../stores/whoIsInStore":245,"./whoIsInList":235,"react":207,"react-router":37}],237:[function(require,module,exports){
+},{"../../actions/whoIsInActions":213,"../../stores/whoIsInStore":246,"./whoIsInList":236,"react":207,"react-router":37}],238:[function(require,module,exports){
 "use strict";
 
 var keyMirror = require('react/lib/keyMirror');
@@ -54920,7 +55034,7 @@ module.exports = keyMirror({
 	SEARCH_LISTVIEW: null
 });
 
-},{"react/lib/keyMirror":192}],238:[function(require,module,exports){
+},{"react/lib/keyMirror":192}],239:[function(require,module,exports){
 'use strict';
 
 var API = {
@@ -55007,7 +55121,7 @@ var API = {
 
 module.exports = API;
 
-},{}],239:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 /*
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.
@@ -55025,7 +55139,7 @@ var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":5}],240:[function(require,module,exports){
+},{"flux":5}],241:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55038,7 +55152,7 @@ InitializeActions.initApp();
 Router.run(routes, function(Handler) {
 	React.render(React.createElement(Handler, null), document.getElementById('app'));
 });
-},{"./actions/initializeActions":211,"./routes":241,"react":207,"react-router":37}],241:[function(require,module,exports){
+},{"./actions/initializeActions":211,"./routes":242,"react":207,"react-router":37}],242:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55075,7 +55189,7 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/app":215,"./components/company/companyPage":223,"./components/company/manageCompanyPage":224,"./components/employees/employeePage":228,"./components/employees/manageEmployeePage":229,"./components/listView/listViewPage":232,"./components/listView/manageListView":233,"./components/notFoundPage":234,"./components/whoIsIn/whoIsInPage":236,"react":207,"react-router":37}],242:[function(require,module,exports){
+},{"./components/app":215,"./components/company/companyPage":224,"./components/company/manageCompanyPage":225,"./components/employees/employeePage":229,"./components/employees/manageEmployeePage":230,"./components/listView/listViewPage":233,"./components/listView/manageListView":234,"./components/notFoundPage":235,"./components/whoIsIn/whoIsInPage":237,"react":207,"react-router":37}],243:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55087,6 +55201,7 @@ var CHANGE_EVENT = 'change';
 var toastr = require('toastr');
 
 var _companies = [];
+var _pagination;
 
 var CompanyStore = assign({}, EventEmitter.prototype, {
 
@@ -55107,12 +55222,13 @@ var CompanyStore = assign({}, EventEmitter.prototype, {
     },
 
     getCompanyById: function (id) {
-        // return _.find(_companies, {id: id});
-
-        // TODO: ask typeof id
         return _companies.find(function (company) {
             return company.id.toString() === id;
         });
+    },
+
+    getPagination: function () {
+        return _pagination;
     }
 });
 
@@ -55121,6 +55237,11 @@ Dispatcher.register(function (action) {
 
         case ActionTypes.INITIALIZE_COMPANIES:
             _companies = action.data._embedded.companies;
+
+            if (action.data.page) {
+                _pagination = action.data.page;
+            }
+
             CompanyStore.emitChange();
             break;
 
@@ -55156,7 +55277,7 @@ Dispatcher.register(function (action) {
 
 module.exports = CompanyStore;
 
-},{"../constants/actionTypes":237,"../dispatcher/appDispatcher":239,"events":2,"lodash":9,"object-assign":11,"toastr":208}],243:[function(require,module,exports){
+},{"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"events":2,"lodash":9,"object-assign":11,"toastr":208}],244:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55168,6 +55289,7 @@ var CHANGE_EVENT = 'change';
 var toastr = require('toastr');
 
 var _employees = [];
+var _pagination;
 
 var EmployeeStore = assign({}, EventEmitter.prototype, {
 
@@ -55188,12 +55310,13 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 	},
 
 	getEmployeeById: function(id) {
-		// return _.find(_employees, {id: id});
-
-		// TODO: ask typeof id
 		return _employees.find(function(employee){
 			return employee.id.toString() === id;
 		});
+	},
+
+	getPagination: function () {
+		return _pagination;
 	}
 });
 
@@ -55202,6 +55325,11 @@ Dispatcher.register(function (action) {
 		
 		case ActionTypes.INITIALIZE_EMPLOYEES:
 			_employees = action.data._embedded.employees;
+			
+			if (action.data.page) {
+				_pagination = action.data.page;
+			}
+			
 			EmployeeStore.emitChange();
 			break;
 
@@ -55226,6 +55354,9 @@ Dispatcher.register(function (action) {
 
 		case ActionTypes.SEARCH_EMPLOYEE:
 			_employees = action.data._embedded.employees;
+			if (action.data.page) {
+				_pagination = action.data.page;
+			}
 			toastr.clear();
 			EmployeeStore.emitChange();
 			break;
@@ -55237,7 +55368,7 @@ Dispatcher.register(function (action) {
 
 module.exports = EmployeeStore;
 
-},{"../constants/actionTypes":237,"../dispatcher/appDispatcher":239,"events":2,"lodash":9,"object-assign":11,"toastr":208}],244:[function(require,module,exports){
+},{"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"events":2,"lodash":9,"object-assign":11,"toastr":208}],245:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55313,7 +55444,7 @@ Dispatcher.register(function (action) {
 
 module.exports = ListViewStore;
 
-},{"../constants/actionTypes":237,"../dispatcher/appDispatcher":239,"events":2,"lodash":9,"object-assign":11}],245:[function(require,module,exports){
+},{"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"events":2,"lodash":9,"object-assign":11}],246:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55359,4 +55490,4 @@ Dispatcher.register(function (action) {
 
 module.exports = WhoIsInStore;
 
-},{"../constants/actionTypes":237,"../dispatcher/appDispatcher":239,"events":2,"lodash":9,"object-assign":11}]},{},[240]);
+},{"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"events":2,"lodash":9,"object-assign":11}]},{},[241]);
