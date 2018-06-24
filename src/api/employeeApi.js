@@ -1,7 +1,7 @@
 "use strict";
 var $ = require('jquery');
 var _ = require('lodash');
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var window = $;
 
 var employees = [];

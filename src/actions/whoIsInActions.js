@@ -1,6 +1,6 @@
 "use strict";
 
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
 var toastr = require('toastr');

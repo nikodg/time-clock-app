@@ -3,7 +3,7 @@
 var Dispatcher = require('../dispatcher/appDispatcher');
 var EmployeeApi = require('../api/employeeApi');
 var ActionTypes = require('../constants/actionTypes');
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var toastr = require('toastr');
 
 var EmployeeActions = {

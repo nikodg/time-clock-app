@@ -2,7 +2,7 @@
 
 var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var toastr = require('toastr');
 var CompanyStore = require('../stores/companyStore');
 
