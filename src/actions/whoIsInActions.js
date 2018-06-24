@@ -7,9 +7,11 @@ var toastr = require('toastr');
 
 var WhoIsInActions = {
     
-    getWhoIsIn: function () {
+    getWhoIsIn: function (pageNumber, pageSize) {
 
-        API.getData('whoIsIn')
+        var url = 'whoIsIn?page=' + pageNumber + '&size=' + pageSize;
+
+        API.getData(url)
             .done(function (data) {
                 Dispatcher.dispatch({
                     type: ActionTypes.INITIALIZE_WHOISIN,

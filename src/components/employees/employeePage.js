@@ -22,6 +22,7 @@ var EmployeePage = React.createClass({
 
 	componentWillMount: function() {
 		EmployeeStore.addChangeListener(this._onChange);
+		this.getEmployees();
 	},
 
 	componentWillUnmount: function() {

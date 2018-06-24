@@ -4,11 +4,12 @@ var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
 var API = require('../constants/apis');
 var toastr = require('toastr');
+var CompanyStore = require('../stores/companyStore');
 
 var CompanyActions = {
 
     getCompanies: function (pageNumber, pageSize) {
-
+        CompanyStore.setLoader(true);
         var url = 'companies?page=' + pageNumber + '&size=' + pageSize;
 
         API.getData(url)

@@ -52820,11 +52820,12 @@ var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
 var API = require('../constants/apis');
 var toastr = require('toastr');
+var CompanyStore = require('../stores/companyStore');
 
 var CompanyActions = {
 
     getCompanies: function (pageNumber, pageSize) {
-
+        CompanyStore.setLoader(true);
         var url = 'companies?page=' + pageNumber + '&size=' + pageSize;
 
         API.getData(url)
@@ -52896,7 +52897,7 @@ var CompanyActions = {
 
 module.exports = CompanyActions;
 
-},{"../constants/actionTypes":238,"../constants/apis":239,"../dispatcher/appDispatcher":240,"toastr":208}],210:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"../stores/companyStore":248,"toastr":208}],210:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -52987,7 +52988,7 @@ var EmployeeActions = {
 
 module.exports = EmployeeActions;
 
-},{"../api/employeeApi":214,"../constants/actionTypes":238,"../constants/apis":239,"../dispatcher/appDispatcher":240,"toastr":208}],211:[function(require,module,exports){
+},{"../api/employeeApi":215,"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"toastr":208}],211:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -53000,19 +53001,13 @@ var moment = require('moment');
 
 var InitializeActions = {
 	initApp: function () {
-
-		var today = moment().format('YYYY-MM-DD');
-
-		ListViewActions.getListView('', today, today, '');
-		WhoIsInActions.getWhoIsIn();
-		EmployeeActions.getEmployees(0, 10);
-		CompanyActions.getCompanies(0, 10);
+		//
 	}
 };
 
 module.exports = InitializeActions;
 
-},{"../actions/companyActions":209,"../actions/employeeActions":210,"../actions/listViewActions":212,"../actions/whoIsInActions":213,"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"moment":10}],212:[function(require,module,exports){
+},{"../actions/companyActions":209,"../actions/employeeActions":210,"../actions/listViewActions":212,"../actions/whoIsInActions":214,"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"moment":10}],212:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -53029,7 +53024,6 @@ var ListViewActions = {
     createListView: function (record, employees) {
 
         record.employeeList = employees;
-        console.log(record);
         API.postData('employeeTimes/addEntry', record)
             .done(function (data) {
 
@@ -53058,11 +53052,15 @@ var ListViewActions = {
             });
     },
 
-    getListView: function (keyword, dateFrom, dateTo, leaveType) {
-        var url = 'employeeTimes/search/listView?employeeName=' + keyword;
+    getListView: function (keyword, dateFrom, dateTo, leaveType, pageNumber, pageSize) {
+
+        var url = 'employeeTimes/search/listView';
+        url += '?employeeName=' + keyword;
         url += '&dateFrom=' + dateFrom;
         url += '&dateTo=' + dateTo;
         url += '&leaveType=' + leaveType;
+        url += '&page=' + pageNumber;
+        url += '&size=' + pageSize;
 
         API.getData(url)
             .done(function (data) {
@@ -53107,7 +53105,59 @@ var ListViewActions = {
 
 module.exports = ListViewActions;
 
-},{"../constants/actionTypes":238,"../constants/apis":239,"../dispatcher/appDispatcher":240,"toastr":208}],213:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"toastr":208}],213:[function(require,module,exports){
+"use strict";
+
+var API = require('../constants/apis');
+var Dispatcher = require('../dispatcher/appDispatcher');
+var ActionTypes = require('../constants/actionTypes');
+var toastr = require('toastr');
+
+var LoginActions = {
+
+    checkIn: function (credentials) {
+
+        // API.postData('login', credentials)
+        //     .done(function (response) {
+        //         toastr.success('Logged In Successfully');
+        //         Dispatcher.dispatch({
+        //             type: ActionTypes.LOG_IN,
+        //             data: employee
+        //         });
+        //     }).fail(function () {
+        //         toastr.error('Login Failed.');
+        //     });
+
+
+        Dispatcher.dispatch({
+            type: ActionTypes.LOG_IN,
+            data: true
+        });
+    },
+
+    checkOut: function (sessionId) {
+
+        // API.postData('logout', sessionId)
+        //     .done(function (response) {
+        //         toastr.success('Logged Out Successfully');
+        //         Dispatcher.dispatch({
+        //             type: ActionTypes.LOG_OUT,
+        //             data: employee
+        //         });
+        //     }).fail(function () {
+        //         toastr.error('Logout Failed.');
+        //     });
+
+        Dispatcher.dispatch({
+            type: ActionTypes.LOG_OUT,
+            data: false
+        });
+    }
+};
+
+module.exports = LoginActions;
+
+},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"toastr":208}],214:[function(require,module,exports){
 "use strict";
 
 var API = require('../constants/apis');
@@ -53117,9 +53167,11 @@ var toastr = require('toastr');
 
 var WhoIsInActions = {
     
-    getWhoIsIn: function () {
+    getWhoIsIn: function (pageNumber, pageSize) {
 
-        API.getData('whoIsIn')
+        var url = 'whoIsIn?page=' + pageNumber + '&size=' + pageSize;
+
+        API.getData(url)
             .done(function (data) {
                 Dispatcher.dispatch({
                     type: ActionTypes.INITIALIZE_WHOISIN,
@@ -53134,7 +53186,7 @@ var WhoIsInActions = {
 
 module.exports = WhoIsInActions;
 
-},{"../constants/actionTypes":238,"../constants/apis":239,"../dispatcher/appDispatcher":240,"toastr":208}],214:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"toastr":208}],215:[function(require,module,exports){
 "use strict";
 var $ = require('jquery');
 var _ = require('lodash');
@@ -53177,7 +53229,7 @@ var EmployeeApi = {
 
 module.exports = EmployeeApi;
 
-},{"../constants/apis":239,"jquery":8,"lodash":9}],215:[function(require,module,exports){
+},{"../constants/apis":244,"jquery":8,"lodash":9}],216:[function(require,module,exports){
 /*eslint-disable strict */ //Disabling check because we can't run strict mode. Need global vars.
 
 var React = require('react');
@@ -53200,7 +53252,7 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App;
 
-},{"./common/header":217,"jquery":8,"react":207,"react-router":37}],216:[function(require,module,exports){
+},{"./common/header":219,"jquery":8,"react":207,"react-router":37}],217:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53238,14 +53290,67 @@ var CheckboxInput = React.createClass({displayName: "CheckboxInput",
 
 module.exports = CheckboxInput;
 
-},{"react":207}],217:[function(require,module,exports){
+},{"react":207}],218:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+
+var ClockLoader = React.createClass({displayName: "ClockLoader",
+
+    render: function(){
+        return (
+            React.createElement("div", {className: "clock"}, 
+                React.createElement("div", {className: "minutes"}), 
+                React.createElement("div", {className: "hours"})
+            )
+        );
+    }
+});
+
+module.exports = ClockLoader;
+
+},{"react":207}],219:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
+var LoginStore = require('../../stores/loginStore');
+var LoginActions = require('../../actions/loginActions');
 
 var Header = React.createClass({displayName: "Header",
+
+  mixins: [
+    Router.Navigation
+  ],
+
+  getInitialState: function () {
+    return {
+      session: LoginStore.checkSession()
+    };
+  },
+
+  componentWillMount: function () {
+    LoginStore.addChangeListener(this._onChange);
+  },
+
+  componentWillUnmount: function () {
+    LoginStore.removeChangeListener(this._onChange);
+  },
+
+  _onChange: function () {
+    this.setState({ session: LoginStore.checkSession() });
+    if (!LoginStore.checkSession()) {
+
+      this.transitionTo('/');
+    }
+  },
+
+  logoutHandler: function(event){
+    event.preventDefault();
+    LoginActions.checkOut();
+  },
+
 	render: function() {
 		return (
         React.createElement("nav", {className: "navbar navbar-default"}, 
@@ -53259,7 +53364,13 @@ var Header = React.createClass({displayName: "Header",
                 React.createElement("li", null, React.createElement(Link, {to: "listView"}, "List View")), 
                 React.createElement("li", null, React.createElement(Link, {to: "employees"}, "Employees")), 
                 React.createElement("li", null, React.createElement(Link, {to: "companies"}, "Companies"))
-              )
+              ), 
+
+              this.state.session ? 
+                React.createElement("ul", {className: "nav navbar-nav navbar-right"}, 
+                  React.createElement("li", null, React.createElement("a", {href: "#", onClick: this.logoutHandler}, "Logout"))
+                ) : ''
+              
           )
         )
 		);
@@ -53267,7 +53378,7 @@ var Header = React.createClass({displayName: "Header",
 });
 
 module.exports = Header;
-},{"react":207,"react-router":37}],218:[function(require,module,exports){
+},{"../../actions/loginActions":213,"../../stores/loginStore":251,"react":207,"react-router":37}],220:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -53328,7 +53439,109 @@ var Paginator = React.createClass({displayName: "Paginator",
 
 module.exports = Paginator;
 
-},{"react":207}],219:[function(require,module,exports){
+},{"react":207}],221:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+var flatpickr = require("flatpickr");
+
+var PasswordInput = React.createClass({displayName: "PasswordInput",
+
+    propTypes: {
+        name: React.PropTypes.string.isRequired,
+        label: React.PropTypes.string.isRequired,
+        onChange: React.PropTypes.func.isRequired,
+        placeholder: React.PropTypes.string,
+        value: React.PropTypes.string,
+        error: React.PropTypes.string
+    },
+
+    render: function () {
+        var wrapperClass = 'form-group';
+        if (this.props.error && this.props.error.length > 0) {
+            wrapperClass += " " + 'has-error';
+        }
+
+        if (this.props.icon) {
+
+            return (
+                React.createElement("div", {className: wrapperClass}, 
+                    React.createElement("label", {htmlFor: this.props.name}, this.props.label), 
+
+                    React.createElement("div", {className: "input-group field"}, 
+                        React.createElement("span", {className: 'input-group-addon glyphicon glyphicon-' + this.props.icon, id: "basic-addon1"}), 
+                        React.createElement("input", {type: "password", 
+                            id: this.props.id, 
+                            name: this.props.name, 
+                            className: "form-control", 
+                            placeholder: this.props.placeholder, 
+                            ref: this.props.name, 
+                            value: this.props.value, 
+                            onChange: this.props.onChange, 
+                            onKeyUp: this.props.onKeyUp, 
+                            disabled: this.props.disabled ? 'disabled' : ''})
+                    ), 
+                    React.createElement("div", {className: "input"}, this.props.error)
+                )
+            );
+
+        } else if (this.props.btnIcon) {
+
+            return (
+                React.createElement("div", {className: wrapperClass}, 
+                    React.createElement("label", {htmlFor: this.props.name}, this.props.label), 
+
+                    React.createElement("div", {className: "input-group field"}, 
+                        React.createElement("input", {type: "password", 
+                            id: this.props.id, 
+                            name: this.props.name, 
+                            className: "form-control", 
+                            placeholder: this.props.placeholder, 
+                            ref: this.props.name, 
+                            value: this.props.value, 
+                            onChange: this.props.onChange, 
+                            onKeyUp: this.props.onKeyUp, 
+                            disabled: this.props.disabled ? 'disabled' : ''}), 
+
+                        React.createElement("span", {className: "input-group-btn"}, 
+                            React.createElement("button", {
+                                className: 'btn btn-default glyphicon glyphicon-' + this.props.btnIcon, 
+                                onClick: this.props.onClick, 
+                                type: "button"})
+                        )
+
+                    ), 
+                    React.createElement("div", {className: "input"}, this.props.error)
+                )
+            );
+
+        } else {
+
+            return (
+                React.createElement("div", {className: wrapperClass}, 
+                    React.createElement("label", {htmlFor: this.props.name}, this.props.label), 
+                    React.createElement("div", {className: "field"}, 
+                        React.createElement("input", {type: "password", 
+                            id: this.props.id, 
+                            name: this.props.name, 
+                            className: "form-control", 
+                            placeholder: this.props.placeholder, 
+                            ref: this.props.name, 
+                            value: this.props.value, 
+                            onChange: this.props.onChange, 
+                            onKeyUp: this.props.onKeyUp, 
+                            disabled: this.props.disabled ? 'disabled' : ''})
+                    ), 
+                    React.createElement("div", {className: "input"}, this.props.error)
+                )
+            );
+        }
+    }
+});
+
+module.exports = PasswordInput;
+
+},{"flatpickr":4,"react":207}],222:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53391,7 +53604,7 @@ var SelectInput = React.createClass({displayName: "SelectInput",
 
 module.exports = SelectInput;
 
-},{"react":207}],220:[function(require,module,exports){
+},{"react":207}],223:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53419,7 +53632,6 @@ var TextInput = React.createClass({displayName: "TextInput",
         case 'date':
           fpOptions = {
             enableTime: false,
-            noCalendar: true,
             dateFormat: "m/d/Y",
             defaultDate: this.props.value
           };
@@ -53536,7 +53748,7 @@ var TextInput = React.createClass({displayName: "TextInput",
 
 module.exports = TextInput;
 
-},{"flatpickr":4,"react":207}],221:[function(require,module,exports){
+},{"flatpickr":4,"react":207}],224:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53578,7 +53790,7 @@ var TextareaInput = React.createClass({displayName: "TextareaInput",
 
 module.exports = TextareaInput;
 
-},{"react":207}],222:[function(require,module,exports){
+},{"react":207}],225:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53625,7 +53837,7 @@ var CompanyForm = React.createClass({displayName: "CompanyForm",
 
 module.exports = CompanyForm;
 
-},{"../common/textInput":220,"react":207}],223:[function(require,module,exports){
+},{"../common/textInput":223,"react":207}],226:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53676,7 +53888,7 @@ var CompanyList = React.createClass({displayName: "CompanyList",
 
 module.exports = CompanyList;
 
-},{"../../actions/companyActions":209,"react":207,"react-router":37}],224:[function(require,module,exports){
+},{"../../actions/companyActions":209,"react":207,"react-router":37}],227:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53687,12 +53899,14 @@ var CompanyActions = require('../../actions/companyActions');
 var CompanyList = require('./companyList');
 var TextInput = require('../common/textInput');
 var Paginator = require('../common/paginator');
+var ClockLoader = require('../common/clockLoader');
 
 var CompanyPage = React.createClass({displayName: "CompanyPage",
 	getInitialState: function() {
 		return {
 			companies: CompanyStore.getAllCompanies(),
 			pagination: CompanyStore.getPagination(),
+			loader: false,
 			keyword: '',
 			searched: false
 		};
@@ -53700,6 +53914,7 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 
 	componentWillMount: function() {
 		CompanyStore.addChangeListener(this._onChange);
+		this.getCompanies();
 	},
 
 	//Clean up when this component is unmounted
@@ -53710,11 +53925,13 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 	_onChange: function() {
 		this.setState({ 
 			companies: CompanyStore.getAllCompanies(),
-			pagination: CompanyStore.getPagination()
+			pagination: CompanyStore.getPagination(),
+			loader: CompanyStore.getLoader()
 		});
 	},
 
 	getCompanies: function () {
+		this.state.loader = true;
 		CompanyActions.getCompanies(this.state.pagination.number, this.state.pagination.size);
 	},
 
@@ -53769,7 +53986,7 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 
 				React.createElement("div", {className: "row"}, 
 					React.createElement("div", {className: "col-lg-8 col-md-7 col-sm-12"}, 
-						(this.state.pagination && !this.state.searched) ?
+						(this.state.pagination.totalElements && !this.state.searched) ?
 							React.createElement(Paginator, {
 								previousPage: this.previousPage, 
 								nextPage: this.nextPage, 
@@ -53794,6 +54011,10 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 				React.createElement("div", {className: "row"}, 
 					React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
 						React.createElement(CompanyList, {companies: this.state.companies})
+
+						/* <div class="clock-loader-wrap">
+							{ this.state.loader ? <ClockLoader /> : '' }
+						</div> */
 					)
 				)
 			)
@@ -53803,7 +54024,7 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 
 module.exports = CompanyPage;
 
-},{"../../actions/companyActions":209,"../../stores/companyStore":243,"../common/paginator":218,"../common/textInput":220,"./companyList":223,"react":207,"react-router":37}],225:[function(require,module,exports){
+},{"../../actions/companyActions":209,"../../stores/companyStore":248,"../common/clockLoader":218,"../common/paginator":220,"../common/textInput":223,"./companyList":226,"react":207,"react-router":37}],228:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -53893,7 +54114,7 @@ var ManageCompanyPage = React.createClass({displayName: "ManageCompanyPage",
 
 module.exports = ManageCompanyPage;
 
-},{"../../actions/companyActions":209,"../../stores/companyStore":243,"./companyForm":222,"react":207,"react-router":37}],226:[function(require,module,exports){
+},{"../../actions/companyActions":209,"../../stores/companyStore":248,"./companyForm":225,"react":207,"react-router":37}],229:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54013,7 +54234,7 @@ var EmployeeChecklist = React.createClass({displayName: "EmployeeChecklist",
 
 module.exports = EmployeeChecklist;
 
-},{"../common/checkboxInput":216,"lodash":9,"react":207,"react-router":37}],227:[function(require,module,exports){
+},{"../common/checkboxInput":217,"lodash":9,"react":207,"react-router":37}],230:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54074,7 +54295,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/selectInput":219,"../common/textInput":220,"react":207}],228:[function(require,module,exports){
+},{"../common/selectInput":222,"../common/textInput":223,"react":207}],231:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54125,7 +54346,7 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 
 module.exports = EmployeeList;
 
-},{"../../actions/employeeActions":210,"react":207,"react-router":37}],229:[function(require,module,exports){
+},{"../../actions/employeeActions":210,"react":207,"react-router":37}],232:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54150,6 +54371,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 	componentWillMount: function() {
 		EmployeeStore.addChangeListener(this._onChange);
+		this.getEmployees();
 	},
 
 	componentWillUnmount: function() {
@@ -54248,7 +54470,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 module.exports = EmployeePage;
 
-},{"../../actions/employeeActions":210,"../../stores/employeeStore":244,"../common/paginator":218,"../common/textInput":220,"./employeeList":228,"react":207,"react-router":37}],230:[function(require,module,exports){
+},{"../../actions/employeeActions":210,"../../stores/employeeStore":249,"../common/paginator":220,"../common/textInput":223,"./employeeList":231,"react":207,"react-router":37}],233:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54373,7 +54595,7 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 
 module.exports = ManageEmployeePage;
 
-},{"../../actions/employeeActions":210,"../../stores/companyStore":243,"../../stores/employeeStore":244,"./employeeForm":227,"react":207,"react-router":37}],231:[function(require,module,exports){
+},{"../../actions/employeeActions":210,"../../stores/companyStore":248,"../../stores/employeeStore":249,"./employeeForm":230,"react":207,"react-router":37}],234:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54495,7 +54717,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/checkboxInput":216,"../common/selectInput":219,"../common/textInput":220,"../common/textareaInput":221,"react":207}],232:[function(require,module,exports){
+},{"../common/checkboxInput":217,"../common/selectInput":222,"../common/textInput":223,"../common/textareaInput":224,"react":207}],235:[function(require,module,exports){
 "use strict";
 
 var moment = require('moment');
@@ -54570,7 +54792,7 @@ var ListViewList = React.createClass({displayName: "ListViewList",
 
 module.exports = ListViewList;
 
-},{"../../actions/listViewActions":212,"moment":10,"react":207,"react-router":37}],233:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"moment":10,"react":207,"react-router":37}],236:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54582,23 +54804,31 @@ var ListViewActions = require('../../actions/listViewActions');
 var ListViewList = require('./listViewList');
 var TextInput = require('../common/textInput');
 var SelectInput = require('../common/selectInput');
+var Paginator = require('../common/paginator');
+
 
 var ListViewPage = React.createClass({displayName: "ListViewPage",
 
     getInitialState: function () {
+
+        var today = moment().format('YYYY-MM-DD');
+
         return {
+            selectOptions: ListViewStore.getLeaveOptions(),
             listViews: ListViewStore.getAllListView(),
-            dateFrom: moment().format('YYYY-MM-DD'),
-            dateTo: moment().format('YYYY-MM-DD'),
+            pagination: ListViewStore.getPagination(),
             keyword: '',
             leaveType: '',
-            selectOptions: ListViewStore.getLeaveOptions(),
-            dirty: false
+            searched: false,
+            dirty: false,
+            dateFrom: today,
+            dateTo: today
         };
     },
 
     componentWillMount: function () {
         ListViewStore.addChangeListener(this._onChange);
+        this.getListView();
     },
 
     //Clean up when this component is unmounted
@@ -54610,27 +54840,49 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
         this.setState({ listViews: ListViewStore.getAllListView() });
     },
 
+    getListView: function () {
+        ListViewActions.getListView(
+            this.state.keyword,
+            this.state.dateFrom,
+            this.state.dateTo,
+            this.state.leaveType,
+            this.state.pagination.number,
+            this.state.pagination.size
+        );
+    },
+
     setListViewState: function (event) {
-        console.log(event.target.value);
         this.setState({ dirty: true });
         var field = event.target.name;
         var value = event.target.value;
         this.state[field] = value;
 
         if (field !== 'keyword') {
-            this.filterListView();
+            this.setState({ searched: false });
+            this.getListView();
+            return this.setState({ field: this.state[field] });
         }
-        return this.setState({ field: this.state[field] });
-    },
-
-    filterListView: function(){
-        ListViewActions.getListView(this.state.keyword, this.state.dateFrom, this.state.dateTo, this.state.leaveType);
     },
 
     searchList: function (event) {
         if (event.keyCode === 13) {
-            this.filterListView();
+            this.setState({ searched: true });
+            this.getListView();
         }
+    },
+
+    previousPage: function () {
+        this.state.pagination.number--;
+        this.getListView();
+    },
+
+    nextPage: function () {
+        this.state.pagination.number++;
+        this.getListView();
+    },
+
+    goToPageNumber: function (pageNumber) {
+        ListViewActions.getListView(pageNumber, this.state.pagination.size);
     },
 
     render: function () {
@@ -54646,7 +54898,7 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
                     )
                 ), 
                 React.createElement("div", {className: "row"}, 
-                    React.createElement("div", {className: "col-lg-3 col-md-6 col-sm-12"}, 
+                    React.createElement("div", {className: "col-lg-3 col-md-4 col-sm-12"}, 
                         React.createElement(TextInput, {
                             name: "dateFrom", 
                             label: "", 
@@ -54656,7 +54908,7 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
                             flatPickr: "date", 
                             icon: "calendar"})
                     ), 
-                    React.createElement("div", {className: "col-lg-3 col-md-6 col-sm-12"}, 
+                    React.createElement("div", {className: "col-lg-3 col-md-4 col-sm-12"}, 
                         React.createElement(TextInput, {
                             name: "dateTo", 
                             label: "", 
@@ -54665,6 +54917,15 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
                             id: "dateTo", 
                             flatPickr: "date", 
                             icon: "calendar"})
+                    ), 
+                    React.createElement("div", {className: "col-lg-3 col-md-4 col-sm-12"}, 
+                        React.createElement(SelectInput, {
+                            name: "leaveType", 
+                            label: "", 
+                            placeholder: "Please select type of leave", 
+                            value: this.state.leaveType, 
+                            options: this.state.selectOptions, 
+                            onChange: this.setListViewState})
                     ), 
                     React.createElement("div", {className: "col-lg-3 col-md-6 col-sm-12"}, 
                         React.createElement(TextInput, {
@@ -54677,15 +54938,19 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
                             placeholder: "Search by Name", 
                             btnIcon: "search"})
                     ), 
-                    React.createElement("div", {className: "col-lg-3 col-md-6 col-sm-12"}, 
-                        React.createElement(SelectInput, {
-                            name: "leaveType", 
-                            label: "", 
-                            placeholder: "Please select type of leave", 
-                            value: this.state.leaveType, 
-                            options: this.state.selectOptions, 
-                            onChange: this.setListViewState})
+                    React.createElement("div", {className: "col-lg-12 col-md-6 col-sm-12"}, 
+
+                        (this.state.pagination.totalElements && !this.state.searched) ?
+                            React.createElement(Paginator, {
+                                previousPage: this.previousPage, 
+                                nextPage: this.nextPage, 
+                                currentPage: this.state.pagination.number, 
+                                totalPages: this.state.pagination.totalPages, 
+                                goToPageNumber: this.goToPageNumber}) : ''
+                        
                     )
+                ), 
+                React.createElement("div", {className: "row"}
                 ), 
 
                 React.createElement(ListViewList, {listViews: this.state.listViews})
@@ -54696,7 +54961,7 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
 
 module.exports = ListViewPage;
 
-},{"../../actions/listViewActions":212,"../../stores/listViewStore":245,"../common/selectInput":219,"../common/textInput":220,"./listViewList":232,"moment":10,"react":207,"react-router":37}],234:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"../../stores/listViewStore":250,"../common/paginator":220,"../common/selectInput":222,"../common/textInput":223,"./listViewList":235,"moment":10,"react":207,"react-router":37}],237:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54895,19 +55160,181 @@ var ManageListView = React.createClass({displayName: "ManageListView",
 
 module.exports = ManageListView;
 
-},{"../../actions/listViewActions":212,"../../stores/employeeStore":244,"../../stores/listViewStore":245,"../employees/employeeChecklist":226,"./listViewForm":231,"moment":10,"react":207,"react-router":37}],235:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"../../stores/employeeStore":249,"../../stores/listViewStore":250,"../employees/employeeChecklist":229,"./listViewForm":234,"moment":10,"react":207,"react-router":37}],238:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
-var Link = require('react-router').Link;
+var TextInput = require('../common/textInput');
+var PasswordInput = require('../common/passwordInput');
+
+var EmployeeForm = React.createClass({displayName: "EmployeeForm",
+    propTypes: {
+        employee: React.PropTypes.object.isRequired,
+        onSave: React.PropTypes.func.isRequired,
+        onChange: React.PropTypes.func.isRequired,
+        errors: React.PropTypes.object
+    },
+
+    render: function () {
+        return (
+            React.createElement("form", null, 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
+                        React.createElement("h1", null, "Login")
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12"}, 
+                        React.createElement(TextInput, {
+                            name: "username", 
+                            label: "Username", 
+                            value: this.props.login.username, 
+                            onChange: this.props.onChange, 
+                            error: this.props.errors.username})
+
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12"}, 
+                        React.createElement(PasswordInput, {
+                            name: "password", 
+                            label: "Password", 
+                            value: this.props.login.password, 
+                            onChange: this.props.onChange, 
+                            error: this.props.errors.password})
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12 text-right"}, 
+                        React.createElement("input", {type: "submit", 
+                            value: "Login", 
+                            className: "btn btn-default btn-block", 
+                            onClick: this.props.onSave})
+                    )
+                )
+            )
+        );
+    }
+});
+
+module.exports = EmployeeForm;
+
+},{"../common/passwordInput":221,"../common/textInput":223,"react":207}],239:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
+var Router = require('react-router');
+var LoginForm = require('./loginForm');
+var LoginActions = require('../../actions/loginActions');
+var LoginStore = require('../../stores/loginStore');
+
+var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
+    mixins: [
+        Router.Navigation
+    ],
+
+    statics: {
+        willTransitionTo: function (transition, component) {
+            if (LoginStore.checkSession()) {
+                // alert('You are still logged in.');
+                transition.abort();  
+            }
+        },
+        willTransitionFrom: function (transition, component) {
+            if (!LoginStore.checkSession()) {
+                alert('Please login.');
+                transition.abort();
+            }
+        }
+    },
+
+    getInitialState: function () {
+
+        return {
+            credentials: {
+                username: '',
+                password: ''
+            },
+            errors: {},
+            dirty: false
+        };
+    },
+
+    componentWillMount: function () {
+        LoginStore.addChangeListener(this._onChange);
+    },
+
+    componentWillUnmount: function () {
+        LoginStore.removeChangeListener(this._onChange);
+    },
+
+    _onChange: function () {
+
+        if (LoginStore.checkSession()){
+            this.transitionTo('whoIsIn');          
+        }
+    },
+
+    setLoginState: function (event) {
+        this.setState({ dirty: true });
+        var field = event.target.name;
+        var value = event.target.value;
+        this.state.credentials[field] = value;
+        return this.setState({ credentials: this.state.credentials });
+    },
+
+    loginFormIsValid: function () {
+        var formIsValid = true;
+        this.state.errors = {}; //clear any previous errors.
+
+        if (!this.state.credentials.username) {
+            this.state.errors.username = 'Invalid username';
+            formIsValid = false;
+        }
+
+        if (!this.state.credentials.password) {
+            this.state.errors.password = 'Invalid password';
+            formIsValid = false;
+        }
+
+        this.setState({ errors: this.state.errors });
+        return formIsValid;
+    },
+
+    saveLogin: function (event) {
+        event.preventDefault();
+
+        if (!this.loginFormIsValid()) {
+            return;
+        }
+
+        this.setState({ dirty: false });
+        LoginActions.checkIn(this.state.credentials);
+    },
+
+    render: function () {
+        return (
+            React.createElement(LoginForm, {
+                login: this.state.credentials, 
+                onChange: this.setLoginState, 
+                onSave: this.saveLogin, 
+                errors: this.state.errors})
+        );
+    }
+});
+
+module.exports = ManageLoginPage;
+
+},{"../../actions/loginActions":213,"../../stores/loginStore":251,"./loginForm":238,"react":207,"react-router":37}],240:[function(require,module,exports){
+"use strict";
+
+var React = require('react');
 
 var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 	render: function() {
 		return (
 			React.createElement("div", null, 
-				React.createElement("h1", null, "Page Not Found"), 
-				React.createElement("p", null, "Whoops! Sorry, there is nothing to see here."), 
-				React.createElement("p", null, React.createElement(Link, {to: "app"}, "Back to Home"))
+				React.createElement("h1", null, "Page Not Found")
 			)
 		);
 	}
@@ -54915,7 +55342,7 @@ var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 
 module.exports = NotFoundPage;
 
-},{"react":207,"react-router":37}],236:[function(require,module,exports){
+},{"react":207}],241:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54964,7 +55391,7 @@ var WhoIsInList = React.createClass({displayName: "WhoIsInList",
 
 module.exports = WhoIsInList;
 
-},{"moment":10,"react":207}],237:[function(require,module,exports){
+},{"moment":10,"react":207}],242:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54973,17 +55400,20 @@ var Link = require('react-router').Link;
 var WhoIsInStore = require('../../stores/whoIsInStore');
 var WhoIsInActions = require('../../actions/whoIsInActions');
 var WhoIsInList = require('./whoIsInList');
+var Paginator = require('../common/paginator');
 
 var WhoIsInPage = React.createClass({displayName: "WhoIsInPage",
     
     getInitialState: function () {
         return {
-            whoIsIns: WhoIsInStore.getAllWhoIsIn()
+            whoIsIns: WhoIsInStore.getAllWhoIsIn(),
+            pagination: WhoIsInStore.getPagination()
         };
     },
 
     componentWillMount: function () {
         WhoIsInStore.addChangeListener(this._onChange);
+        this.getWhoIsIn();
     },
 
     //Clean up when this component is unmounted
@@ -54992,14 +55422,56 @@ var WhoIsInPage = React.createClass({displayName: "WhoIsInPage",
     },
 
     _onChange: function () {
-        this.setState({ whoIsIns: WhoIsInStore.getAllWhoIsIn() });
+        this.setState({ 
+            whoIsIns: WhoIsInStore.getAllWhoIsIn(),
+            pagination: WhoIsInStore.getPagination()
+        });
+    },
+
+    getWhoIsIn: function () {
+        WhoIsInActions.getWhoIsIn(this.state.pagination.number, this.state.pagination.size);
+    },
+
+    previousPage: function () {
+        this.state.pagination.number--;
+        this.getWhoIsIn();
+    },
+
+    nextPage: function () {
+        this.state.pagination.number++;
+        this.getWhoIsIn();
+    },
+
+    goToPageNumber: function (pageNumber) {
+        WhoIsInActions.getWhoIsIn(pageNumber, this.state.pagination.size);
     },
 
     render: function () {
         return (
             React.createElement("div", null, 
-                React.createElement("h1", null, "Who Is In"), 
-                React.createElement(WhoIsInList, {whoIsIns: this.state.whoIsIns})
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-12"}, 
+                        React.createElement("h1", null, "Who Is In")
+                    )
+                ), 
+
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-lg-8 col-md-7 col-sm-12"}, 
+                        (this.state.pagination.totalElements && !this.state.searched) ?
+                            React.createElement(Paginator, {
+                                previousPage: this.previousPage, 
+                                nextPage: this.nextPage, 
+                                currentPage: this.state.pagination.number, 
+                                totalPages: this.state.pagination.totalPages, 
+                                goToPageNumber: this.goToPageNumber}) : ''
+                        
+                    )
+                ), 
+                React.createElement("div", {className: "row"}, 
+                    React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
+                        React.createElement(WhoIsInList, {whoIsIns: this.state.whoIsIns})
+                    )
+                )
             )
         );
     }
@@ -55007,12 +55479,15 @@ var WhoIsInPage = React.createClass({displayName: "WhoIsInPage",
 
 module.exports = WhoIsInPage;
 
-},{"../../actions/whoIsInActions":213,"../../stores/whoIsInStore":246,"./whoIsInList":236,"react":207,"react-router":37}],238:[function(require,module,exports){
+},{"../../actions/whoIsInActions":214,"../../stores/whoIsInStore":252,"../common/paginator":220,"./whoIsInList":241,"react":207,"react-router":37}],243:[function(require,module,exports){
 "use strict";
 
 var keyMirror = require('react/lib/keyMirror');
 
 module.exports = keyMirror({
+	LOG_IN: null,
+	LOG_OUT: null,
+
 	INITIALIZE_EMPLOYEES: null,
 	INITIALIZE_COMPANIES: null,
 	INITIALIZE_WHOISIN: null,
@@ -55034,7 +55509,7 @@ module.exports = keyMirror({
 	SEARCH_LISTVIEW: null
 });
 
-},{"react/lib/keyMirror":192}],239:[function(require,module,exports){
+},{"react/lib/keyMirror":192}],244:[function(require,module,exports){
 'use strict';
 
 var API = {
@@ -55121,7 +55596,7 @@ var API = {
 
 module.exports = API;
 
-},{}],240:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 /*
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.
@@ -55139,7 +55614,7 @@ var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":5}],241:[function(require,module,exports){
+},{"flux":5}],246:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55147,12 +55622,12 @@ var Router = require('react-router');
 var routes = require('./routes');
 var InitializeActions = require('./actions/initializeActions');
 
-InitializeActions.initApp();
+// InitializeActions.initApp();
 
 Router.run(routes, function(Handler) {
 	React.render(React.createElement(Handler, null), document.getElementById('app'));
 });
-},{"./actions/initializeActions":211,"./routes":242,"react":207,"react-router":37}],242:[function(require,module,exports){
+},{"./actions/initializeActions":211,"./routes":247,"react":207,"react-router":37}],247:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55165,22 +55640,30 @@ var Redirect = Router.Redirect;
 
 var routes = (
   React.createElement(Route, {name: "app", path: "/", handler: require('./components/app')}, 
-    React.createElement(DefaultRoute, {handler: require('./components/whoIsIn/whoIsInPage')}), 
+    React.createElement(DefaultRoute, {handler: require('./components/login/loginPage')}), 
+    /* Login */
+    /* <Route name="login" path="login" handler={require('./components/login/loginPage')} /> */
+    
+    /* Who Is In */
     React.createElement(Route, {name: "whoIsIn", path: "who-is-in", handler: require('./components/whoIsIn/whoIsInPage')}), 
 
+    /* Employees */
     React.createElement(Route, {name: "employees", handler: require('./components/employees/employeePage')}), 
     React.createElement(Route, {name: "addEmployee", path: "employee", handler: require('./components/employees/manageEmployeePage')}), 
     React.createElement(Route, {name: "manageEmployee", path: "employee/:id", handler: require('./components/employees/manageEmployeePage')}), 
 
+    /* Companies */
     React.createElement(Route, {name: "companies", handler: require('./components/company/companyPage')}), 
     React.createElement(Route, {name: "addCompany", path: "company", handler: require('./components/company/manageCompanyPage')}), 
     React.createElement(Route, {name: "manageCompany", path: "company/:id", handler: require('./components/company/manageCompanyPage')}), 
 
+    /* List View */
     React.createElement(Route, {name: "listView", path: "list-view", handler: require('./components/listView/listViewPage')}), 
     React.createElement(Route, {name: "addListView", path: "record", handler: require('./components/listView/manageListView')}), 
     React.createElement(Route, {name: "addAbsence", path: "absence", handler: require('./components/listView/manageListView')}), 
     React.createElement(Route, {name: "manageListView", path: "record/:id", handler: require('./components/listView/manageListView')}), 
     
+    /* Misc */
     React.createElement(NotFoundRoute, {handler: require('./components/notFoundPage')})
     /* <Redirect from="about-us" to="about" /> */
     /* <Redirect from="about/*" to="about" /> */
@@ -55189,7 +55672,7 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/app":215,"./components/company/companyPage":224,"./components/company/manageCompanyPage":225,"./components/employees/employeePage":229,"./components/employees/manageEmployeePage":230,"./components/listView/listViewPage":233,"./components/listView/manageListView":234,"./components/notFoundPage":235,"./components/whoIsIn/whoIsInPage":237,"react":207,"react-router":37}],243:[function(require,module,exports){
+},{"./components/app":216,"./components/company/companyPage":227,"./components/company/manageCompanyPage":228,"./components/employees/employeePage":232,"./components/employees/manageEmployeePage":233,"./components/listView/listViewPage":236,"./components/listView/manageListView":237,"./components/login/loginPage":239,"./components/notFoundPage":240,"./components/whoIsIn/whoIsInPage":242,"react":207,"react-router":37}],248:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55201,7 +55684,11 @@ var CHANGE_EVENT = 'change';
 var toastr = require('toastr');
 
 var _companies = [];
-var _pagination;
+var _pagination = {
+    number: 0,
+    size: 10
+};
+var _loader = false;
 
 var CompanyStore = assign({}, EventEmitter.prototype, {
 
@@ -55214,6 +55701,7 @@ var CompanyStore = assign({}, EventEmitter.prototype, {
     },
 
     emitChange: function () {
+        _loader = false;
         this.emit(CHANGE_EVENT);
     },
 
@@ -55229,6 +55717,14 @@ var CompanyStore = assign({}, EventEmitter.prototype, {
 
     getPagination: function () {
         return _pagination;
+    },
+
+    getLoader: function(){
+        return _loader;
+    },
+
+    setLoader: function (state) {
+        _loader = state;
     }
 });
 
@@ -55236,7 +55732,10 @@ Dispatcher.register(function (action) {
     switch (action.type) {
 
         case ActionTypes.INITIALIZE_COMPANIES:
-            _companies = action.data._embedded.companies;
+        
+            if (Object.keys(action.data).length) {
+                _companies = action.data._embedded.companies;
+            }
 
             if (action.data.page) {
                 _pagination = action.data.page;
@@ -55277,7 +55776,7 @@ Dispatcher.register(function (action) {
 
 module.exports = CompanyStore;
 
-},{"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"events":2,"lodash":9,"object-assign":11,"toastr":208}],244:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11,"toastr":208}],249:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55289,7 +55788,10 @@ var CHANGE_EVENT = 'change';
 var toastr = require('toastr');
 
 var _employees = [];
-var _pagination;
+var _pagination = {
+	number: 0,
+	size: 10
+};
 
 var EmployeeStore = assign({}, EventEmitter.prototype, {
 
@@ -55368,7 +55870,7 @@ Dispatcher.register(function (action) {
 
 module.exports = EmployeeStore;
 
-},{"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"events":2,"lodash":9,"object-assign":11,"toastr":208}],245:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11,"toastr":208}],250:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55387,6 +55889,10 @@ var _leaveOptions = [
     { label: 'Personal', value: 'Personal' },
     { label: 'Other', value: 'Other' }
 ];
+var _pagination = {
+    number: 0,
+    size: 10
+};
 
 var ListViewStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -55413,6 +55919,10 @@ var ListViewStore = assign({}, EventEmitter.prototype, {
         return _listView.find(function (listView) {
             return listView.id === id;
         });
+    },
+
+    getPagination: function () {
+        return _pagination;
     }
 });
 
@@ -55421,6 +55931,11 @@ Dispatcher.register(function (action) {
 
         case ActionTypes.INITIALIZE_LISTVIEW:
             _listView = action.data;
+
+            if (action.data.page) {
+                _pagination = action.data.page;
+            }
+            
             ListViewStore.emitChange();
             break;
 
@@ -55444,7 +55959,56 @@ Dispatcher.register(function (action) {
 
 module.exports = ListViewStore;
 
-},{"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"events":2,"lodash":9,"object-assign":11}],246:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11}],251:[function(require,module,exports){
+"use strict";
+
+var Dispatcher = require('../dispatcher/appDispatcher');
+var ActionTypes = require('../constants/actionTypes');
+var EventEmitter = require('events').EventEmitter;
+var assign = require('object-assign');
+var _ = require('lodash');
+var CHANGE_EVENT = 'change';
+
+var _session;
+
+var LoginStore = assign({}, EventEmitter.prototype, {
+    addChangeListener: function (callback) {
+        this.on(CHANGE_EVENT, callback);
+    },
+
+    removeChangeListener: function (callback) {
+        this.removeListener(CHANGE_EVENT, callback);
+    },
+
+    emitChange: function () {
+        this.emit(CHANGE_EVENT);
+    },
+
+    checkSession: function () {
+        return _session;
+    }
+});
+
+Dispatcher.register(function (action) {
+
+    switch (action.type) {
+        case ActionTypes.LOG_IN:
+            _session = action.data;
+            LoginStore.emitChange();
+            break;
+
+        case ActionTypes.LOG_OUT:
+            _session = action.data;
+            LoginStore.emitChange();
+            break;
+
+        default: // No Op
+    }
+});
+
+module.exports = LoginStore;
+
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11}],252:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55455,6 +56019,10 @@ var _ = require('lodash');
 var CHANGE_EVENT = 'change';
 
 var _whoIsIns = [];
+var _pagination = {
+    number: 0,
+    size: 10
+};
 
 var WhoIsInStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -55471,6 +56039,10 @@ var WhoIsInStore = assign({}, EventEmitter.prototype, {
 
     getAllWhoIsIn: function () {
         return _whoIsIns;
+    },
+
+    getPagination: function () {
+        return _pagination;
     }
 });
 
@@ -55481,6 +56053,11 @@ Dispatcher.register(function (action) {
             if (Object.keys(action.data).length) {
                 _whoIsIns = action.data._embedded.whoIsIns;
             }
+
+            if (action.data.page) {
+                _pagination = action.data.page;
+            }
+            
             WhoIsInStore.emitChange();
             break;
 
@@ -55490,4 +56067,4 @@ Dispatcher.register(function (action) {
 
 module.exports = WhoIsInStore;
 
-},{"../constants/actionTypes":238,"../dispatcher/appDispatcher":240,"events":2,"lodash":9,"object-assign":11}]},{},[241]);
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11}]},{},[246]);

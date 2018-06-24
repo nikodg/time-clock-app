@@ -8,12 +8,14 @@ var CompanyActions = require('../../actions/companyActions');
 var CompanyList = require('./companyList');
 var TextInput = require('../common/textInput');
 var Paginator = require('../common/paginator');
+var ClockLoader = require('../common/clockLoader');
 
 var CompanyPage = React.createClass({
 	getInitialState: function() {
 		return {
 			companies: CompanyStore.getAllCompanies(),
 			pagination: CompanyStore.getPagination(),
+			loader: false,
 			keyword: '',
 			searched: false
 		};
@@ -21,6 +23,7 @@ var CompanyPage = React.createClass({
 
 	componentWillMount: function() {
 		CompanyStore.addChangeListener(this._onChange);
+		this.getCompanies();
 	},
 
 	//Clean up when this component is unmounted
@@ -31,11 +34,13 @@ var CompanyPage = React.createClass({
 	_onChange: function() {
 		this.setState({ 
 			companies: CompanyStore.getAllCompanies(),
-			pagination: CompanyStore.getPagination()
+			pagination: CompanyStore.getPagination(),
+			loader: CompanyStore.getLoader()
 		});
 	},
 
 	getCompanies: function () {
+		this.state.loader = true;
 		CompanyActions.getCompanies(this.state.pagination.number, this.state.pagination.size);
 	},
 
@@ -90,7 +95,7 @@ var CompanyPage = React.createClass({
 
 				<div className="row">
 					<div className="col-lg-8 col-md-7 col-sm-12">
-						{(this.state.pagination && !this.state.searched) ?
+						{(this.state.pagination.totalElements && !this.state.searched) ?
 							<Paginator
 								previousPage={this.previousPage}
 								nextPage={this.nextPage}
@@ -115,6 +120,10 @@ var CompanyPage = React.createClass({
 				<div className="row">
 					<div className="col-lg-12 col-md-12 col-sm-12">
 						<CompanyList companies={this.state.companies} />
+
+						{/* <div class="clock-loader-wrap">
+							{ this.state.loader ? <ClockLoader /> : '' }
+						</div> */}
 					</div>
 				</div>
 			</div>

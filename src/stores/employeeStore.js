@@ -9,7 +9,10 @@ var CHANGE_EVENT = 'change';
 var toastr = require('toastr');
 
 var _employees = [];
-var _pagination;
+var _pagination = {
+	number: 0,
+	size: 10
+};
 
 var EmployeeStore = assign({}, EventEmitter.prototype, {
 

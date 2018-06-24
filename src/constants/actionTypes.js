@@ -3,6 +3,9 @@
 var keyMirror = require('react/lib/keyMirror');
 
 module.exports = keyMirror({
+	LOG_IN: null,
+	LOG_OUT: null,
+
 	INITIALIZE_EMPLOYEES: null,
 	INITIALIZE_COMPANIES: null,
 	INITIALIZE_WHOISIN: null,

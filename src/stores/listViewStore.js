@@ -16,6 +16,10 @@ var _leaveOptions = [
     { label: 'Personal', value: 'Personal' },
     { label: 'Other', value: 'Other' }
 ];
+var _pagination = {
+    number: 0,
+    size: 10
+};
 
 var ListViewStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -42,6 +46,10 @@ var ListViewStore = assign({}, EventEmitter.prototype, {
         return _listView.find(function (listView) {
             return listView.id === id;
         });
+    },
+
+    getPagination: function () {
+        return _pagination;
     }
 });
 
@@ -50,6 +58,11 @@ Dispatcher.register(function (action) {
 
         case ActionTypes.INITIALIZE_LISTVIEW:
             _listView = action.data;
+
+            if (action.data.page) {
+                _pagination = action.data.page;
+            }
+            
             ListViewStore.emitChange();
             break;
 

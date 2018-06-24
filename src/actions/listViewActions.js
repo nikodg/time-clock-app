@@ -14,7 +14,6 @@ var ListViewActions = {
     createListView: function (record, employees) {
 
         record.employeeList = employees;
-        console.log(record);
         API.postData('employeeTimes/addEntry', record)
             .done(function (data) {
 
@@ -43,11 +42,15 @@ var ListViewActions = {
             });
     },
 
-    getListView: function (keyword, dateFrom, dateTo, leaveType) {
-        var url = 'employeeTimes/search/listView?employeeName=' + keyword;
+    getListView: function (keyword, dateFrom, dateTo, leaveType, pageNumber, pageSize) {
+
+        var url = 'employeeTimes/search/listView';
+        url += '?employeeName=' + keyword;
         url += '&dateFrom=' + dateFrom;
         url += '&dateTo=' + dateTo;
         url += '&leaveType=' + leaveType;
+        url += '&page=' + pageNumber;
+        url += '&size=' + pageSize;
 
         API.getData(url)
             .done(function (data) {

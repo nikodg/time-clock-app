@@ -9,7 +9,11 @@ var CHANGE_EVENT = 'change';
 var toastr = require('toastr');
 
 var _companies = [];
-var _pagination;
+var _pagination = {
+    number: 0,
+    size: 10
+};
+var _loader = false;
 
 var CompanyStore = assign({}, EventEmitter.prototype, {
 
@@ -22,6 +26,7 @@ var CompanyStore = assign({}, EventEmitter.prototype, {
     },
 
     emitChange: function () {
+        _loader = false;
         this.emit(CHANGE_EVENT);
     },
 
@@ -37,6 +42,14 @@ var CompanyStore = assign({}, EventEmitter.prototype, {
 
     getPagination: function () {
         return _pagination;
+    },
+
+    getLoader: function(){
+        return _loader;
+    },
+
+    setLoader: function (state) {
+        _loader = state;
     }
 });
 
@@ -44,7 +57,10 @@ Dispatcher.register(function (action) {
     switch (action.type) {
 
         case ActionTypes.INITIALIZE_COMPANIES:
-            _companies = action.data._embedded.companies;
+        
+            if (Object.keys(action.data).length) {
+                _companies = action.data._embedded.companies;
+            }
 
             if (action.data.page) {
                 _pagination = action.data.page;

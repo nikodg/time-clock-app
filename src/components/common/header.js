@@ -3,8 +3,42 @@
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
+var LoginStore = require('../../stores/loginStore');
+var LoginActions = require('../../actions/loginActions');
 
 var Header = React.createClass({
+
+  mixins: [
+    Router.Navigation
+  ],
+
+  getInitialState: function () {
+    return {
+      session: LoginStore.checkSession()
+    };
+  },
+
+  componentWillMount: function () {
+    LoginStore.addChangeListener(this._onChange);
+  },
+
+  componentWillUnmount: function () {
+    LoginStore.removeChangeListener(this._onChange);
+  },
+
+  _onChange: function () {
+    this.setState({ session: LoginStore.checkSession() });
+    if (!LoginStore.checkSession()) {
+
+      this.transitionTo('/');
+    }
+  },
+
+  logoutHandler: function(event){
+    event.preventDefault();
+    LoginActions.checkOut();
+  },
+
 	render: function() {
 		return (
         <nav className="navbar navbar-default">
@@ -19,6 +53,12 @@ var Header = React.createClass({
                 <li><Link to="employees">Employees</Link></li>
                 <li><Link to="companies">Companies</Link></li>
               </ul>
+
+              {this.state.session ? 
+                <ul className="nav navbar-nav navbar-right">
+                  <li><a href="#" onClick={this.logoutHandler}>Logout</a></li>
+                </ul> : ''
+              }
           </div>
         </nav>
 		);

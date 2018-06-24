@@ -10,13 +10,7 @@ var moment = require('moment');
 
 var InitializeActions = {
 	initApp: function () {
-
-		var today = moment().format('YYYY-MM-DD');
-
-		ListViewActions.getListView('', today, today, '');
-		WhoIsInActions.getWhoIsIn();
-		EmployeeActions.getEmployees(0, 10);
-		CompanyActions.getCompanies(0, 10);
+		//
 	}
 };
 
