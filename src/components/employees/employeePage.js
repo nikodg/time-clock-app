@@ -89,7 +89,7 @@ var EmployeePage = React.createClass({
 
 				<div className="row">
 					<div className="col-lg-8 col-md-7 col-sm-12">
-						{(this.state.pagination && !this.state.searched) ? 
+						{(this.state.pagination.totalElements && !this.state.searched) ? 
 							<Paginator 
 								previousPage={this.previousPage}
 								nextPage={this.nextPage}

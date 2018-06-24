@@ -54438,7 +54438,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 				React.createElement("div", {className: "row"}, 
 					React.createElement("div", {className: "col-lg-8 col-md-7 col-sm-12"}, 
-						(this.state.pagination && !this.state.searched) ? 
+						(this.state.pagination.totalElements && !this.state.searched) ? 
 							React.createElement(Paginator, {
 								previousPage: this.previousPage, 
 								nextPage: this.nextPage, 
