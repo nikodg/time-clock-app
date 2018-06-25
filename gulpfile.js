@@ -1,6 +1,7 @@
 "use strict";
 
 var gulp = require('gulp');
+var sequence = require('gulp-sequence');
 var connect = require('gulp-connect'); //Runs a local dev server
 var open = require('gulp-open'); //Open a URL in a web browser
 var browserify = require('browserify'); // Bundles JS
@@ -12,6 +13,7 @@ var cssModulesify = require('css-modulesify');
 var uglify = require('gulp-uglify');
 var pump = require('pump');
 var clean = require('gulp-clean');
+var path = require('path');
 
 var config = {
     port: 9005,
@@ -31,6 +33,7 @@ var config = {
             './src/app.css'
         ],
         prodDist: './',
+        prodDest: path.resolve(__dirname, '..', 'time-service/src/main/resources/static/'),
         dist: './dist',
         mainJs: './src/main.js'
     }
@@ -48,7 +51,7 @@ gulp.task('connect', function () {
 
 gulp.task('open', ['connect'], function () {
     gulp.src('dist/index.html')
-        .pipe(open({uri: config.devBaseUrl + ':' + config.port + '/'}));
+        .pipe(open({ uri: config.devBaseUrl + ':' + config.port + '/' }));
 });
 
 gulp.task('html', function () {
@@ -59,7 +62,7 @@ gulp.task('html', function () {
 
 gulp.task('html-prod', function () {
     return gulp.src(config.paths.html)
-        .pipe(gulp.dest(config.paths.dist));
+        .pipe(gulp.dest(config.paths.prodDest));
 });
 
 gulp.task('fonts', function () {
@@ -69,7 +72,7 @@ gulp.task('fonts', function () {
 });
 gulp.task('fonts-prod', function () {
     return gulp.src(config.paths.fonts)
-        .pipe(gulp.dest(config.paths.dist + '/fonts'));
+        .pipe(gulp.dest(config.paths.prodDest + '/fonts'));
 });
 
 gulp.task('js', function () {
@@ -89,7 +92,7 @@ gulp.task('js-prod', function () {
         .bundle()
         .on('error', console.error.bind(console))
         .pipe(source('bundle.js'))
-        .pipe(gulp.dest(config.paths.prodDist + '/scripts'));
+        .pipe(gulp.dest(config.paths.prodDest + '/scripts'));
 });
 
 gulp.task('uglify', function (cb) {
@@ -99,16 +102,37 @@ gulp.task('uglify', function (cb) {
         gulp.dest(config.paths.dist + '/scripts')
     ], cb);
 });
+gulp.task('cleanProdDest', function (cb) {
+    return gulp.src(config.paths.prodDest + '/fonts')
+        .pipe(clean({ read: false, force: true }))
+        .pipe(gulp.src(config.paths.prodDest + '/scripts'))
+        .pipe(clean({ read: false, force: true }))
+        .pipe(gulp.src(config.paths.prodDest + '/images'))
+        .pipe(clean({ read: false, force: true }))
+        .pipe(gulp.src(config.paths.prodDest + '/css'))
+        .pipe(clean({ read: false, force: true }))
+        .pipe(gulp.src(config.paths.prodDest + '/favicon.ico'))
+        .pipe(clean({ read: false, force: true }))
+        .pipe(gulp.src(config.paths.prodDest + '/index.html'))
+        .pipe(clean({ read: false, force: true }))
+        .end(cb);
+});
 
 gulp.task('cleanProdDist', function () {
     return gulp.src(config.paths.prodDist + '/scripts')
-        .pipe(clean({read: false}));
+        .pipe(clean({ read: false }));
 });
 
 gulp.task('css', function () {
     return gulp.src(config.paths.css)
         .pipe(concat('bundle.css'))
         .pipe(gulp.dest(config.paths.dist + '/css'));
+});
+
+gulp.task('css-prod', function () {
+    return gulp.src(config.paths.css)
+        .pipe(concat('bundle.css'))
+        .pipe(gulp.dest(config.paths.prodDest + '/css'));
 });
 
 // Migrates images to dist folder
@@ -122,7 +146,7 @@ gulp.task('images', function () {
 
 gulp.task('images-prod', function () {
     return gulp.src(config.paths.images)
-        .pipe(gulp.dest(config.paths.dist + '/images'));
+        .pipe(gulp.dest(config.paths.prodDest + '/images'));
 });
 
 
@@ -131,9 +155,15 @@ gulp.task('images-favicon', function () {
         .pipe(gulp.dest(config.paths.dist));
 });
 
+
+gulp.task('images-favicon-prod', function () {
+    return gulp.src('./src/favicon.ico')
+        .pipe(gulp.dest(config.paths.prodDest));
+});
+
 gulp.task('lint', function () {
     return gulp.src(config.paths.js)
-        .pipe(lint({config: 'eslint.config.json'}))
+        .pipe(lint({ config: 'eslint.config.json' }))
         .pipe(lint.format());
 });
 
@@ -145,4 +175,4 @@ gulp.task('watch', function () {
 
 gulp.task('dev', ['html', 'js', 'css', 'images', 'images-favicon', 'fonts', 'lint', 'open', 'watch']);
 
-gulp.task('default', ['lint', 'html-prod', 'js-prod', 'uglify', 'cleanProdDist', 'css', 'images-prod', 'images-favicon', 'fonts-prod']);
+gulp.task('default', sequence('lint', 'cleanProdDest', 'html-prod', 'js-prod', 'uglify', 'cleanProdDist', 'css-prod', 'images-prod', 'images-favicon-prod', 'fonts-prod'));
