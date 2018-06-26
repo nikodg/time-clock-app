@@ -6,14 +6,20 @@ var API = {
     headers: {
         Authorization: "Basic " + localStorage.getItem('tca_auth')
     },
+    redirecting: false,
     errorHandler: function (xhr) {
-        var error = JSON.parse(xhr.responseText);
-        if (error.message === 'Unauthorized') {
-            localStorage.removeItem('tca_auth');
-            alert('Unathorized. Please login to continue.');
-            window.location.assign('/');
+        if (xhr.status === 401) {
+            this.statusCodeHandler();
         } else {
             return false;
+        }
+    },
+    statusCodeHandler: function () {
+        if (!this.redirecting) {
+            localStorage.removeItem('tca_auth');
+            alert('Unathorized. Please login to continue.');
+            this.redirecting = true;
+            window.location.assign('/');
         }
     },
     successHandler: function (response) {
@@ -27,7 +33,10 @@ var API = {
             contentType: 'application/json',
             headers: this.headers,
             success: this.successHandler,
-            error: this.errorHandler
+            error: this.errorHandler.bind(this),
+            statusCode: {
+                401: this.statusCodeHandler.bind(this)
+            }
         });
     },
     postData: function (path, data) {
@@ -41,7 +50,10 @@ var API = {
             contentType: 'application/json',
             headers: this.headers,
             success: this.successHandler,
-            error: this.errorHandler
+            error: this.errorHandler.bind(this),
+            statusCode: {
+                401: this.statusCodeHandler.bind(this)
+            }
         });
     },
     patchData: function (path, data, id) {
@@ -54,19 +66,30 @@ var API = {
             contentType: 'application/json',
             headers: this.headers,
             success: this.successHandler,
-            error: this.errorHandler
+            error: this.errorHandler.bind(this),
+            statusCode: {
+                401: this.statusCodeHandler.bind(this)
+            }
         });
     },
     deleteData: function (path, id) {
-        var url = this.proxy + this.baseURL + path + '/' + id;
-        return $.ajax({
-            url: url,
-            method: 'DELETE',
-            contentType: 'application/json',
-            headers: this.headers,
-            success: this.successHandler,
-            error: this.errorHandler
-        });
+        var confirmation = prompt("Are you sure you want to delete? (Yes/No)", "Yes");
+
+        if (confirmation === 'Yes' || confirmation === 'yes') {
+            var url = this.proxy + this.baseURL + path + '/' + id;
+            return $.ajax({
+                url: url,
+                method: 'DELETE',
+                contentType: 'application/json',
+                crossDomain: true,
+                headers: this.headers,
+                success: this.successHandler,
+                error: this.errorHandler.bind(this),
+                statusCode: {
+                    401: this.statusCodeHandler.bind(this)
+                }
+            });
+        }
     },
     searchData: function (path, keyword) {
         var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;
@@ -76,7 +99,10 @@ var API = {
             contentType: 'application/json',
             headers: this.headers,
             success: this.successHandler,
-            error: this.errorHandler
+            error: this.errorHandler.bind(this),
+            statusCode: {
+                401: this.statusCodeHandler.bind(this)
+            }
         });
     }
 };

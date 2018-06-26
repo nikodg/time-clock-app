@@ -55532,7 +55532,7 @@ module.exports = {
 };
 
 },{"./config.json":245,"./devApi":246,"./prodApis":247}],245:[function(require,module,exports){
-module.exports={"env":{"NODE_ENV":"dev"}}
+module.exports={"env":{"NODE_ENV":"prod"}}
 },{}],246:[function(require,module,exports){
 'use strict';
 
@@ -55658,13 +55658,20 @@ var API = {
     headers: {
         Authorization: "Basic " + localStorage.getItem('tca_auth')
     },
+    redirecting: false,
     errorHandler: function (xhr) {
         if (xhr.status === 401) {
-            localStorage.removeItem('tca_auth');
-            alert('Unathorized. Please login to continue.');
-            window.location.assign('/');
+            this.statusCodeHandler();
         } else {
             return false;
+        }
+    },
+    statusCodeHandler: function () {
+        if (!this.redirecting) {
+            localStorage.removeItem('tca_auth');
+            alert('Unathorized. Please login to continue.');
+            this.redirecting = true;
+            window.location.assign('/');
         }
     },
     successHandler: function (response) {
@@ -55678,7 +55685,10 @@ var API = {
             contentType: 'application/json',
             headers: this.headers,
             success: this.successHandler,
-            error: this.errorHandler
+            error: this.errorHandler.bind(this),
+            statusCode: {
+                401: this.statusCodeHandler.bind(this)
+            }
         });
     },
     postData: function (path, data) {
@@ -55692,7 +55702,10 @@ var API = {
             contentType: 'application/json',
             headers: this.headers,
             success: this.successHandler,
-            error: this.errorHandler
+            error: this.errorHandler.bind(this),
+            statusCode: {
+                401: this.statusCodeHandler.bind(this)
+            }
         });
     },
     patchData: function (path, data, id) {
@@ -55705,7 +55718,10 @@ var API = {
             contentType: 'application/json',
             headers: this.headers,
             success: this.successHandler,
-            error: this.errorHandler
+            error: this.errorHandler.bind(this),
+            statusCode: {
+                401: this.statusCodeHandler.bind(this)
+            }
         });
     },
     deleteData: function (path, id) {
@@ -55735,7 +55751,10 @@ var API = {
             contentType: 'application/json',
             headers: this.headers,
             success: this.successHandler,
-            error: this.errorHandler
+            error: this.errorHandler.bind(this),
+            statusCode: {
+                401: this.statusCodeHandler.bind(this)
+            }
         });
     }
 };
