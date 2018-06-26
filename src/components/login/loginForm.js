@@ -6,7 +6,7 @@ var PasswordInput = require('../common/passwordInput');
 
 var EmployeeForm = React.createClass({
     propTypes: {
-        employee: React.PropTypes.object.isRequired,
+        login: React.PropTypes.object.isRequired,
         onSave: React.PropTypes.func.isRequired,
         onChange: React.PropTypes.func.isRequired,
         errors: React.PropTypes.object

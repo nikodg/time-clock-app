@@ -10,7 +10,8 @@ var ListViewList = require('./listViewList');
 var TextInput = require('../common/textInput');
 var SelectInput = require('../common/selectInput');
 var Paginator = require('../common/paginator');
-
+var APIs = require('../../constants/apis');
+var toastr = require('toastr');
 
 var ListViewPage = React.createClass({
 
@@ -90,6 +91,14 @@ var ListViewPage = React.createClass({
         ListViewActions.getListView(pageNumber, this.state.pagination.size);
     },
 
+    exportReport: function(){
+        APIs.exportReport('listview')
+            .done(function (response) {
+                console.log('export report', response);
+            }).fail(function () {
+                toastr.error('Failed to export report.');
+            });
+    },
     render: function () {
         return (
             <div>
@@ -100,6 +109,7 @@ var ListViewPage = React.createClass({
                     <div className="col-lg-6 col-md-6 col-sm-12 text-right">
                         <Link to="addListView" className="btn btn-default header-button">Add Entry</Link>
                         <Link to="addAbsence" className="btn btn-default header-button">Add Absence</Link>
+                        <button className="btn btn-default header-button" onClick={this.exportReport}>Export Report</button>
                     </div>
                 </div>
                 <div className="row">

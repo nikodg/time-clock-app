@@ -7,6 +7,14 @@ var toastr = require('toastr');
 
 var LoginActions = {
 
+    checkInExisting: function (session) {
+        console.log('checkInExisting');
+        Dispatcher.dispatch({
+            type: ActionTypes.LOG_IN_EXIST,
+            data: session
+        });
+    },
+
     checkIn: function (credentials) {
 
         // API.postData('login', credentials)

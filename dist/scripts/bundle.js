@@ -52992,22 +52992,23 @@ module.exports = EmployeeActions;
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
-var ActionTypes = require('../constants/actionTypes');
-var CompanyActions = require('../actions/companyActions');
-var EmployeeActions = require('../actions/employeeActions');
-var WhoIsInActions = require('../actions/whoIsInActions');
-var ListViewActions = require('../actions/listViewActions');
-var moment = require('moment');
+var LoginActions = require('../actions/loginActions');
 
 var InitializeActions = {
 	initApp: function () {
-		//
+		var session = localStorage.getItem('tca_auth');
+		console.log('checking session', session);
+		if (session && session !== 'false') {
+
+			console.log('authorize');
+			LoginActions.checkInExisting(session);
+		}
 	}
 };
 
 module.exports = InitializeActions;
 
-},{"../actions/companyActions":209,"../actions/employeeActions":210,"../actions/listViewActions":212,"../actions/whoIsInActions":214,"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"moment":10}],212:[function(require,module,exports){
+},{"../actions/loginActions":213,"../dispatcher/appDispatcher":245}],212:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -53114,6 +53115,14 @@ var ActionTypes = require('../constants/actionTypes');
 var toastr = require('toastr');
 
 var LoginActions = {
+
+    checkInExisting: function (session) {
+        console.log('checkInExisting');
+        Dispatcher.dispatch({
+            type: ActionTypes.LOG_IN_EXIST,
+            data: session
+        });
+    },
 
     checkIn: function (credentials) {
 
@@ -54805,7 +54814,8 @@ var ListViewList = require('./listViewList');
 var TextInput = require('../common/textInput');
 var SelectInput = require('../common/selectInput');
 var Paginator = require('../common/paginator');
-
+var APIs = require('../../constants/apis');
+var toastr = require('toastr');
 
 var ListViewPage = React.createClass({displayName: "ListViewPage",
 
@@ -54885,6 +54895,14 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
         ListViewActions.getListView(pageNumber, this.state.pagination.size);
     },
 
+    exportReport: function(){
+        APIs.exportReport('listview')
+            .done(function (response) {
+                console.log('export report', response);
+            }).fail(function () {
+                toastr.error('Failed to export report.');
+            });
+    },
     render: function () {
         return (
             React.createElement("div", null, 
@@ -54894,7 +54912,8 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
                     ), 
                     React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-12 text-right"}, 
                         React.createElement(Link, {to: "addListView", className: "btn btn-default header-button"}, "Add Entry"), 
-                        React.createElement(Link, {to: "addAbsence", className: "btn btn-default header-button"}, "Add Absence")
+                        React.createElement(Link, {to: "addAbsence", className: "btn btn-default header-button"}, "Add Absence"), 
+                        React.createElement("button", {className: "btn btn-default header-button", onClick: this.exportReport}, "Export Report")
                     )
                 ), 
                 React.createElement("div", {className: "row"}, 
@@ -54961,7 +54980,7 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
 
 module.exports = ListViewPage;
 
-},{"../../actions/listViewActions":212,"../../stores/listViewStore":250,"../common/paginator":220,"../common/selectInput":222,"../common/textInput":223,"./listViewList":235,"moment":10,"react":207,"react-router":37}],237:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"../../constants/apis":244,"../../stores/listViewStore":250,"../common/paginator":220,"../common/selectInput":222,"../common/textInput":223,"./listViewList":235,"moment":10,"react":207,"react-router":37,"toastr":208}],237:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55169,7 +55188,7 @@ var PasswordInput = require('../common/passwordInput');
 
 var EmployeeForm = React.createClass({displayName: "EmployeeForm",
     propTypes: {
-        employee: React.PropTypes.object.isRequired,
+        login: React.PropTypes.object.isRequired,
         onSave: React.PropTypes.func.isRequired,
         onChange: React.PropTypes.func.isRequired,
         errors: React.PropTypes.object
@@ -55234,12 +55253,11 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
     ],
 
     statics: {
-        willTransitionTo: function (transition, component) {
-            if (LoginStore.checkSession()) {
-                // alert('You are still logged in.');
-                transition.abort();  
-            }
-        },
+        // willTransitionTo: function (transition, component) {
+        //     if (LoginStore.checkSession()) {
+        //         transition.abort();  
+        //     }
+        // },
         willTransitionFrom: function (transition, component) {
             if (!LoginStore.checkSession()) {
                 alert('Please login.');
@@ -55261,6 +55279,9 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
     },
 
     componentWillMount: function () {
+        if (LoginStore.checkSession()) {
+            this.transitionTo('whoIsIn');
+        }
         LoginStore.addChangeListener(this._onChange);
     },
 
@@ -55269,7 +55290,7 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
     },
 
     _onChange: function () {
-
+        console.log('loginPage changed');
         if (LoginStore.checkSession()){
             this.transitionTo('whoIsIn');          
         }
@@ -55486,6 +55507,7 @@ var keyMirror = require('react/lib/keyMirror');
 
 module.exports = keyMirror({
 	LOG_IN: null,
+	LOG_IN_EXIST: null,
 	LOG_OUT: null,
 
 	INITIALIZE_EMPLOYEES: null,
@@ -55511,27 +55533,35 @@ module.exports = keyMirror({
 
 },{"react/lib/keyMirror":192}],244:[function(require,module,exports){
 'use strict';
-
+var LoginStore = require('../stores/loginStore');
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
-    //proxy: 'https://cors-anywhere.herokuapp.com/',
-    proxy: '',
-    tempCount: 0, // TODO: remove tempCount
-    errorHandler: function (xhr, status, error) {
-        console.log('Failed ajax call status', status);
-        console.log('Failed ajax call error', error);
-        return false;
+    proxy: 'https://cors-anywhere.herokuapp.com/',
+    // proxy: '',
+    headers: {
+        'Authorization': '1234'
+    },
+    errorHandler: function (xhr) {
+        var error = JSON.parse(xhr.responseText);
+        if (error.message === 'Unauthorized') {
+            window.location.assign('/');
+        } else {
+            return false;
+        }
+    },
+    successHandler: function (response){
+
+        return response;
     },
     getData: function (path) {
         var url = this.proxy + this.baseURL + path;
         return $.ajax({
             url: url,
             method: 'GET',
+            headers: this.headers,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -55542,12 +55572,11 @@ var API = {
         return $.ajax({
             url: url,
             method: 'POST',
+            headers: this.headers,
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -55557,12 +55586,11 @@ var API = {
         return $.ajax({
             url: url,
             method: 'PATCH',
+            headers: this.headers,
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -55571,11 +55599,10 @@ var API = {
         return $.ajax({
             url: url,
             method: 'DELETE',
+            headers: this.headers,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -55584,11 +55611,23 @@ var API = {
         return $.ajax({
             url: url,
             method: 'GET',
+            headers: this.headers,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            success: this.successHandler,
+            error: this.errorHandler
+        });
+    },
+    exportReport: function (path) {
+        var url = this.proxy + this.baseURL + path;
+        return $.ajax({
+            url: url,
+            method: 'GET',
+            headers: this.headers,
+            contentType: 'application/json',
+            accept: 'text/csv',
+            crossDomain: true,
+            success: this.successHandler,
             error: this.errorHandler
         });
     }
@@ -55596,7 +55635,7 @@ var API = {
 
 module.exports = API;
 
-},{}],245:[function(require,module,exports){
+},{"../stores/loginStore":251}],245:[function(require,module,exports){
 /*
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.
@@ -55622,7 +55661,7 @@ var Router = require('react-router');
 var routes = require('./routes');
 var InitializeActions = require('./actions/initializeActions');
 
-// InitializeActions.initApp();
+InitializeActions.initApp();
 
 Router.run(routes, function(Handler) {
 	React.render(React.createElement(Handler, null), document.getElementById('app'));
@@ -55992,13 +56031,22 @@ var LoginStore = assign({}, EventEmitter.prototype, {
 Dispatcher.register(function (action) {
 
     switch (action.type) {
+        case ActionTypes.LOG_IN_EXIST:
+            console.log('LoginStore login exist');
+            _session = action.data;
+            localStorage.setItem('tca_auth', _session);
+            LoginStore.emitChange();
+            break;
+
         case ActionTypes.LOG_IN:
             _session = action.data;
+            localStorage.setItem('tca_auth', _session);
             LoginStore.emitChange();
             break;
 
         case ActionTypes.LOG_OUT:
-            _session = action.data;
+            _session = false;
+            localStorage.setItem('tca_auth', _session);
             LoginStore.emitChange();
             break;
 
