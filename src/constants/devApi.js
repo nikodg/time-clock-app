@@ -4,7 +4,7 @@ var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
     proxy: 'https://cors-anywhere.herokuapp.com/',
     headers: {
-        Authorization: localStorage.getItem('tca_auth')
+        Authorization: "Basic " + localStorage.getItem('tca_auth')
     },
     errorHandler: function (xhr) {
         var error = JSON.parse(xhr.responseText);

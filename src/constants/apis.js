@@ -2,7 +2,6 @@
 var config = require('./config.json');
 module.exports = {
     getApi: function () {
-        console.log('getApi', config);
         switch (config.env.NODE_ENV) {
             case 'production':
             case 'PRODUCTION':

@@ -96,14 +96,14 @@ gulp.task('js-prod', function () {
         .bundle()
         .on('error', console.error.bind(console))
         .pipe(source('bundle.js'))
-        .pipe(gulp.dest(config.paths.prodDest + '/scripts'));
+        .pipe(gulp.dest(config.paths.prodDist + '/scripts'));
 });
 
 gulp.task('uglify', function (cb) {
     pump([
         gulp.src(config.paths.prodDist + '/scripts/bundle.js'),
         uglify(),
-        gulp.dest(config.paths.dist + '/scripts')
+        gulp.dest(config.paths.prodDest + '/scripts')
     ], cb);
 });
 
@@ -125,7 +125,7 @@ gulp.task('cleanProdDest', function (cb) {
 
 gulp.task('cleanProdDist', function () {
     return gulp.src(config.paths.prodDist + '/scripts')
-        .pipe(clean({ read: false }));
+        .pipe(clean({ read: false, force: true }));
 });
 
 gulp.task('css', function () {
@@ -195,4 +195,4 @@ gulp.task('create-config-prod', function (cb) {
 
 gulp.task('dev', sequence('html', 'create-config-dev', 'js', 'css', 'images', 'images-favicon', 'fonts', 'lint', 'open', 'watch'));
 
-gulp.task('default', sequence('lint', 'cleanProdDest', 'html-prod', 'create-config-prod', 'js-prod', 'uglify', 'cleanProdDist', 'css-prod', 'images-prod', 'images-favicon-prod', 'fonts-prod'));
+gulp.task('default', sequence('lint', 'cleanProdDest', 'html-prod', 'create-config-prod', 'js-prod', 'uglify', 'css-prod', 'images-prod', 'images-favicon-prod', 'fonts-prod'));
