@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prod-env": "set NODE_ENV=prod",
+    "dev-env": "set NODE_ENV=dev",
+    "build-dev": "npm run dev-env && gulp dev",
     "build-prod": "npm run prod-env && gulp"
   },
   "employee": "Cory House",
@@ -14,6 +16,7 @@
     "bootstrap": "^3.3.5",
     "browserify": "^11.0.1",
     "css-modulesify": "^0.28.0",
+    "env": "0.0.2",
     "flatpickr": "^4.5.0",
     "flux": "^2.0.3",
     "gulp": "^3.9.0",
@@ -32,6 +35,7 @@
     "vinyl-source-stream": "^1.1.0"
   },
   "devDependencies": {
+    "envify": "^4.1.0",
     "gulp-clean": "^0.4.0",
     "gulp-sequence": "^1.0.0",
     "gulp-uglify": "^3.0.0",

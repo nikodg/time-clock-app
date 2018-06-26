@@ -14,7 +14,8 @@ var uglify = require('gulp-uglify');
 var pump = require('pump');
 var clean = require('gulp-clean');
 var path = require('path');
-
+var envify = require('envify/custom');
+var fs = require('fs');
 var config = {
     port: 9005,
     devBaseUrl: 'http://localhost',
@@ -89,6 +90,9 @@ gulp.task('js-prod', function () {
     return browserify(config.paths.mainJs)
         .exclude('devApi')
         .transform(reactify)
+        .transform(envify({
+            NODE_ENV: process.env.NODE_ENV || 'dev'
+        }))
         .bundle()
         .on('error', console.error.bind(console))
         .pipe(source('bundle.js'))
@@ -102,6 +106,7 @@ gulp.task('uglify', function (cb) {
         gulp.dest(config.paths.dist + '/scripts')
     ], cb);
 });
+
 gulp.task('cleanProdDest', function (cb) {
     return gulp.src(config.paths.prodDest + '/fonts')
         .pipe(clean({ read: false, force: true }))
@@ -173,6 +178,21 @@ gulp.task('watch', function () {
     gulp.watch('./src/app.css', ['css']);
 });
 
-gulp.task('dev', ['html', 'js', 'css', 'images', 'images-favicon', 'fonts', 'lint', 'open', 'watch']);
+gulp.task('create-config-dev', function (cb) {
+    fs.writeFile(path.resolve(__dirname, 'src/constants/config.json'), JSON.stringify({
+        env: {
+            NODE_ENV: 'dev'
+        }
+    }), cb);
+});
+gulp.task('create-config-prod', function (cb) {
+    fs.writeFile(path.resolve(__dirname, 'src/constants/config.json'), JSON.stringify({
+        env: {
+            NODE_ENV: 'prod'
+        }
+    }), cb);
+});
 
-gulp.task('default', sequence('lint', 'cleanProdDest', 'html-prod', 'js-prod', 'uglify', 'cleanProdDist', 'css-prod', 'images-prod', 'images-favicon-prod', 'fonts-prod'));
+gulp.task('dev', sequence('html', 'create-config-dev', 'js', 'css', 'images', 'images-favicon', 'fonts', 'lint', 'open', 'watch'));
+
+gulp.task('default', sequence('lint', 'cleanProdDest', 'html-prod', 'create-config-prod', 'js-prod', 'uglify', 'cleanProdDist', 'css-prod', 'images-prod', 'images-favicon-prod', 'fonts-prod'));
