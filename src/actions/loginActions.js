@@ -7,39 +7,26 @@ var toastr = require('toastr');
 
 var LoginActions = {
 
+    checkInExisting: function (session) {
+        console.log('checkInExisting');
+        Dispatcher.dispatch({
+            type: ActionTypes.LOG_IN_EXIST,
+            data: session
+        });
+    },
+
     checkIn: function (credentials) {
 
-        // API.postData('login', credentials)
-        //     .done(function (response) {
-        //         toastr.success('Logged In Successfully');
-        //         Dispatcher.dispatch({
-        //             type: ActionTypes.LOG_IN,
-        //             data: employee
-        //         });
-        //     }).fail(function () {
-        //         toastr.error('Login Failed.');
-        //     });
-
+        var session = window.btoa(credentials.username + ':' + credentials.password);
+        console.log(session);
 
         Dispatcher.dispatch({
             type: ActionTypes.LOG_IN,
-            data: true
+            data: session
         });
     },
 
     checkOut: function (sessionId) {
-
-        // API.postData('logout', sessionId)
-        //     .done(function (response) {
-        //         toastr.success('Logged Out Successfully');
-        //         Dispatcher.dispatch({
-        //             type: ActionTypes.LOG_OUT,
-        //             data: employee
-        //         });
-        //     }).fail(function () {
-        //         toastr.error('Logout Failed.');
-        //     });
-
         Dispatcher.dispatch({
             type: ActionTypes.LOG_OUT,
             data: false

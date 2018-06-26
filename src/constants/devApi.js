@@ -2,13 +2,22 @@
 
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
-    //proxy: 'https://cors-anywhere.herokuapp.com/',
-    proxy: '',
-    tempCount: 0, // TODO: remove tempCount
-    errorHandler: function (xhr, status, error) {
-        console.log('Failed ajax call status', status);
-        console.log('Failed ajax call error', error);
-        return false;
+    proxy: 'https://cors-anywhere.herokuapp.com/',
+    headers: {
+        Authorization: localStorage.getItem('tca_auth')
+    },
+    errorHandler: function (xhr) {
+        var error = JSON.parse(xhr.responseText);
+        if (error.message === 'Unauthorized') {
+            localStorage.removeItem('tca_auth');
+            alert('Unathorized. Please login to continue.');
+            window.location.assign('/');
+        } else {
+            return false;
+        }
+    },
+    successHandler: function (response) {
+        return response;
     },
     getData: function (path) {
         var url = this.proxy + this.baseURL + path;
@@ -17,9 +26,8 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -33,9 +41,8 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -48,9 +55,8 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -61,9 +67,8 @@ var API = {
             method: 'DELETE',
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -74,9 +79,8 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     }

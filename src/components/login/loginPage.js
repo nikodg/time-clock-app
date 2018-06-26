@@ -12,12 +12,11 @@ var ManageLoginPage = React.createClass({
     ],
 
     statics: {
-        willTransitionTo: function (transition, component) {
-            if (LoginStore.checkSession()) {
-                // alert('You are still logged in.');
-                transition.abort();  
-            }
-        },
+        // willTransitionTo: function (transition, component) {
+        //     if (LoginStore.checkSession()) {
+        //         transition.abort();  
+        //     }
+        // },
         willTransitionFrom: function (transition, component) {
             if (!LoginStore.checkSession()) {
                 alert('Please login.');
@@ -39,6 +38,9 @@ var ManageLoginPage = React.createClass({
     },
 
     componentWillMount: function () {
+        if (LoginStore.checkSession()) {
+            this.transitionTo('whoIsIn');
+        }
         LoginStore.addChangeListener(this._onChange);
     },
 
@@ -47,7 +49,7 @@ var ManageLoginPage = React.createClass({
     },
 
     _onChange: function () {
-
+        console.log('loginPage changed');
         if (LoginStore.checkSession()){
             this.transitionTo('whoIsIn');          
         }

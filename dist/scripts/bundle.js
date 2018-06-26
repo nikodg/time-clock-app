@@ -52818,7 +52818,7 @@ module.exports = require('./lib/React');
 
 var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var toastr = require('toastr');
 var CompanyStore = require('../stores/companyStore');
 
@@ -52897,13 +52897,13 @@ var CompanyActions = {
 
 module.exports = CompanyActions;
 
-},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"../stores/companyStore":248,"toastr":208}],210:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":248,"../stores/companyStore":251,"toastr":208}],210:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
 var EmployeeApi = require('../api/employeeApi');
 var ActionTypes = require('../constants/actionTypes');
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var toastr = require('toastr');
 
 var EmployeeActions = {
@@ -52988,31 +52988,32 @@ var EmployeeActions = {
 
 module.exports = EmployeeActions;
 
-},{"../api/employeeApi":215,"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"toastr":208}],211:[function(require,module,exports){
+},{"../api/employeeApi":215,"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":248,"toastr":208}],211:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
-var ActionTypes = require('../constants/actionTypes');
-var CompanyActions = require('../actions/companyActions');
-var EmployeeActions = require('../actions/employeeActions');
-var WhoIsInActions = require('../actions/whoIsInActions');
-var ListViewActions = require('../actions/listViewActions');
-var moment = require('moment');
+var LoginActions = require('../actions/loginActions');
 
 var InitializeActions = {
 	initApp: function () {
-		//
+		var session = localStorage.getItem('tca_auth');
+		console.log('checking session', session);
+		if (session && session !== 'false') {
+
+			console.log('authorize');
+			LoginActions.checkInExisting(session);
+		}
 	}
 };
 
 module.exports = InitializeActions;
 
-},{"../actions/companyActions":209,"../actions/employeeActions":210,"../actions/listViewActions":212,"../actions/whoIsInActions":214,"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"moment":10}],212:[function(require,module,exports){
+},{"../actions/loginActions":213,"../dispatcher/appDispatcher":248}],212:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var toastr = require('toastr');
 
 var employeeId = function(id){
@@ -53105,7 +53106,7 @@ var ListViewActions = {
 
 module.exports = ListViewActions;
 
-},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"toastr":208}],213:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":248,"toastr":208}],213:[function(require,module,exports){
 "use strict";
 
 var API = require('../constants/apis');
@@ -53115,39 +53116,26 @@ var toastr = require('toastr');
 
 var LoginActions = {
 
+    checkInExisting: function (session) {
+        console.log('checkInExisting');
+        Dispatcher.dispatch({
+            type: ActionTypes.LOG_IN_EXIST,
+            data: session
+        });
+    },
+
     checkIn: function (credentials) {
 
-        // API.postData('login', credentials)
-        //     .done(function (response) {
-        //         toastr.success('Logged In Successfully');
-        //         Dispatcher.dispatch({
-        //             type: ActionTypes.LOG_IN,
-        //             data: employee
-        //         });
-        //     }).fail(function () {
-        //         toastr.error('Login Failed.');
-        //     });
-
+        var session = window.btoa(credentials.username + ':' + credentials.password);
+        console.log(session);
 
         Dispatcher.dispatch({
             type: ActionTypes.LOG_IN,
-            data: true
+            data: session
         });
     },
 
     checkOut: function (sessionId) {
-
-        // API.postData('logout', sessionId)
-        //     .done(function (response) {
-        //         toastr.success('Logged Out Successfully');
-        //         Dispatcher.dispatch({
-        //             type: ActionTypes.LOG_OUT,
-        //             data: employee
-        //         });
-        //     }).fail(function () {
-        //         toastr.error('Logout Failed.');
-        //     });
-
         Dispatcher.dispatch({
             type: ActionTypes.LOG_OUT,
             data: false
@@ -53157,10 +53145,10 @@ var LoginActions = {
 
 module.exports = LoginActions;
 
-},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"toastr":208}],214:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":248,"toastr":208}],214:[function(require,module,exports){
 "use strict";
 
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
 var toastr = require('toastr');
@@ -53186,11 +53174,11 @@ var WhoIsInActions = {
 
 module.exports = WhoIsInActions;
 
-},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":245,"toastr":208}],215:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../constants/apis":244,"../dispatcher/appDispatcher":248,"toastr":208}],215:[function(require,module,exports){
 "use strict";
 var $ = require('jquery');
 var _ = require('lodash');
-var API = require('../constants/apis');
+var API = require('../constants/apis').getApi();
 var window = $;
 
 var employees = [];
@@ -53378,7 +53366,7 @@ var Header = React.createClass({displayName: "Header",
 });
 
 module.exports = Header;
-},{"../../actions/loginActions":213,"../../stores/loginStore":251,"react":207,"react-router":37}],220:[function(require,module,exports){
+},{"../../actions/loginActions":213,"../../stores/loginStore":254,"react":207,"react-router":37}],220:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -54024,7 +54012,7 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 
 module.exports = CompanyPage;
 
-},{"../../actions/companyActions":209,"../../stores/companyStore":248,"../common/clockLoader":218,"../common/paginator":220,"../common/textInput":223,"./companyList":226,"react":207,"react-router":37}],228:[function(require,module,exports){
+},{"../../actions/companyActions":209,"../../stores/companyStore":251,"../common/clockLoader":218,"../common/paginator":220,"../common/textInput":223,"./companyList":226,"react":207,"react-router":37}],228:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54114,7 +54102,7 @@ var ManageCompanyPage = React.createClass({displayName: "ManageCompanyPage",
 
 module.exports = ManageCompanyPage;
 
-},{"../../actions/companyActions":209,"../../stores/companyStore":248,"./companyForm":225,"react":207,"react-router":37}],229:[function(require,module,exports){
+},{"../../actions/companyActions":209,"../../stores/companyStore":251,"./companyForm":225,"react":207,"react-router":37}],229:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54438,7 +54426,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 				React.createElement("div", {className: "row"}, 
 					React.createElement("div", {className: "col-lg-8 col-md-7 col-sm-12"}, 
-						(this.state.pagination && !this.state.searched) ? 
+						(this.state.pagination.totalElements && !this.state.searched) ? 
 							React.createElement(Paginator, {
 								previousPage: this.previousPage, 
 								nextPage: this.nextPage, 
@@ -54470,7 +54458,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 module.exports = EmployeePage;
 
-},{"../../actions/employeeActions":210,"../../stores/employeeStore":249,"../common/paginator":220,"../common/textInput":223,"./employeeList":231,"react":207,"react-router":37}],233:[function(require,module,exports){
+},{"../../actions/employeeActions":210,"../../stores/employeeStore":252,"../common/paginator":220,"../common/textInput":223,"./employeeList":231,"react":207,"react-router":37}],233:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54595,7 +54583,7 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 
 module.exports = ManageEmployeePage;
 
-},{"../../actions/employeeActions":210,"../../stores/companyStore":248,"../../stores/employeeStore":249,"./employeeForm":230,"react":207,"react-router":37}],234:[function(require,module,exports){
+},{"../../actions/employeeActions":210,"../../stores/companyStore":251,"../../stores/employeeStore":252,"./employeeForm":230,"react":207,"react-router":37}],234:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -54805,7 +54793,8 @@ var ListViewList = require('./listViewList');
 var TextInput = require('../common/textInput');
 var SelectInput = require('../common/selectInput');
 var Paginator = require('../common/paginator');
-
+var APIs = require('../../constants/apis');
+var toastr = require('toastr');
 
 var ListViewPage = React.createClass({displayName: "ListViewPage",
 
@@ -54885,6 +54874,14 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
         ListViewActions.getListView(pageNumber, this.state.pagination.size);
     },
 
+    exportReport: function(){
+        APIs.exportReport('listview')
+            .done(function (response) {
+                console.log('export report', response);
+            }).fail(function () {
+                toastr.error('Failed to export report.');
+            });
+    },
     render: function () {
         return (
             React.createElement("div", null, 
@@ -54894,7 +54891,8 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
                     ), 
                     React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-12 text-right"}, 
                         React.createElement(Link, {to: "addListView", className: "btn btn-default header-button"}, "Add Entry"), 
-                        React.createElement(Link, {to: "addAbsence", className: "btn btn-default header-button"}, "Add Absence")
+                        React.createElement(Link, {to: "addAbsence", className: "btn btn-default header-button"}, "Add Absence"), 
+                        React.createElement("button", {className: "btn btn-default header-button", onClick: this.exportReport}, "Export Report")
                     )
                 ), 
                 React.createElement("div", {className: "row"}, 
@@ -54961,7 +54959,7 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
 
 module.exports = ListViewPage;
 
-},{"../../actions/listViewActions":212,"../../stores/listViewStore":250,"../common/paginator":220,"../common/selectInput":222,"../common/textInput":223,"./listViewList":235,"moment":10,"react":207,"react-router":37}],237:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"../../constants/apis":244,"../../stores/listViewStore":253,"../common/paginator":220,"../common/selectInput":222,"../common/textInput":223,"./listViewList":235,"moment":10,"react":207,"react-router":37,"toastr":208}],237:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55160,7 +55158,7 @@ var ManageListView = React.createClass({displayName: "ManageListView",
 
 module.exports = ManageListView;
 
-},{"../../actions/listViewActions":212,"../../stores/employeeStore":249,"../../stores/listViewStore":250,"../employees/employeeChecklist":229,"./listViewForm":234,"moment":10,"react":207,"react-router":37}],238:[function(require,module,exports){
+},{"../../actions/listViewActions":212,"../../stores/employeeStore":252,"../../stores/listViewStore":253,"../employees/employeeChecklist":229,"./listViewForm":234,"moment":10,"react":207,"react-router":37}],238:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55169,7 +55167,7 @@ var PasswordInput = require('../common/passwordInput');
 
 var EmployeeForm = React.createClass({displayName: "EmployeeForm",
     propTypes: {
-        employee: React.PropTypes.object.isRequired,
+        login: React.PropTypes.object.isRequired,
         onSave: React.PropTypes.func.isRequired,
         onChange: React.PropTypes.func.isRequired,
         errors: React.PropTypes.object
@@ -55234,12 +55232,11 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
     ],
 
     statics: {
-        willTransitionTo: function (transition, component) {
-            if (LoginStore.checkSession()) {
-                // alert('You are still logged in.');
-                transition.abort();  
-            }
-        },
+        // willTransitionTo: function (transition, component) {
+        //     if (LoginStore.checkSession()) {
+        //         transition.abort();  
+        //     }
+        // },
         willTransitionFrom: function (transition, component) {
             if (!LoginStore.checkSession()) {
                 alert('Please login.');
@@ -55261,6 +55258,9 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
     },
 
     componentWillMount: function () {
+        if (LoginStore.checkSession()) {
+            this.transitionTo('whoIsIn');
+        }
         LoginStore.addChangeListener(this._onChange);
     },
 
@@ -55269,7 +55269,7 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
     },
 
     _onChange: function () {
-
+        console.log('loginPage changed');
         if (LoginStore.checkSession()){
             this.transitionTo('whoIsIn');          
         }
@@ -55325,7 +55325,7 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
 
 module.exports = ManageLoginPage;
 
-},{"../../actions/loginActions":213,"../../stores/loginStore":251,"./loginForm":238,"react":207,"react-router":37}],240:[function(require,module,exports){
+},{"../../actions/loginActions":213,"../../stores/loginStore":254,"./loginForm":238,"react":207,"react-router":37}],240:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55479,13 +55479,14 @@ var WhoIsInPage = React.createClass({displayName: "WhoIsInPage",
 
 module.exports = WhoIsInPage;
 
-},{"../../actions/whoIsInActions":214,"../../stores/whoIsInStore":252,"../common/paginator":220,"./whoIsInList":241,"react":207,"react-router":37}],243:[function(require,module,exports){
+},{"../../actions/whoIsInActions":214,"../../stores/whoIsInStore":255,"../common/paginator":220,"./whoIsInList":241,"react":207,"react-router":37}],243:[function(require,module,exports){
 "use strict";
 
 var keyMirror = require('react/lib/keyMirror');
 
 module.exports = keyMirror({
 	LOG_IN: null,
+	LOG_IN_EXIST: null,
 	LOG_OUT: null,
 
 	INITIALIZE_EMPLOYEES: null,
@@ -55511,16 +55512,49 @@ module.exports = keyMirror({
 
 },{"react/lib/keyMirror":192}],244:[function(require,module,exports){
 'use strict';
+var config = require('./config.json');
+module.exports = {
+    getApi: function () {
+        console.log('getApi', config);
+        switch (config.env.NODE_ENV) {
+            case 'production':
+            case 'PRODUCTION':
+            case 'prod':
+            case 'PROD':
+                return require("./prodApis");
+            case 'developement':
+            case 'DEVELOPMENT':
+            case 'dev':
+            case 'DEV':
+            default:
+                return require("./devApi");
+        }
+    }
+};
+
+},{"./config.json":245,"./devApi":246,"./prodApis":247}],245:[function(require,module,exports){
+module.exports={"env":{"NODE_ENV":"dev"}}
+},{}],246:[function(require,module,exports){
+'use strict';
 
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
-    //proxy: 'https://cors-anywhere.herokuapp.com/',
-    proxy: '',
-    tempCount: 0, // TODO: remove tempCount
-    errorHandler: function (xhr, status, error) {
-        console.log('Failed ajax call status', status);
-        console.log('Failed ajax call error', error);
-        return false;
+    proxy: 'https://cors-anywhere.herokuapp.com/',
+    headers: {
+        Authorization: localStorage.getItem('tca_auth')
+    },
+    errorHandler: function (xhr) {
+        var error = JSON.parse(xhr.responseText);
+        if (error.message === 'Unauthorized') {
+            localStorage.removeItem('tca_auth');
+            alert('Unathorized. Please login to continue.');
+            window.location.assign('/');
+        } else {
+            return false;
+        }
+    },
+    successHandler: function (response) {
+        return response;
     },
     getData: function (path) {
         var url = this.proxy + this.baseURL + path;
@@ -55529,9 +55563,8 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -55545,9 +55578,8 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -55560,9 +55592,8 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -55573,9 +55604,8 @@ var API = {
             method: 'DELETE',
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -55586,9 +55616,8 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     }
@@ -55596,7 +55625,93 @@ var API = {
 
 module.exports = API;
 
-},{}],245:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
+'use strict';
+
+var API = {
+    baseURL: 'api/',
+    proxy: '',
+    headers: {
+        Authorization: localStorage.getItem('tca_auth')
+    },
+    errorHandler: function (xhr) {
+        var error = JSON.parse(xhr.responseText);
+        if (error.message === 'Unauthorized') {
+            localStorage.removeItem('tca_auth');
+            alert('Unathorized. Please login to continue.');
+            window.location.assign('/');
+        } else {
+            return false;
+        }
+    },
+    successHandler: function (response) {
+        return response;
+    },
+    getData: function (path) {
+        var url = this.proxy + this.baseURL + path;
+        return $.ajax({
+            url: url,
+            method: 'GET',
+            contentType: 'application/json',
+            headers: this.headers,
+            success: this.successHandler,
+            error: this.errorHandler
+        });
+    },
+    postData: function (path, data) {
+        data.id = this.tempCount++;
+        var url = this.proxy + this.baseURL + path;
+        var parsedData = JSON.stringify(data);
+        return $.ajax({
+            url: url,
+            method: 'POST',
+            data: parsedData,
+            contentType: 'application/json',
+            headers: this.headers,
+            success: this.successHandler,
+            error: this.errorHandler
+        });
+    },
+    patchData: function (path, data, id) {
+        var url = this.proxy + this.baseURL + path + '/' + id;
+        var parsedData = JSON.stringify(data);
+        return $.ajax({
+            url: url,
+            method: 'PATCH',
+            data: parsedData,
+            contentType: 'application/json',
+            headers: this.headers,
+            success: this.successHandler,
+            error: this.errorHandler
+        });
+    },
+    deleteData: function (path, id) {
+        var url = this.proxy + this.baseURL + path + '/' + id;
+        return $.ajax({
+            url: url,
+            method: 'DELETE',
+            contentType: 'application/json',
+            headers: this.headers,
+            success: this.successHandler,
+            error: this.errorHandler
+        });
+    },
+    searchData: function (path, keyword) {
+        var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;
+        return $.ajax({
+            url: url,
+            method: 'GET',
+            contentType: 'application/json',
+            headers: this.headers,
+            success: this.successHandler,
+            error: this.errorHandler
+        });
+    }
+};
+
+module.exports = API;
+
+},{}],248:[function(require,module,exports){
 /*
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.
@@ -55614,7 +55729,7 @@ var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":5}],246:[function(require,module,exports){
+},{"flux":5}],249:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55622,12 +55737,12 @@ var Router = require('react-router');
 var routes = require('./routes');
 var InitializeActions = require('./actions/initializeActions');
 
-// InitializeActions.initApp();
+InitializeActions.initApp();
 
 Router.run(routes, function(Handler) {
 	React.render(React.createElement(Handler, null), document.getElementById('app'));
 });
-},{"./actions/initializeActions":211,"./routes":247,"react":207,"react-router":37}],247:[function(require,module,exports){
+},{"./actions/initializeActions":211,"./routes":250,"react":207,"react-router":37}],250:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -55672,7 +55787,7 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/app":216,"./components/company/companyPage":227,"./components/company/manageCompanyPage":228,"./components/employees/employeePage":232,"./components/employees/manageEmployeePage":233,"./components/listView/listViewPage":236,"./components/listView/manageListView":237,"./components/login/loginPage":239,"./components/notFoundPage":240,"./components/whoIsIn/whoIsInPage":242,"react":207,"react-router":37}],248:[function(require,module,exports){
+},{"./components/app":216,"./components/company/companyPage":227,"./components/company/manageCompanyPage":228,"./components/employees/employeePage":232,"./components/employees/manageEmployeePage":233,"./components/listView/listViewPage":236,"./components/listView/manageListView":237,"./components/login/loginPage":239,"./components/notFoundPage":240,"./components/whoIsIn/whoIsInPage":242,"react":207,"react-router":37}],251:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55776,7 +55891,7 @@ Dispatcher.register(function (action) {
 
 module.exports = CompanyStore;
 
-},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11,"toastr":208}],249:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":248,"events":2,"lodash":9,"object-assign":11,"toastr":208}],252:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55870,7 +55985,7 @@ Dispatcher.register(function (action) {
 
 module.exports = EmployeeStore;
 
-},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11,"toastr":208}],250:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":248,"events":2,"lodash":9,"object-assign":11,"toastr":208}],253:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55959,7 +56074,7 @@ Dispatcher.register(function (action) {
 
 module.exports = ListViewStore;
 
-},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11}],251:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":248,"events":2,"lodash":9,"object-assign":11}],254:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -55992,13 +56107,22 @@ var LoginStore = assign({}, EventEmitter.prototype, {
 Dispatcher.register(function (action) {
 
     switch (action.type) {
+        case ActionTypes.LOG_IN_EXIST:
+            console.log('LoginStore login exist');
+            _session = action.data;
+            localStorage.setItem('tca_auth', _session);
+            LoginStore.emitChange();
+            break;
+
         case ActionTypes.LOG_IN:
             _session = action.data;
+            localStorage.setItem('tca_auth', _session);
             LoginStore.emitChange();
             break;
 
         case ActionTypes.LOG_OUT:
-            _session = action.data;
+            _session = false;
+            localStorage.removeItem('tca_auth');
             LoginStore.emitChange();
             break;
 
@@ -56008,7 +56132,7 @@ Dispatcher.register(function (action) {
 
 module.exports = LoginStore;
 
-},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11}],252:[function(require,module,exports){
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":248,"events":2,"lodash":9,"object-assign":11}],255:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -56067,4 +56191,4 @@ Dispatcher.register(function (action) {
 
 module.exports = WhoIsInStore;
 
-},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":245,"events":2,"lodash":9,"object-assign":11}]},{},[246]);
+},{"../constants/actionTypes":243,"../dispatcher/appDispatcher":248,"events":2,"lodash":9,"object-assign":11}]},{},[249]);

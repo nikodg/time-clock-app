@@ -1,16 +1,17 @@
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
-var ActionTypes = require('../constants/actionTypes');
-var CompanyActions = require('../actions/companyActions');
-var EmployeeActions = require('../actions/employeeActions');
-var WhoIsInActions = require('../actions/whoIsInActions');
-var ListViewActions = require('../actions/listViewActions');
-var moment = require('moment');
+var LoginActions = require('../actions/loginActions');
 
 var InitializeActions = {
 	initApp: function () {
-		//
+		var session = localStorage.getItem('tca_auth');
+		console.log('checking session', session);
+		if (session && session !== 'false') {
+
+			console.log('authorize');
+			LoginActions.checkInExisting(session);
+		}
 	}
 };
 

@@ -30,13 +30,22 @@ var LoginStore = assign({}, EventEmitter.prototype, {
 Dispatcher.register(function (action) {
 
     switch (action.type) {
+        case ActionTypes.LOG_IN_EXIST:
+            console.log('LoginStore login exist');
+            _session = action.data;
+            localStorage.setItem('tca_auth', _session);
+            LoginStore.emitChange();
+            break;
+
         case ActionTypes.LOG_IN:
             _session = action.data;
+            localStorage.setItem('tca_auth', _session);
             LoginStore.emitChange();
             break;
 
         case ActionTypes.LOG_OUT:
-            _session = action.data;
+            _session = false;
+            localStorage.removeItem('tca_auth');
             LoginStore.emitChange();
             break;
 

@@ -2,13 +2,22 @@
 
 var API = {
     baseURL: 'api/',
-    //proxy: 'https://cors-anywhere.herokuapp.com/',
     proxy: '',
-    tempCount: 0, // TODO: remove tempCount
-    errorHandler: function (xhr, status, error) {
-        console.log('Failed ajax call status', status);
-        console.log('Failed ajax call error', error);
-        return false;
+    headers: {
+        Authorization: localStorage.getItem('tca_auth')
+    },
+    errorHandler: function (xhr) {
+        var error = JSON.parse(xhr.responseText);
+        if (error.message === 'Unauthorized') {
+            localStorage.removeItem('tca_auth');
+            alert('Unathorized. Please login to continue.');
+            window.location.assign('/');
+        } else {
+            return false;
+        }
+    },
+    successHandler: function (response) {
+        return response;
     },
     getData: function (path) {
         var url = this.proxy + this.baseURL + path;
@@ -16,9 +25,8 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -31,9 +39,8 @@ var API = {
             method: 'POST',
             data: parsedData,
             contentType: 'application/json',
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -45,9 +52,8 @@ var API = {
             method: 'PATCH',
             data: parsedData,
             contentType: 'application/json',
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -57,9 +63,8 @@ var API = {
             url: url,
             method: 'DELETE',
             contentType: 'application/json',
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     },
@@ -69,9 +74,8 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            success: function (response, status) {
-                return response;
-            },
+            headers: this.headers,
+            success: this.successHandler,
             error: this.errorHandler
         });
     }
