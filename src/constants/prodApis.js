@@ -3,8 +3,10 @@
 var API = {
     baseURL: 'api/',
     proxy: '',
-    headers: {
-        Authorization: "Basic " + localStorage.getItem('tca_auth')
+    headers: function(){
+        return {
+            Authorization: "Basic " + localStorage.getItem('tca_auth')
+        };
     },
     redirecting: false,
     errorHandler: function (xhr) {
@@ -37,7 +39,6 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            crossDomain: true,
             headers: {
                 Authorization: 'Basic ' + session
             },
@@ -51,7 +52,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers,
+            headers: this.headers(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -68,7 +69,7 @@ var API = {
             method: 'POST',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers,
+            headers: this.headers(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -84,7 +85,7 @@ var API = {
             method: 'PATCH',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers,
+            headers: this.headers(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -101,8 +102,7 @@ var API = {
                 url: url,
                 method: 'DELETE',
                 contentType: 'application/json',
-                crossDomain: true,
-                headers: this.headers,
+                headers: this.headers(),
                 success: this.successHandler,
                 error: this.errorHandler.bind(this),
                 statusCode: {
@@ -117,7 +117,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers,
+            headers: this.headers(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
