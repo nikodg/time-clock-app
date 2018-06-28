@@ -64748,14 +64748,14 @@ var API = require('../../constants/apis').getApi();
 var toastr = require('toastr');
 var fields = { 
     fields: [
-        'Employee ID',
-        'Name',
-        'Time In',
-        'Time Out',
-        'Work Hours',
-        'Overtime',
-        'Undertime',
-        'Absent'
+        { label: 'Employee ID', value: 'employee.id' },
+        { label: 'Name', value: 'employee.fullName' },
+        { label: 'Time In', value: 'timeIn' },
+        { label: 'Time Out', value: 'timeOut' },
+        { label: 'Work Hours', value: 'hoursWorked' },
+        { label: 'Overtime', value: 'overtime' },
+        { label: 'Undertime', value: 'undertime' },
+        { label: 'Absent', value: 'absent' }
     ]
 };
 
@@ -65604,13 +65604,11 @@ module.exports = {
 module.exports={"env":{"NODE_ENV":"dev"}}
 },{}],247:[function(require,module,exports){
 'use strict';
+var LoginStore = require('../stores/loginStore');
 
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
     proxy: 'https://cors-anywhere.herokuapp.com/',
-    headers: {
-        Authorization: "Basic " + localStorage.getItem('tca_auth')
-    },
     redirecting: false,
     errorHandler: function (xhr) {
         if (xhr.status === 401) {
@@ -65625,12 +65623,11 @@ var API = {
             localStorage.removeItem('tca_auth');
             alert('Unathorized. Please login to continue.');
             this.redirecting = true;
-            // window.location.assign('/');
+            window.location.assign('/');
         }
     },
     unathorizedHandler: function (xhr) {
         if (xhr.status === 401) {
-            // alert('Invalid Credentials');
             return;
         }
     },
@@ -65658,7 +65655,7 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -65676,7 +65673,7 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -65693,7 +65690,7 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -65711,7 +65708,7 @@ var API = {
                 method: 'DELETE',
                 contentType: 'application/json',
                 crossDomain: true,
-                headers: this.headers,
+                headers: LoginStore.checkSession(),
                 success: this.successHandler,
                 error: this.errorHandler.bind(this),
                 statusCode: {
@@ -65727,7 +65724,7 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -65739,15 +65736,14 @@ var API = {
 
 module.exports = API;
 
-},{}],248:[function(require,module,exports){
+},{"../stores/loginStore":255}],248:[function(require,module,exports){
 'use strict';
+
+var LoginStore = require('../stores/loginStore');
 
 var API = {
     baseURL: 'api/',
     proxy: '',
-    headers: {
-        Authorization: "Basic " + localStorage.getItem('tca_auth')
-    },
     redirecting: false,
     errorHandler: function (xhr) {
         if (xhr.status === 401) {
@@ -65766,7 +65762,6 @@ var API = {
     },
     unathorizedHandler: function (xhr) {
         if (xhr.status === 401) {
-            // alert('Invalid Credentials');
             return;
         }
     },
@@ -65793,7 +65788,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -65810,7 +65805,7 @@ var API = {
             method: 'POST',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -65826,7 +65821,7 @@ var API = {
             method: 'PATCH',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -65844,7 +65839,7 @@ var API = {
                 method: 'DELETE',
                 contentType: 'application/json',
                 crossDomain: true,
-                headers: this.headers,
+                headers: LoginStore.checkSession(),
                 success: this.successHandler,
                 error: this.errorHandler.bind(this),
                 statusCode: {
@@ -65859,7 +65854,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -65871,7 +65866,7 @@ var API = {
 
 module.exports = API;
 
-},{}],249:[function(require,module,exports){
+},{"../stores/loginStore":255}],249:[function(require,module,exports){
 /*
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.

@@ -18,12 +18,11 @@ var API = {
             localStorage.removeItem('tca_auth');
             alert('Unathorized. Please login to continue.');
             this.redirecting = true;
-            // window.location.assign('/');
+            window.location.assign('/');
         }
     },
     unathorizedHandler: function (xhr) {
         if (xhr.status === 401) {
-            // alert('Invalid Credentials');
             return;
         }
     },

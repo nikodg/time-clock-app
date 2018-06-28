@@ -23,7 +23,6 @@ var API = {
     },
     unathorizedHandler: function (xhr) {
         if (xhr.status === 401) {
-            // alert('Invalid Credentials');
             return;
         }
     },
