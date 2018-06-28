@@ -1,11 +1,10 @@
 'use strict';
 
+var LoginStore = require('../stores/loginStore');
+
 var API = {
     baseURL: 'api/',
     proxy: '',
-    headers: {
-        Authorization: "Basic " + localStorage.getItem('tca_auth')
-    },
     redirecting: false,
     errorHandler: function (xhr) {
         if (xhr.status === 401) {
@@ -51,7 +50,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -68,7 +67,7 @@ var API = {
             method: 'POST',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -84,7 +83,7 @@ var API = {
             method: 'PATCH',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -102,7 +101,7 @@ var API = {
                 method: 'DELETE',
                 contentType: 'application/json',
                 crossDomain: true,
-                headers: this.headers,
+                headers: LoginStore.checkSession(),
                 success: this.successHandler,
                 error: this.errorHandler.bind(this),
                 statusCode: {
@@ -117,7 +116,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {

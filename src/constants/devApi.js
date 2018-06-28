@@ -1,11 +1,9 @@
 'use strict';
+var LoginStore = require('../stores/loginStore');
 
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
     proxy: 'https://cors-anywhere.herokuapp.com/',
-    headers: {
-        Authorization: "Basic " + localStorage.getItem('tca_auth')
-    },
     redirecting: false,
     errorHandler: function (xhr) {
         if (xhr.status === 401) {
@@ -53,7 +51,7 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -71,7 +69,7 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -88,7 +86,7 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -106,7 +104,7 @@ var API = {
                 method: 'DELETE',
                 contentType: 'application/json',
                 crossDomain: true,
-                headers: this.headers,
+                headers: LoginStore.checkSession(),
                 success: this.successHandler,
                 error: this.errorHandler.bind(this),
                 statusCode: {
@@ -122,7 +120,7 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: LoginStore.checkSession(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
