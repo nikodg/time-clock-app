@@ -46,7 +46,8 @@ var EmployeeForm = React.createClass({
                         <input type="submit"
                             value="Login"
                             className="btn btn-default btn-block"
-                            onClick={this.props.onSave} />
+                            onClick={this.props.onSave} 
+                            disabled={this.props.checking}/>
                     </div>
                 </div>
             </form>

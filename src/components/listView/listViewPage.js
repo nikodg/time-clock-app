@@ -3,6 +3,7 @@
 var React = require('react');
 var Router = require('react-router');
 var Link = require('react-router').Link;
+var Json2csvParser = require('json2csv').Parser;
 var moment = require('moment');
 var ListViewStore = require('../../stores/listViewStore');
 var ListViewActions = require('../../actions/listViewActions');
@@ -10,8 +11,20 @@ var ListViewList = require('./listViewList');
 var TextInput = require('../common/textInput');
 var SelectInput = require('../common/selectInput');
 var Paginator = require('../common/paginator');
-var APIs = require('../../constants/apis');
+var API = require('../../constants/apis').getApi();
 var toastr = require('toastr');
+var fields = { 
+    fields: [
+        { label: 'Employee ID', value: 'employee.id' },
+        { label: 'Name', value: 'employee.fullName' },
+        { label: 'Time In', value: 'timeIn' },
+        { label: 'Time Out', value: 'timeOut' },
+        { label: 'Work Hours', value: 'hoursWorked' },
+        { label: 'Overtime', value: 'overtime' },
+        { label: 'Undertime', value: 'undertime' },
+        { label: 'Absent', value: 'absent' }
+    ]
+};
 
 var ListViewPage = React.createClass({
 
@@ -91,13 +104,41 @@ var ListViewPage = React.createClass({
         ListViewActions.getListView(pageNumber, this.state.pagination.size);
     },
 
-    exportReport: function(){
-        APIs.exportReport('listview')
+    exportReport: function () {
+        var vm = this;
+        API.getData('listview')
             .done(function (response) {
                 console.log('export report', response);
+
+                try {
+                    var parser = new Json2csvParser(fields);
+                    var csv = parser.parse(response.data);
+                    vm.downloadCSV(csv);
+                } catch (err) {
+                    console.error(err);
+                }
             }).fail(function () {
                 toastr.error('Failed to export report.');
             });
+    },
+    downloadCSV: function (csv) {
+        var data;
+        var filename;
+        var link;
+        if (csv == null) { return; }
+
+        var dateTime = moment().format('DD-MM-YYYY_hh_mm_A');
+        filename = 'time-logs-report_' + dateTime + '.csv';
+
+        if (!csv.match(/^data:text\/csv/i)) {
+            csv = 'data:text/csv;charset=utf-8,' + csv;
+        }
+        data = encodeURI(csv);
+
+        link = document.createElement('a');
+        link.setAttribute('href', data);
+        link.setAttribute('download', filename);
+        link.click();
     },
     render: function () {
         return (

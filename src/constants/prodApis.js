@@ -22,8 +22,28 @@ var API = {
             window.location.assign('/');
         }
     },
+    unathorizedHandler: function (xhr) {
+        if (xhr.status === 401) {
+            // alert('Invalid Credentials');
+            return;
+        }
+    },
     successHandler: function (response) {
         return response;
+    },
+    loginUser: function (session) {
+        var url = this.proxy + this.baseURL;
+        return $.ajax({
+            url: url,
+            method: 'GET',
+            contentType: 'application/json',
+            crossDomain: true,
+            headers: {
+                Authorization: 'Basic ' + session
+            },
+            success: this.successHandler,
+            error: this.unathorizedHandler
+        });
     },
     getData: function (path) {
         var url = this.proxy + this.baseURL + path;

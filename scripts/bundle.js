@@ -53117,7 +53117,6 @@ var toastr = require('toastr');
 var LoginActions = {
 
     checkInExisting: function (session) {
-        console.log('checkInExisting');
         Dispatcher.dispatch({
             type: ActionTypes.LOG_IN_EXIST,
             data: session
@@ -53127,12 +53126,17 @@ var LoginActions = {
     checkIn: function (credentials) {
 
         var session = window.btoa(credentials.username + ':' + credentials.password);
-        console.log(session);
 
-        Dispatcher.dispatch({
-            type: ActionTypes.LOG_IN,
-            data: session
-        });
+        API.loginUser(session)
+            .done(function (data) {
+                Dispatcher.dispatch({
+                    type: ActionTypes.LOG_IN,
+                    data: session
+                });
+
+            }).fail(function () {
+                toastr.error('Failed to load who is in.');
+            });
     },
 
     checkOut: function (sessionId) {
@@ -55552,14 +55556,34 @@ var API = {
     },
     statusCodeHandler: function () {
         if (!this.redirecting) {
+            
             localStorage.removeItem('tca_auth');
             alert('Unathorized. Please login to continue.');
             this.redirecting = true;
             window.location.assign('/');
         }
     },
+    unathorizedHandler: function (xhr) {
+        if (xhr.status === 401) {
+            alert('Invalid Credentials'); 
+        }
+    },
     successHandler: function (response) {
         return response;
+    },
+    loginUser: function (session) {
+        var url = this.proxy + this.baseURL + 'whoIsIn';
+        return $.ajax({
+            url: url,
+            method: 'GET',
+            contentType: 'application/json',
+            crossDomain: true,
+            headers: {
+                Authorization: "Basic " + session
+            },
+            success: this.successHandler,
+            error: this.unathorizedHandler
+        });
     },
     getData: function (path) {
         var url = this.proxy + this.baseURL + path;
