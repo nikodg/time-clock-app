@@ -69091,10 +69091,12 @@ module.exports={"env":{"NODE_ENV":"prod"}}
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
     proxy: 'https://cors-anywhere.herokuapp.com/',
-    headers: {
-        Authorization: "Basic " + localStorage.getItem('tca_auth')
-    },
     redirecting: false,
+    getHeader: function(){
+        return {
+            Authorization: 'Basic ' + LoginStore.checkSession()
+        };
+    },
     errorHandler: function (xhr) {
         if (xhr.status === 401) {
             this.statusCodeHandler();
@@ -69141,7 +69143,7 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -69159,7 +69161,7 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -69176,7 +69178,7 @@ var API = {
             data: parsedData,
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -69210,7 +69212,7 @@ var API = {
             method: 'GET',
             contentType: 'application/json',
             crossDomain: true,
-            headers: this.headers,
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -69231,12 +69233,12 @@ var swal = require('sweetalert2');
 var API = {
     baseURL: 'api/',
     proxy: '',
-    headers: function () {
+    redirecting: false,
+    getHeader: function () {
         return {
-            Authorization: "Basic " + localStorage.getItem('tca_auth')
+            Authorization: 'Basic ' + LoginStore.checkSession()
         };
     },
-    redirecting: false,
     errorHandler: function (xhr) {
         if (xhr.status === 401) {
             this.statusCodeHandler();
@@ -69279,7 +69281,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers(),
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -69296,7 +69298,7 @@ var API = {
             method: 'POST',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers(),
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -69312,7 +69314,7 @@ var API = {
             method: 'PATCH',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers(),
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -69350,7 +69352,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers(),
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {

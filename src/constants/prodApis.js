@@ -6,12 +6,12 @@ var swal = require('sweetalert2');
 var API = {
     baseURL: 'api/',
     proxy: '',
-    headers: function () {
+    redirecting: false,
+    getHeader: function () {
         return {
-            Authorization: "Basic " + localStorage.getItem('tca_auth')
+            Authorization: 'Basic ' + LoginStore.checkSession()
         };
     },
-    redirecting: false,
     errorHandler: function (xhr) {
         if (xhr.status === 401) {
             this.statusCodeHandler();
@@ -54,7 +54,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers(),
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -71,7 +71,7 @@ var API = {
             method: 'POST',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers(),
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -87,7 +87,7 @@ var API = {
             method: 'PATCH',
             data: parsedData,
             contentType: 'application/json',
-            headers: this.headers(),
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
@@ -125,7 +125,7 @@ var API = {
             url: url,
             method: 'GET',
             contentType: 'application/json',
-            headers: this.headers(),
+            headers: this.getHeader(),
             success: this.successHandler,
             error: this.errorHandler.bind(this),
             statusCode: {
