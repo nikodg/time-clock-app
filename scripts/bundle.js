@@ -66311,7 +66311,7 @@ var CompanyActions = {
 
     deleteCompany: function (id) {
         API.deleteData('companies', id)
-            .done(function (response) {
+            .done(function () {
                 toastr.success('company deleted.');
                 Dispatcher.dispatch({
                     type: ActionTypes.DELETE_COMPANY,
@@ -68697,30 +68697,11 @@ module.exports = EmployeeForm;
 
 var React = require('react');
 var Router = require('react-router');
-var Json2csvParser = require('json2csv').Parser;
-var moment = require('moment');
 var LoginForm = require('./loginForm');
 var LoginActions = require('../../actions/loginActions');
 var LoginStore = require('../../stores/loginStore');
 var API = require('../../constants/apis').getApi();
 var toastr = require('toastr');
-
-var fields = {fields: ['car', 'price', 'color']};
-var myCars = [
-    {
-        "car": "Audi",
-        "price": 40000,
-        "color": "blue"
-    }, {
-        "car": "BMW",
-        "price": 35000,
-        "color": "black"
-    }, {
-        "car": "Porsche",
-        "price": 60000,
-        "color": "green"
-    }
-];
 
 var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
     mixins: [
@@ -68822,62 +68803,21 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
             });
     },
 
-    exportReport: function () {
-        var vm = this;
-        API.getData('listview')
-            .done(function (response) {
-                console.log('export report', response);
-            }).fail(function () {
-                toastr.error('Failed to export report.');
-
-
-                try {
-                    var parser = new Json2csvParser(fields);
-                    var csv = parser.parse(myCars);
-                    vm.downloadCSV(csv);
-                } catch (err) {
-                    console.error(err);
-                }
-            });
-    },
-    downloadCSV: function(csv) {  
-        var data;
-        var filename;
-        var link;
-        if (csv == null) { return; }
-
-        var dateTime = moment().format('DD-MM-YYYY_hh_mm_A');
-        filename = 'time-logs-report_' + dateTime + '.csv';
-
-        if(!csv.match(/^data:text\/csv/i)) {
-            csv = 'data:text/csv;charset=utf-8,' + csv;
-        }
-        data = encodeURI(csv);
-
-        link = document.createElement('a');
-        link.setAttribute('href', data);
-        link.setAttribute('download', filename);
-        link.click();
-    },
-
     render: function () {
         return (
-            React.createElement("div", null, 
-            React.createElement("button", {className: "btn btn-default header-button", onClick: this.exportReport}, "Export Report"), 
             React.createElement(LoginForm, {
                 login: this.state.credentials, 
                 onChange: this.setLoginState, 
                 onSave: this.saveLogin, 
                 errors: this.state.errors, 
                 checking: this.state.checking})
-            )
         );
     }
 });
 
 module.exports = ManageLoginPage;
 
-},{"../../actions/loginActions":215,"../../constants/apis":246,"../../stores/loginStore":256,"./loginForm":240,"json2csv":9,"moment":11,"react":208,"react-router":38,"toastr":210}],242:[function(require,module,exports){
+},{"../../actions/loginActions":215,"../../constants/apis":246,"../../stores/loginStore":256,"./loginForm":240,"react":208,"react-router":38,"toastr":210}],242:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -69088,6 +69028,9 @@ module.exports={"env":{"NODE_ENV":"prod"}}
 },{}],248:[function(require,module,exports){
 'use strict';
 
+var LoginStore = require('../stores/loginStore');
+var swal = require('sweetalert2');
+
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
     proxy: 'https://cors-anywhere.herokuapp.com/',
@@ -69187,9 +69130,15 @@ var API = {
         });
     },
     deleteData: function (path, id) {
-        var confirmation = prompt("Are you sure you want to delete? (Yes/No)", "Yes");
-
-        if (confirmation === 'Yes' || confirmation === 'yes') {
+        swal({
+            title: '',
+            text: 'Are you sure you want to delete this item?',
+            type: 'warning',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false
+        }).then(function (result) {
             var url = this.proxy + this.baseURL + path + '/' + id;
             return $.ajax({
                 url: url,
@@ -69203,7 +69152,7 @@ var API = {
                     401: this.statusCodeHandler.bind(this)
                 }
             });
-        }
+        });
     },
     searchData: function (path, keyword) {
         var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;
@@ -69224,7 +69173,7 @@ var API = {
 
 module.exports = API;
 
-},{}],249:[function(require,module,exports){
+},{"../stores/loginStore":256,"sweetalert2":209}],249:[function(require,module,exports){
 'use strict';
 
 var LoginStore = require('../stores/loginStore');
@@ -69323,28 +69272,36 @@ var API = {
         });
     },
     deleteData: function (path, id) {
-        swal({
-            title: '',
-            text: 'Are you sure you want to delete this item?',
-            type: 'warning',
-            showCancelButton: true,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            allowEnterKey: false
-        }).then(function (result) {
-            var url = this.proxy + this.baseURL + path + '/' + id;
-            return $.ajax({
-                url: url,
-                method: 'DELETE',
-                contentType: 'application/json',
-                headers: this.headers(),
-                success: this.successHandler,
-                error: this.errorHandler.bind(this),
-                statusCode: {
-                    401: this.statusCodeHandler.bind(this)
-                }
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            swal({
+                title: '',
+                text: 'Are you sure you want to delete this item?',
+                type: 'warning',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then(function () {
+                var url = _this.proxy + _this.baseURL + path + '/' + id;
+                return $.ajax({
+                    url: url,
+                    method: 'DELETE',
+                    contentType: 'application/json',
+                    headers: _this.getHeader(),
+                    success: _this.successHandler,
+                    error: _this.errorHandler.bind(_this),
+                    statusCode: {
+                        401: _this.statusCodeHandler.bind(_this)
+                    }
+                }).then(function () {
+                    resolve();
+                });
+            }).catch(function (error) {
+                reject(error);
             });
         });
+
     },
     searchData: function (path, keyword) {
         var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;

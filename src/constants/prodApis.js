@@ -96,28 +96,36 @@ var API = {
         });
     },
     deleteData: function (path, id) {
-        swal({
-            title: '',
-            text: 'Are you sure you want to delete this item?',
-            type: 'warning',
-            showCancelButton: true,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            allowEnterKey: false
-        }).then(function (result) {
-            var url = this.proxy + this.baseURL + path + '/' + id;
-            return $.ajax({
-                url: url,
-                method: 'DELETE',
-                contentType: 'application/json',
-                headers: this.headers(),
-                success: this.successHandler,
-                error: this.errorHandler.bind(this),
-                statusCode: {
-                    401: this.statusCodeHandler.bind(this)
-                }
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            swal({
+                title: '',
+                text: 'Are you sure you want to delete this item?',
+                type: 'warning',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then(function () {
+                var url = _this.proxy + _this.baseURL + path + '/' + id;
+                return $.ajax({
+                    url: url,
+                    method: 'DELETE',
+                    contentType: 'application/json',
+                    headers: _this.getHeader(),
+                    success: _this.successHandler,
+                    error: _this.errorHandler.bind(_this),
+                    statusCode: {
+                        401: _this.statusCodeHandler.bind(_this)
+                    }
+                }).then(function () {
+                    resolve();
+                });
+            }).catch(function (error) {
+                reject(error);
             });
         });
+
     },
     searchData: function (path, keyword) {
         var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;
