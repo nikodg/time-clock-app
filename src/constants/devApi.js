@@ -1,5 +1,6 @@
 'use strict';
 var LoginStore = require('../stores/loginStore');
+var swal = require('sweetalert2');
 
 var API = {
     baseURL: 'https://time-clock-service.herokuapp.com/api/',
@@ -94,23 +95,32 @@ var API = {
         });
     },
     deleteData: function (path, id) {
-        var confirmation = prompt("Are you sure you want to delete? (Yes/No)", "Yes");
+        swal({
+            title: '',
+            text: 'Are you sure you want to delete this item?',
+            type: 'warning',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false
+        }).then(function(result){
 
-        if (confirmation === 'Yes' || confirmation === 'yes') {
-            var url = this.proxy + this.baseURL + path + '/' + id;
-            return $.ajax({
-                url: url,
-                method: 'DELETE',
-                contentType: 'application/json',
-                crossDomain: true,
-                headers: LoginStore.checkSession(),
-                success: this.successHandler,
-                error: this.errorHandler.bind(this),
-                statusCode: {
-                    401: this.statusCodeHandler.bind(this)
-                }
-            });
-        }
+            if (result.value) {
+                var url = this.proxy + this.baseURL + path + '/' + id;
+                return $.ajax({
+                    url: url,
+                    method: 'DELETE',
+                    contentType: 'application/json',
+                    crossDomain: true,
+                    headers: LoginStore.checkSession(),
+                    success: this.successHandler,
+                    error: this.errorHandler.bind(this),
+                    statusCode: {
+                        401: this.statusCodeHandler.bind(this)
+                    }
+                });
+            }
+        }.bind(this));
     },
     searchData: function (path, keyword) {
         var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;

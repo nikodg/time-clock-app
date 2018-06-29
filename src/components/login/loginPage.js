@@ -2,30 +2,11 @@
 
 var React = require('react');
 var Router = require('react-router');
-var Json2csvParser = require('json2csv').Parser;
-var moment = require('moment');
 var LoginForm = require('./loginForm');
 var LoginActions = require('../../actions/loginActions');
 var LoginStore = require('../../stores/loginStore');
 var API = require('../../constants/apis').getApi();
 var toastr = require('toastr');
-
-var fields = {fields: ['car', 'price', 'color']};
-var myCars = [
-    {
-        "car": "Audi",
-        "price": 40000,
-        "color": "blue"
-    }, {
-        "car": "BMW",
-        "price": 35000,
-        "color": "black"
-    }, {
-        "car": "Porsche",
-        "price": 60000,
-        "color": "green"
-    }
-];
 
 var ManageLoginPage = React.createClass({
     mixins: [
@@ -127,54 +108,15 @@ var ManageLoginPage = React.createClass({
             });
     },
 
-    exportReport: function () {
-        var vm = this;
-        API.getData('listview')
-            .done(function (response) {
-                console.log('export report', response);
-            }).fail(function () {
-                toastr.error('Failed to export report.');
-
-
-                try {
-                    var parser = new Json2csvParser(fields);
-                    var csv = parser.parse(myCars);
-                    vm.downloadCSV(csv);
-                } catch (err) {
-                    console.error(err);
-                }
-            });
-    },
-    downloadCSV: function(csv) {  
-        var data;
-        var filename;
-        var link;
-        if (csv == null) { return; }
-
-        var dateTime = moment().format('DD-MM-YYYY_hh_mm_A');
-        filename = 'time-logs-report_' + dateTime + '.csv';
-
-        if(!csv.match(/^data:text\/csv/i)) {
-            csv = 'data:text/csv;charset=utf-8,' + csv;
-        }
-        data = encodeURI(csv);
-
-        link = document.createElement('a');
-        link.setAttribute('href', data);
-        link.setAttribute('download', filename);
-        link.click();
-    },
-
     render: function () {
         return (
             <div>
-            <button className="btn btn-default header-button" onClick={this.exportReport}>Export Report</button>
-            <LoginForm
-                login={this.state.credentials}
-                onChange={this.setLoginState}
-                onSave={this.saveLogin}
-                errors={this.state.errors}
-                checking={this.state.checking} />
+                <LoginForm
+                    login={this.state.credentials}
+                    onChange={this.setLoginState}
+                    onSave={this.saveLogin}
+                    errors={this.state.errors}
+                    checking={this.state.checking} />
             </div>
         );
     }

@@ -1,6 +1,7 @@
 'use strict';
 
 var LoginStore = require('../stores/loginStore');
+var swal = require('sweetalert2');
 
 var API = {
     baseURL: 'api/',
@@ -91,9 +92,15 @@ var API = {
         });
     },
     deleteData: function (path, id) {
-        var confirmation = prompt("Are you sure you want to delete? (Yes/No)", "Yes");
-
-        if (confirmation === 'Yes' || confirmation === 'yes') {
+        swal({
+            title: '',
+            text: 'Are you sure you want to delete this item?',
+            type: 'warning',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false
+        }).then(function (result) {
             var url = this.proxy + this.baseURL + path + '/' + id;
             return $.ajax({
                 url: url,
@@ -107,7 +114,7 @@ var API = {
                     401: this.statusCodeHandler.bind(this)
                 }
             });
-        }
+        });
     },
     searchData: function (path, keyword) {
         var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;
