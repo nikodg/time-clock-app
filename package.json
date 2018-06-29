@@ -32,6 +32,7 @@
     "react": "^0.13.3",
     "react-router": "^0.13.3",
     "reactify": "^1.1.1",
+    "sweetalert2": "^7.24.3",
     "toastr": "2.1.0",
     "vinyl-source-stream": "^1.1.0"
   },
