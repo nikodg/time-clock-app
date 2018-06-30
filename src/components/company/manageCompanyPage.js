@@ -2,6 +2,8 @@
 
 var React = require('react');
 var Router = require('react-router');
+var Dispatcher = require('../../dispatcher/appDispatcher');
+var ActionTypes = require('../../constants/actionTypes');
 var CompanyForm = require('./companyForm');
 var CompanyActions = require('../../actions/companyActions');
 var CompanyStore = require('../../stores/companyStore');
@@ -24,15 +26,36 @@ var ManageCompanyPage = React.createClass({
 			company: {
 				name: ''
 			},
+			saving: false,
 			errors: {},
 			dirty: false
 		};
 	},
 
 	componentWillMount: function() {
-		var companyId = this.props.params.id; //from the path '/company:id'
+		CompanyStore.addChangeListener(this._onChange);
+		
+		var companyId = this.props.params.id;
 		if (companyId) {
 			this.setState({company: CompanyStore.getCompanyById(companyId) });
+		}
+	},
+
+	componentWillUnmount: function () {
+		CompanyStore.removeChangeListener(this._onChange);
+	},
+
+	_onChange: function () {
+
+		this.setState({saving: false});
+
+		var companyId = this.props.params.id;
+		if (!companyId) {
+			this.setState({
+				company: {
+					name: ''
+				} 
+			});
 		}
 	},
 
@@ -46,7 +69,7 @@ var ManageCompanyPage = React.createClass({
 
 	companyFormIsValid: function() {
 		var formIsValid = true;
-		this.state.errors = {}; //clear any previous errors.
+		this.state.errors = {};
 
 		if (this.state.company.name.length < 3) {
 			this.state.errors.name = 'Company name must be at least 3 characters.';
@@ -59,8 +82,14 @@ var ManageCompanyPage = React.createClass({
 
 	saveCompany: function(event) {
 		event.preventDefault();
+		
+		this.setState({ 
+			dirty: false,
+			saving: true
+		});
 
 		if (!this.companyFormIsValid()) {
+			this.setState({ saving: false });
 			return;
 		}
 
@@ -69,8 +98,9 @@ var ManageCompanyPage = React.createClass({
 		} else {
 			CompanyActions.createCompany(this.state.company);
 		}
-		
-		this.setState({dirty: false});
+	},
+
+	cancelState: function(){
 		this.transitionTo('companies');
 	},
 
@@ -78,10 +108,23 @@ var ManageCompanyPage = React.createClass({
 		return (
 			<CompanyForm
 				company={this.state.company}
-				onChange={this.setCompanyState}
+				errors={this.state.errors}
+				saving={this.state.saving}
 				onSave={this.saveCompany}
-				errors={this.state.errors} />
+				onChange={this.setCompanyState}
+				cancel={this.cancelState} />
 		);
+	}
+});
+
+Dispatcher.register(function (action) {
+
+	switch (action.type) {
+		case ActionTypes.ERROR_COMPANY:
+			ManageCompanyPage._onChange();
+			break;
+
+		default: // No Op
 	}
 });
 

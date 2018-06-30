@@ -8,15 +8,16 @@ var EmployeeActions = require('../../actions/employeeActions');
 var EmployeeList = require('./employeeList');
 var TextInput = require('../common/textInput');
 var Paginator = require('../common/paginator');
+var ClockLoader = require('../common/clockLoader');
 
 var EmployeePage = React.createClass({
 	getInitialState: function () {
-
 		return {
 			employees: EmployeeStore.getAllEmployees(),
 			pagination: EmployeeStore.getPagination(),
 			keyword: '',
-			searched: false
+			searched: false,
+			loader: false
 		};
 	},
 
@@ -33,11 +34,13 @@ var EmployeePage = React.createClass({
 
 		this.setState({
 			employees: EmployeeStore.getAllEmployees(),
-			pagination: EmployeeStore.getPagination()
+			pagination: EmployeeStore.getPagination(),
+			loader: EmployeeStore.getLoader()
 		});
 	},
 
-	getEmployees: function() {
+	getEmployees: function () {
+		this.state.loader = true;
 		EmployeeActions.getEmployees(this.state.pagination.number, this.state.pagination.size);
 	},
 
@@ -71,8 +74,11 @@ var EmployeePage = React.createClass({
 	},
 
 	goToPageNumber: function (pageNumber) {
-		console.log(pageNumber);
 		EmployeeActions.getEmployees(pageNumber, this.state.pagination.size);
+	},
+
+	onAction: function () {
+		this.setState({ loader: !this.state.loader });
 	},
 
 	render: function() {
@@ -80,10 +86,20 @@ var EmployeePage = React.createClass({
 			<div>
 				<div className="row">
 					<div className="col-lg-6 col-md-6 col-sm-12">
-						<h1>Employees</h1>
+						<h1>
+							Employees
+							<div className="inline-wrap">
+								{this.state.loader ? <ClockLoader /> : ''}
+							</div>
+						</h1>
 					</div>
 					<div className="col-lg-6 col-md-6 col-sm-12 text-right">
-						<Link to="addEmployee" className="btn btn-default header-button">Add employee</Link>
+						<Link to="addEmployee"
+							className="btn btn-default header-button"
+							disabled={this.state.loader}>
+							
+							Add Employee
+						</Link>
 					</div>
 				</div>
 
@@ -111,7 +127,10 @@ var EmployeePage = React.createClass({
 				</div>
 				<div className="row">
 					<div className="col-lg-12 col-md-12 col-sm-12">
-						<EmployeeList employees={this.state.employees} />
+						<EmployeeList
+							employees={this.state.employees}
+							onAction={this.onAction}
+							loader={this.state.loader} />
 					</div>
 				</div>
 			</div>

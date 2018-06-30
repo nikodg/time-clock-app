@@ -3,6 +3,7 @@
 var React = require('react');
 var Router = require('react-router');
 var Link = Router.Link;
+var swal = require('sweetalert2');
 var CompanyActions = require('../../actions/companyActions');
 
 var CompanyList = React.createClass({
@@ -12,7 +13,19 @@ var CompanyList = React.createClass({
 
 	deleteCompany: function(id, event) {
 		event.preventDefault();
-		CompanyActions.deleteCompany(id);
+		swal({
+			title: '',
+			text: 'Are you sure you want to delete this company?',
+			type: 'warning',
+			showCancelButton: true,
+			allowOutsideClick: false,
+			allowEscapeKey: false,
+			allowEnterKey: false
+		}).then(function (result) {
+			if (result.value){
+				CompanyActions.deleteCompany(id);
+			}
+		});
 	},
 
 	render: function() {

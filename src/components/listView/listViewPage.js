@@ -7,12 +7,16 @@ var Json2csvParser = require('json2csv').Parser;
 var moment = require('moment');
 var ListViewStore = require('../../stores/listViewStore');
 var ListViewActions = require('../../actions/listViewActions');
+var EmployeeActions = require('../../actions/employeeActions');
+var EmployeeStore = require('../../stores/employeeStore');
 var ListViewList = require('./listViewList');
 var TextInput = require('../common/textInput');
 var SelectInput = require('../common/selectInput');
 var Paginator = require('../common/paginator');
 var API = require('../../constants/apis').getApi();
 var toastr = require('toastr');
+var ClockLoader = require('../common/clockLoader');
+
 var fields = { 
     fields: [
         { label: 'Employee ID', value: 'employee.id' },
@@ -41,25 +45,32 @@ var ListViewPage = React.createClass({
             searched: false,
             dirty: false,
             dateFrom: today,
-            dateTo: today
+            dateTo: today,
+            loader: false
         };
     },
 
     componentWillMount: function () {
         ListViewStore.addChangeListener(this._onChange);
+        if (EmployeeStore.getAllEmployees().length === 0){
+            EmployeeActions.getEmployees(0, 10);
+        }
         this.getListView();
     },
 
-    //Clean up when this component is unmounted
     componentWillUnmount: function () {
         ListViewStore.removeChangeListener(this._onChange);
     },
 
     _onChange: function () {
-        this.setState({ listViews: ListViewStore.getAllListView() });
+        this.setState({ 
+            listViews: ListViewStore.getAllListView(),
+            loader: ListViewStore.getLoader()
+        });
     },
 
     getListView: function () {
+        this.state.loader = true;
         ListViewActions.getListView(
             this.state.keyword,
             this.state.dateFrom,
@@ -106,20 +117,16 @@ var ListViewPage = React.createClass({
 
     exportReport: function () {
         var vm = this;
-        API.getData('listview')
-            .done(function (response) {
-                console.log('export report', response);
+        this.setState({loader: true});
 
-                try {
-                    var parser = new Json2csvParser(fields);
-                    var csv = parser.parse(response.data);
-                    vm.downloadCSV(csv);
-                } catch (err) {
-                    console.error(err);
-                }
-            }).fail(function () {
-                toastr.error('Failed to export report.');
-            });
+        try {
+            var parser = new Json2csvParser(fields);
+            var csv = parser.parse(this.state.listViews);
+            vm.downloadCSV(csv);
+        } catch (err) {
+            console.error(err);
+            this.setState({ loader: false });
+        }
     },
     downloadCSV: function (csv) {
         var data;
@@ -139,18 +146,27 @@ var ListViewPage = React.createClass({
         link.setAttribute('href', data);
         link.setAttribute('download', filename);
         link.click();
+        this.setState({ loader: false });
+    },
+    onAction: function(){
+        this.setState({loader: !this.state.loader});
     },
     render: function () {
         return (
             <div>
                 <div className="row">
                     <div className="col-lg-6 col-md-6 col-sm-12">
-                        <h1>List View</h1>
+                        <h1>
+                            List View
+							<div className="inline-wrap">
+                                {this.state.loader ? <ClockLoader /> : ''}
+                            </div>
+                        </h1>
                     </div>
                     <div className="col-lg-6 col-md-6 col-sm-12 text-right">
-                        <Link to="addListView" className="btn btn-default header-button">Add Entry</Link>
-                        <Link to="addAbsence" className="btn btn-default header-button">Add Absence</Link>
-                        <button className="btn btn-default header-button" onClick={this.exportReport}>Export Report</button>
+                        <Link to="addListView" className="btn btn-default header-button" disabled={this.state.loader}>Add Entry</Link>
+                        <Link to="addAbsence" className="btn btn-default header-button" disabled={this.state.loader}>Add Absence</Link>
+                        <button className="btn btn-default header-button" onClick={this.exportReport} disabled={this.state.loader}>Export Report</button>
                     </div>
                 </div>
                 <div className="row">
@@ -209,7 +225,10 @@ var ListViewPage = React.createClass({
                 <div className="row">
                 </div>
 
-                <ListViewList listViews={this.state.listViews} />
+                <ListViewList 
+                    listViews={this.state.listViews}
+                    onAction={this.onAction}
+                    loader={this.state.loader} />
             </div>
         );
     }

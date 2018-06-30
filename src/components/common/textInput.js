@@ -25,7 +25,7 @@ var TextInput = React.createClass({
         case 'date':
           fpOptions = {
             enableTime: false,
-            dateFormat: "m/d/Y",
+            dateFormat: "Y-m-d",
             defaultDate: this.props.value
           };
           break;
@@ -42,7 +42,7 @@ var TextInput = React.createClass({
         case 'datetime':
           fpOptions = {
             enableTime: true,
-            dateFormat: "m/d/Y h:i K",
+            dateFormat: "Y-m-d h:i K",
             defaultDate: this.props.value
           };
           break;

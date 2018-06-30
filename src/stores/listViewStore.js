@@ -20,6 +20,8 @@ var _pagination = {
     number: 0,
     size: 10
 };
+var _loader = false;
+
 
 var ListViewStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -31,6 +33,7 @@ var ListViewStore = assign({}, EventEmitter.prototype, {
     },
 
     emitChange: function () {
+        _loader = false;
         this.emit(CHANGE_EVENT);
     },
 
@@ -44,12 +47,20 @@ var ListViewStore = assign({}, EventEmitter.prototype, {
 
     getRecordById: function (id) {
         return _listView.find(function (listView) {
-            return listView.id === id;
+            return listView.id === parseInt(id);
         });
     },
 
     getPagination: function () {
         return _pagination;
+    },
+
+    getLoader: function () {
+        return _loader;
+    },
+
+    setLoader: function (state) {
+        _loader = state;
     }
 });
 
@@ -66,10 +77,18 @@ Dispatcher.register(function (action) {
             ListViewStore.emitChange();
             break;
 
+        case ActionTypes.CREATE_ABSENCE:
+            ListViewStore.emitChange();
+            break;
+
+        case ActionTypes.CREATE_LISTVIEW:
+            ListViewStore.emitChange();
+            break;
+
         case ActionTypes.UPDATE_LISTVIEW:
-            var existingRecord = _.find(_listView, { id: action.data.id });
-            var existingRecordIndex = _.indexOf(_listView, existingRecord);
-            _listView.splice(existingRecordIndex, 1, action.data);
+            // var existingRecord = _.find(_listView, { id: action.data.id });
+            // var existingRecordIndex = _.indexOf(_listView, existingRecord);
+            // _listView.splice(existingRecordIndex, 1, action.data);
             ListViewStore.emitChange();
             break;
 

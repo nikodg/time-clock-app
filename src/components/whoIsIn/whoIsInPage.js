@@ -7,13 +7,15 @@ var WhoIsInStore = require('../../stores/whoIsInStore');
 var WhoIsInActions = require('../../actions/whoIsInActions');
 var WhoIsInList = require('./whoIsInList');
 var Paginator = require('../common/paginator');
+var ClockLoader = require('../common/clockLoader');
 
 var WhoIsInPage = React.createClass({
     
     getInitialState: function () {
         return {
             whoIsIns: WhoIsInStore.getAllWhoIsIn(),
-            pagination: WhoIsInStore.getPagination()
+            pagination: WhoIsInStore.getPagination(),
+            loader: false
         };
     },
 
@@ -30,11 +32,13 @@ var WhoIsInPage = React.createClass({
     _onChange: function () {
         this.setState({ 
             whoIsIns: WhoIsInStore.getAllWhoIsIn(),
-            pagination: WhoIsInStore.getPagination()
+            pagination: WhoIsInStore.getPagination(),
+            loader: WhoIsInStore.getLoader()
         });
     },
 
     getWhoIsIn: function () {
+        this.state.loader = true;
         WhoIsInActions.getWhoIsIn(this.state.pagination.number, this.state.pagination.size);
     },
 
@@ -57,7 +61,12 @@ var WhoIsInPage = React.createClass({
             <div>
                 <div className="row">
                     <div className="col-lg-6 col-md-6 col-sm-12">
-                        <h1>Who Is In</h1>
+                        <h1>
+                            Who Is In
+							<div className="inline-wrap">
+                                {this.state.loader ? <ClockLoader /> : ''}
+                            </div>
+                        </h1>
                     </div>
                 </div>
 

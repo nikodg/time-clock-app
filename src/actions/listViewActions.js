@@ -18,12 +18,12 @@ var ListViewActions = {
             .done(function (data) {
 
                 Dispatcher.dispatch({
-                    type: ActionTypes.INITIALIZE_LISTVIEW,
+                    type: ActionTypes.CREATE_LISTVIEW,
                     data: data
                 });
 
             }).fail(function () {
-                toastr.error('Failed to load list view.');
+                toastr.error('Failed to save record.');
             });
     },
 
@@ -33,12 +33,12 @@ var ListViewActions = {
             .done(function (data) {
 
                 Dispatcher.dispatch({
-                    type: ActionTypes.INITIALIZE_LISTVIEW,
+                    type: ActionTypes.CREATE_ABSENCE,
                     data: data
                 });
 
             }).fail(function () {
-                toastr.error('Failed to load list view.');
+                toastr.error('Failed to save absence.');
             });
     },
 
@@ -67,7 +67,7 @@ var ListViewActions = {
 
     updateListView: function (listView) {
 
-        API.patchData('listview', listView, listView.id)
+        API.patchData('employeeTimes', listView, listView.id)
             .done(function (response) {
                 toastr.success('Record updated.');
                 Dispatcher.dispatch({

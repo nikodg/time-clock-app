@@ -26,7 +26,6 @@ var CompanyPage = React.createClass({
 		this.getCompanies();
 	},
 
-	//Clean up when this component is unmounted
 	componentWillUnmount: function() {
 		CompanyStore.removeChangeListener(this._onChange);
 	},
@@ -86,7 +85,12 @@ var CompanyPage = React.createClass({
 			<div>
 				<div className="row">
 					<div className="col-lg-6 col-md-6 col-sm-12">
-						<h1>Companies</h1>
+						<h1>
+							Companies
+							<div className="inline-wrap">
+								{this.state.loader ? <ClockLoader /> : ''}
+							</div>
+						</h1>
 					</div>
 					<div className="col-lg-6 col-md-6 col-sm-12 text-right">
 						<Link to="addCompany" className="btn btn-default header-button">Add Company</Link>
@@ -120,10 +124,6 @@ var CompanyPage = React.createClass({
 				<div className="row">
 					<div className="col-lg-12 col-md-12 col-sm-12">
 						<CompanyList companies={this.state.companies} />
-
-						{/* <div class="clock-loader-wrap">
-							{ this.state.loader ? <ClockLoader /> : '' }
-						</div> */}
 					</div>
 				</div>
 			</div>

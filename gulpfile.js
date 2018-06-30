@@ -140,8 +140,6 @@ gulp.task('css-prod', function () {
         .pipe(gulp.dest(config.paths.prodDest + '/css'));
 });
 
-// Migrates images to dist folder
-// Note that I could even optimize my images here
 gulp.task('images', function () {
     return gulp.src(config.paths.images)
         .pipe(gulp.dest(config.paths.dist + '/images'))
@@ -154,12 +152,10 @@ gulp.task('images-prod', function () {
         .pipe(gulp.dest(config.paths.prodDest + '/images'));
 });
 
-
 gulp.task('images-favicon', function () {
     return gulp.src('./src/favicon.ico')
         .pipe(gulp.dest(config.paths.dist));
 });
-
 
 gulp.task('images-favicon-prod', function () {
     return gulp.src('./src/favicon.ico')

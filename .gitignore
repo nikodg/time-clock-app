@@ -68,5 +68,6 @@ typings/
 .serverless
 ./scripts
 ./dist
+./backup
 
 src/constants/config.json

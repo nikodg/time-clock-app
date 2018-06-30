@@ -70,14 +70,14 @@ Dispatcher.register(function (action) {
             break;
 
         case ActionTypes.CREATE_COMPANY:
-            _companies.push(action.data);
+            // _companies.push(action.data);
             CompanyStore.emitChange();
             break;
 
         case ActionTypes.UPDATE_COMPANY:
-            var existingCompany = _.find(_companies, { id: action.data.id });
-            var existingCompanyIndex = _.indexOf(_companies, existingCompany);
-            _companies.splice(existingCompanyIndex, 1, action.data);
+            // var existingCompany = _.find(_companies, { id: action.data.id });
+            // var existingCompanyIndex = _.indexOf(_companies, existingCompany);
+            // _companies.splice(existingCompanyIndex, 1, action.data);
             CompanyStore.emitChange();
             break;
 

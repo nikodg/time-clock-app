@@ -28,7 +28,7 @@ var EmployeeForm = React.createClass({
 
     render: function () {
         return (
-            <form>
+            <form onSubmit={this.props.onSave}>
                 <div className="row">
 
                     <div className={this.props.withLeaveField ? 'col-lg-12 col-md-12 col-sm-12' : 'hidden'}>
@@ -100,16 +100,29 @@ var EmployeeForm = React.createClass({
                             name="working"
                             label={this.props.withLeaveField ? 'Half Day' : 'Working'}
                             value={this.props.record.working}
+                            checkState={this.props.record.working}
                             onChange={this.props.onChange}
                             error={this.props.errors.working} />
 
                     </div>
 
-                    <div className="col-lg-6 col-md-12 col-sm-12 text-right">
-                        <input type="submit" 
-                            value="Save" 
-                            className="btn btn-default btn-block"
-                             onClick={this.props.onSave} />
+                    <div className="col-lg-6 col-md-12 col-sm-12">
+                        <div className="row">
+                            <div className="col-lg-6 col-md-6 col-sm-6">
+                                <button type="button"
+                                    className="btn btn-default btn-block"
+                                    onClick={this.props.cancel}
+                                    disabled={this.props.saving}>
+                                    Cancel
+								</button>
+                            </div>
+                            <div className="col-lg-6 col-md-6 col-sm-6">
+                                <input type="submit"
+                                    value="Save"
+                                    className="btn btn-default btn-block"
+                                    disabled={this.props.saving} />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </form>

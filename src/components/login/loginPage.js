@@ -52,7 +52,6 @@ var ManageLoginPage = React.createClass({
     },
 
     _onChange: function () {
-        console.log('loginPage changed');
         if (LoginStore.checkSession()){
             this.transitionTo('whoIsIn');          
         }
@@ -101,7 +100,7 @@ var ManageLoginPage = React.createClass({
 
         API.loginUser(session)
             .done(function (data) {
-                LoginActions.checkIn(session);
+                LoginActions.checkIn(session, vm.state.credentials.username);
             }).fail(function () {
                 toastr.error('Invalid Credentials.');
                 vm.setState({ checking: false });

@@ -51,7 +51,7 @@ var Header = React.createClass({
                 <li><Link to="whoIsIn">Who Is In</Link></li>
                 <li><Link to="listView">List View</Link></li>
                 <li><Link to="employees">Employees</Link></li>
-                <li><Link to="companies">Companies</Link></li>
+                {/* <li><Link to="super-companies">Companies</Link></li> */}
               </ul>
 
               {this.state.session ? 

@@ -13,6 +13,7 @@ var _pagination = {
 	number: 0,
 	size: 10
 };
+var _loader = false;
 
 var EmployeeStore = assign({}, EventEmitter.prototype, {
 
@@ -24,7 +25,8 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 		this.removeListener(CHANGE_EVENT, callback);
 	},
 
-	emitChange: function() {
+	emitChange: function () {
+		_loader = false;
 		this.emit(CHANGE_EVENT);
 	},
 
@@ -40,6 +42,14 @@ var EmployeeStore = assign({}, EventEmitter.prototype, {
 
 	getPagination: function () {
 		return _pagination;
+	},
+
+	getLoader: function () {
+		return _loader;
+	},
+
+	setLoader: function (state) {
+		_loader = state;
 	}
 });
 
@@ -57,14 +67,14 @@ Dispatcher.register(function (action) {
 			break;
 
 		case ActionTypes.CREATE_EMPLOYEE:
-			_employees.push(action.data);
+			// _employees.push(action.data);
 			EmployeeStore.emitChange();
 			break;
 
 		case ActionTypes.UPDATE_EMPLOYEE:
-			var existingEmployee = _.find(_employees, {id: action.data.id});
-			var existingEmployeeIndex = _.indexOf(_employees, existingEmployee); 
-			_employees.splice(existingEmployeeIndex, 1, action.data);
+			// var existingEmployee = _.find(_employees, {id: action.data.id});
+			// var existingEmployeeIndex = _.indexOf(_employees, existingEmployee); 
+			// _employees.splice(existingEmployeeIndex, 1, action.data);
 			EmployeeStore.emitChange();
 			break;	
 

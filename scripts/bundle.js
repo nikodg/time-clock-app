@@ -66265,11 +66265,20 @@ var toastr = require('toastr');
 var CompanyStore = require('../stores/companyStore');
 
 var CompanyActions = {
+    errorHandler: function (message) {
+        toastr.remove();
+        toastr.error(message);
+        Dispatcher.dispatch({
+            type: ActionTypes.ERROR_EMPLOYEES,
+            data: false
+        });
+    },
 
     getCompanies: function (pageNumber, pageSize) {
         CompanyStore.setLoader(true);
         var url = 'companies?page=' + pageNumber + '&size=' + pageSize;
 
+        var _this = this;
         API.getData(url)
             .done(function (data) {
 
@@ -66278,11 +66287,12 @@ var CompanyActions = {
                     data: data
                 });
             }).fail(function () {
-                toastr.error('Failed to load companies.');
+                _this.errorHandler('Failed to load companies.');
             });
     },
 
     createCompany: function (company) {
+        var _this = this;
         API.postData('companies', company)
             .done(function (response) {
                 toastr.success('Company saved.');
@@ -66291,12 +66301,13 @@ var CompanyActions = {
                     data: company
                 });
             }).fail(function () {
-                toastr.error('Failed to save company.');
+                _this.errorHandler('Failed to save company.');
             });
     },
 
     updateCompany: function (company) {
 
+        var _this = this;
         API.patchData('companies', company, company.id)
             .done(function (response) {
                 toastr.success('Company updated.');
@@ -66305,25 +66316,27 @@ var CompanyActions = {
                     data: company
                 });
             }).fail(function () {
-                toastr.error('Failed to update company.');
+                _this.errorHandler('Failed to update company.');
             });
     },
 
     deleteCompany: function (id) {
+        var _this = this;
         API.deleteData('companies', id)
-            .done(function () {
+            .done(function (response) {
                 toastr.success('company deleted.');
                 Dispatcher.dispatch({
                     type: ActionTypes.DELETE_COMPANY,
                     data: id
                 });
             }).fail(function () {
-                toastr.error('Failed to delete company.');
+                _this.errorHandler('Failed to delete company.');
             });
     },
 
     searchList: function (keyword) {
         toastr.info('Searching companies...');
+        var _this = this;
         API.searchData('companies', keyword)
             .done(function (response) {
                 Dispatcher.dispatch({
@@ -66331,25 +66344,30 @@ var CompanyActions = {
                     data: response
                 });
             }).fail(function () {
-                toastr.remove();
-                toastr.error('Failed to search company.');
+                _this.errorHandler('Failed to search company.');
             });
     }
 };
 
 module.exports = CompanyActions;
 
-},{"../constants/actionTypes":245,"../constants/apis":246,"../dispatcher/appDispatcher":250,"../stores/companyStore":253,"toastr":210}],212:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../constants/apis":245,"../dispatcher/appDispatcher":249,"../stores/companyStore":252,"toastr":210}],212:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
-var EmployeeApi = require('../api/employeeApi');
 var ActionTypes = require('../constants/actionTypes');
 var API = require('../constants/apis').getApi();
 var toastr = require('toastr');
 
 var EmployeeActions = {
-
+	errorHandler: function (message) {
+		toastr.remove();
+		toastr.error(message);
+		Dispatcher.dispatch({
+			type: ActionTypes.ERROR_EMPLOYEES,
+			data: false
+		});
+	},
 	getEmployees: function (pageNumber, pageSize) {
 
 		var url = 'employees?page=' + pageNumber + '&size=' + pageSize;
@@ -66361,8 +66379,9 @@ var EmployeeActions = {
 					type: ActionTypes.INITIALIZE_EMPLOYEES,
 					data: data
 				});
+
 			}).fail(function () {
-				toastr.error('Failed to load employees.');
+				this.errorHandler('Failed to load employees.');
 			});
 	},
 
@@ -66379,7 +66398,7 @@ var EmployeeActions = {
 					data: employee
 				});
 			}).fail(function(){
-				toastr.error('Failed to save employee.');
+				this.errorHandler('Failed to save employee.');
 			});
 	},
 
@@ -66396,7 +66415,7 @@ var EmployeeActions = {
 					data: employee
 				});
 			}).fail(function(){
-				toastr.error('Failed to update employee.');
+				this.errorHandler('Failed to update employee.');
 			});
 	},
 
@@ -66409,7 +66428,7 @@ var EmployeeActions = {
 					data: id
 				});
 			}).fail(function(){
-				toastr.error('Failed to delete employee.');
+				this.errorHandler('Failed to delete employee.');
 			});
 	},
 
@@ -66422,15 +66441,14 @@ var EmployeeActions = {
 					data: response
 				});
 			}).fail(function () {
-				toastr.remove();
-				toastr.error('Failed to search employee.');
+				this.errorHandler('Failed to search employee.');
 			});
 	}
 };
 
 module.exports = EmployeeActions;
 
-},{"../api/employeeApi":217,"../constants/actionTypes":245,"../constants/apis":246,"../dispatcher/appDispatcher":250,"toastr":210}],213:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../constants/apis":245,"../dispatcher/appDispatcher":249,"toastr":210}],213:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -66440,14 +66458,14 @@ var InitializeActions = {
 	initApp: function () {
 		var session = localStorage.getItem('tca_auth');
 		if (session && session !== 'false') {
-			LoginActions.checkInExisting(session);
+			LoginActions.checkIn(session);
 		}
 	}
 };
 
 module.exports = InitializeActions;
 
-},{"../actions/loginActions":215,"../dispatcher/appDispatcher":250}],214:[function(require,module,exports){
+},{"../actions/loginActions":215,"../dispatcher/appDispatcher":249}],214:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -66545,7 +66563,7 @@ var ListViewActions = {
 
 module.exports = ListViewActions;
 
-},{"../constants/actionTypes":245,"../constants/apis":246,"../dispatcher/appDispatcher":250,"toastr":210}],215:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../constants/apis":245,"../dispatcher/appDispatcher":249,"toastr":210}],215:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -66553,15 +66571,7 @@ var ActionTypes = require('../constants/actionTypes');
 
 var LoginActions = {
 
-    checkInExisting: function (session) {
-        Dispatcher.dispatch({
-            type: ActionTypes.LOG_IN_EXIST,
-            data: session
-        });
-    },
-
     checkIn: function (session) {
-
         Dispatcher.dispatch({
             type: ActionTypes.LOG_IN,
             data: session
@@ -66578,7 +66588,7 @@ var LoginActions = {
 
 module.exports = LoginActions;
 
-},{"../constants/actionTypes":245,"../dispatcher/appDispatcher":250}],216:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../dispatcher/appDispatcher":249}],216:[function(require,module,exports){
 "use strict";
 
 var API = require('../constants/apis').getApi();
@@ -66607,50 +66617,7 @@ var WhoIsInActions = {
 
 module.exports = WhoIsInActions;
 
-},{"../constants/actionTypes":245,"../constants/apis":246,"../dispatcher/appDispatcher":250,"toastr":210}],217:[function(require,module,exports){
-"use strict";
-var $ = require('jquery');
-var _ = require('lodash');
-var API = require('../constants/apis').getApi();
-var window = $;
-
-var employees = [];
-
-var EmployeeApi = {
-	getAllEmployees: function() {
-		// return _clone(employees);
-		return API.getData('employees');
-	},
-
-	getEmployeeById: function(id) {
-		var employee = _.find(employees, {id: id});
-		// return _clone(employee);
-	},
-	
-	saveEmployee: function(employee) {
-		//pretend an ajax call to web api is made here
-		console.log('Pretend this just saved the employee to the DB via AJAX call...');
-		
-		if (employee.id) {
-			var existingEmployeeIndex = _.indexOf(employees, _.find(employees, {id: employee.id})); 
-			employees.splice(existingEmployeeIndex, 1, employee);
-		} else {
-			// employee.id = _generateId(employee);
-			employees.push(employee);
-		}
-
-		// return _clone(employee);
-	},
-
-	deleteEmployee: function(id) {
-		console.log('Pretend this just deleted the employee from the DB via an AJAX call...');
-		_.remove(employees, { id: id});
-	}
-};
-
-module.exports = EmployeeApi;
-
-},{"../constants/apis":246,"jquery":8,"lodash":10}],218:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../constants/apis":245,"../dispatcher/appDispatcher":249,"toastr":210}],217:[function(require,module,exports){
 /*eslint-disable strict */ //Disabling check because we can't run strict mode. Need global vars.
 
 var React = require('react');
@@ -66673,7 +66640,7 @@ var App = React.createClass({displayName: "App",
 
 module.exports = App;
 
-},{"./common/header":221,"jquery":8,"react":208,"react-router":38}],219:[function(require,module,exports){
+},{"./common/header":220,"jquery":8,"react":208,"react-router":38}],218:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -66711,7 +66678,7 @@ var CheckboxInput = React.createClass({displayName: "CheckboxInput",
 
 module.exports = CheckboxInput;
 
-},{"react":208}],220:[function(require,module,exports){
+},{"react":208}],219:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -66730,7 +66697,7 @@ var ClockLoader = React.createClass({displayName: "ClockLoader",
 
 module.exports = ClockLoader;
 
-},{"react":208}],221:[function(require,module,exports){
+},{"react":208}],220:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -66799,7 +66766,7 @@ var Header = React.createClass({displayName: "Header",
 });
 
 module.exports = Header;
-},{"../../actions/loginActions":215,"../../stores/loginStore":256,"react":208,"react-router":38}],222:[function(require,module,exports){
+},{"../../actions/loginActions":215,"../../stores/loginStore":255,"react":208,"react-router":38}],221:[function(require,module,exports){
 'use strict';
 var React = require('react');
 
@@ -66860,7 +66827,7 @@ var Paginator = React.createClass({displayName: "Paginator",
 
 module.exports = Paginator;
 
-},{"react":208}],223:[function(require,module,exports){
+},{"react":208}],222:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -66962,7 +66929,7 @@ var PasswordInput = React.createClass({displayName: "PasswordInput",
 
 module.exports = PasswordInput;
 
-},{"flatpickr":4,"react":208}],224:[function(require,module,exports){
+},{"flatpickr":4,"react":208}],223:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67025,7 +66992,7 @@ var SelectInput = React.createClass({displayName: "SelectInput",
 
 module.exports = SelectInput;
 
-},{"react":208}],225:[function(require,module,exports){
+},{"react":208}],224:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67053,7 +67020,7 @@ var TextInput = React.createClass({displayName: "TextInput",
         case 'date':
           fpOptions = {
             enableTime: false,
-            dateFormat: "m/d/Y",
+            dateFormat: "Y-m-d",
             defaultDate: this.props.value
           };
           break;
@@ -67070,7 +67037,7 @@ var TextInput = React.createClass({displayName: "TextInput",
         case 'datetime':
           fpOptions = {
             enableTime: true,
-            dateFormat: "m/d/Y h:i K",
+            dateFormat: "Y-m-d h:i K",
             defaultDate: this.props.value
           };
           break;
@@ -67169,7 +67136,7 @@ var TextInput = React.createClass({displayName: "TextInput",
 
 module.exports = TextInput;
 
-},{"flatpickr":4,"react":208}],226:[function(require,module,exports){
+},{"flatpickr":4,"react":208}],225:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67211,7 +67178,7 @@ var TextareaInput = React.createClass({displayName: "TextareaInput",
 
 module.exports = TextareaInput;
 
-},{"react":208}],227:[function(require,module,exports){
+},{"react":208}],226:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67225,9 +67192,15 @@ var CompanyForm = React.createClass({displayName: "CompanyForm",
 		errors: React.PropTypes.object
 	},
 
+	onFormSubmit: function(event){
+		console.log('onFormSubmit', event);
+		event.preventDefault();
+		// this.props.onSave();
+	},
+
 	render: function() {
 		return (
-			React.createElement("form", null, 
+			React.createElement("form", {onSubmit: this.onFormSubmit}, 
 				React.createElement("div", {className: "row"}, 
 					React.createElement("div", {className: "col-lg-12 col-md-12 col-sm-12"}, 
 						React.createElement("h1", null, "Manage employee")
@@ -67244,11 +67217,22 @@ var CompanyForm = React.createClass({displayName: "CompanyForm",
 					)
 				), 
 				React.createElement("div", {className: "row"}, 
-					React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12 text-right"}, 
-						React.createElement("input", {type: "submit", 
-							value: "Save", 
-							className: "btn btn-default btn-block", 
-							onClick: this.props.onSave})
+					React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12"}, 
+						React.createElement("div", {className: "row"}, 
+							React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-6"}, 
+								React.createElement("button", {className: "btn btn-default btn-block", 
+									onClick: this.props.cancel, 
+									disabled: this.props.saving}, 
+									"Cancel"
+								)
+							), 
+							React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-6"}, 
+								React.createElement("input", {type: "submit", 
+									value: "Save", 
+									className: "btn btn-default btn-block", 
+									disabled: this.props.saving})
+							)
+						)
 					)
 				)
 			)
@@ -67258,7 +67242,7 @@ var CompanyForm = React.createClass({displayName: "CompanyForm",
 
 module.exports = CompanyForm;
 
-},{"../common/textInput":225,"react":208}],228:[function(require,module,exports){
+},{"../common/textInput":224,"react":208}],227:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67309,7 +67293,7 @@ var CompanyList = React.createClass({displayName: "CompanyList",
 
 module.exports = CompanyList;
 
-},{"../../actions/companyActions":211,"react":208,"react-router":38}],229:[function(require,module,exports){
+},{"../../actions/companyActions":211,"react":208,"react-router":38}],228:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67338,7 +67322,6 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 		this.getCompanies();
 	},
 
-	//Clean up when this component is unmounted
 	componentWillUnmount: function() {
 		CompanyStore.removeChangeListener(this._onChange);
 	},
@@ -67445,11 +67428,13 @@ var CompanyPage = React.createClass({displayName: "CompanyPage",
 
 module.exports = CompanyPage;
 
-},{"../../actions/companyActions":211,"../../stores/companyStore":253,"../common/clockLoader":220,"../common/paginator":222,"../common/textInput":225,"./companyList":228,"react":208,"react-router":38}],230:[function(require,module,exports){
+},{"../../actions/companyActions":211,"../../stores/companyStore":252,"../common/clockLoader":219,"../common/paginator":221,"../common/textInput":224,"./companyList":227,"react":208,"react-router":38}],229:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
 var Router = require('react-router');
+var Dispatcher = require('../../dispatcher/appDispatcher');
+var ActionTypes = require('../../constants/actionTypes');
 var CompanyForm = require('./companyForm');
 var CompanyActions = require('../../actions/companyActions');
 var CompanyStore = require('../../stores/companyStore');
@@ -67472,16 +67457,27 @@ var ManageCompanyPage = React.createClass({displayName: "ManageCompanyPage",
 			company: {
 				name: ''
 			},
+			saving: false,
 			errors: {},
 			dirty: false
 		};
 	},
 
 	componentWillMount: function() {
-		var companyId = this.props.params.id; //from the path '/company:id'
+		CompanyStore.addChangeListener(this._onChange);
+		
+		var companyId = this.props.params.id;
 		if (companyId) {
 			this.setState({company: CompanyStore.getCompanyById(companyId) });
 		}
+	},
+
+	componentWillUnmount: function () {
+		CompanyStore.removeChangeListener(this._onChange);
+	},
+
+	_onChange: function () {
+		this.setState({ saving: false });
 	},
 
 	setCompanyState: function(event) {
@@ -67494,7 +67490,7 @@ var ManageCompanyPage = React.createClass({displayName: "ManageCompanyPage",
 
 	companyFormIsValid: function() {
 		var formIsValid = true;
-		this.state.errors = {}; //clear any previous errors.
+		this.state.errors = {};
 
 		if (this.state.company.name.length < 3) {
 			this.state.errors.name = 'Company name must be at least 3 characters.';
@@ -67507,6 +67503,11 @@ var ManageCompanyPage = React.createClass({displayName: "ManageCompanyPage",
 
 	saveCompany: function(event) {
 		event.preventDefault();
+		
+		this.setState({ 
+			dirty: false,
+			saving: true
+		});
 
 		if (!this.companyFormIsValid()) {
 			return;
@@ -67517,8 +67518,9 @@ var ManageCompanyPage = React.createClass({displayName: "ManageCompanyPage",
 		} else {
 			CompanyActions.createCompany(this.state.company);
 		}
-		
-		this.setState({dirty: false});
+	},
+
+	cancelState: function(){
 		this.transitionTo('companies');
 	},
 
@@ -67526,16 +67528,30 @@ var ManageCompanyPage = React.createClass({displayName: "ManageCompanyPage",
 		return (
 			React.createElement(CompanyForm, {
 				company: this.state.company, 
-				onChange: this.setCompanyState, 
+				errors: this.state.errors, 
+				saving: this.state.saving, 
 				onSave: this.saveCompany, 
-				errors: this.state.errors})
+				onChange: this.setCompanyState, 
+				cancel: this.cancelState})
 		);
+	}
+});
+
+
+Dispatcher.register(function (action) {
+
+	switch (action.type) {
+		case ActionTypes.ERROR_COMPANY:
+			ManageCompanyPage._onChange();
+			break;
+
+		default: // No Op
 	}
 });
 
 module.exports = ManageCompanyPage;
 
-},{"../../actions/companyActions":211,"../../stores/companyStore":253,"./companyForm":227,"react":208,"react-router":38}],231:[function(require,module,exports){
+},{"../../actions/companyActions":211,"../../constants/actionTypes":244,"../../dispatcher/appDispatcher":249,"../../stores/companyStore":252,"./companyForm":226,"react":208,"react-router":38}],230:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67655,7 +67671,7 @@ var EmployeeChecklist = React.createClass({displayName: "EmployeeChecklist",
 
 module.exports = EmployeeChecklist;
 
-},{"../common/checkboxInput":219,"lodash":10,"react":208,"react-router":38}],232:[function(require,module,exports){
+},{"../common/checkboxInput":218,"lodash":10,"react":208,"react-router":38}],231:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67702,11 +67718,21 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 					)
 				), 
 				React.createElement("div", {className: "row"}, 
-					React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12 text-right"}, 
-						React.createElement("input", {type: "submit", 
-							value: "Save", 
-							className: "btn btn-default btn-block", 
-							onClick: this.props.onSave})
+					React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12"}, 
+						React.createElement("div", {className: "row"}, 
+							React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-6"}, 
+								React.createElement("button", {className: "btn btn-default btn-block", 
+									onClick: this.props.cancel}, 
+									"Cancel"
+								)
+							), 
+							React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-6"}, 
+								React.createElement("input", {type: "submit", 
+									value: "Save", 
+									className: "btn btn-default btn-block", 
+									onClick: this.props.onSave})
+							)
+						)
 					)
 				)
 			)
@@ -67716,7 +67742,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/selectInput":224,"../common/textInput":225,"react":208}],233:[function(require,module,exports){
+},{"../common/selectInput":223,"../common/textInput":224,"react":208}],232:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67767,7 +67793,7 @@ var EmployeeList = React.createClass({displayName: "EmployeeList",
 
 module.exports = EmployeeList;
 
-},{"../../actions/employeeActions":212,"react":208,"react-router":38}],234:[function(require,module,exports){
+},{"../../actions/employeeActions":212,"react":208,"react-router":38}],233:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67891,7 +67917,7 @@ var EmployeePage = React.createClass({displayName: "EmployeePage",
 
 module.exports = EmployeePage;
 
-},{"../../actions/employeeActions":212,"../../stores/employeeStore":254,"../common/paginator":222,"../common/textInput":225,"./employeeList":233,"react":208,"react-router":38}],235:[function(require,module,exports){
+},{"../../actions/employeeActions":212,"../../stores/employeeStore":253,"../common/paginator":221,"../common/textInput":224,"./employeeList":232,"react":208,"react-router":38}],234:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -67999,6 +68025,9 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 		}
 		
 		this.setState({dirty: false});
+	},
+
+	cancelState: function () {
 		this.transitionTo('employees');
 	},
 
@@ -68009,14 +68038,15 @@ var ManageEmployeePage = React.createClass({displayName: "ManageEmployeePage",
 				companies: this.state.companies, 
 				onChange: this.setEmployeeState, 
 				onSave: this.saveEmployee, 
-				errors: this.state.errors})
+				errors: this.state.errors, 
+				cancel: this.cancelState})
 		);
 	}
 });
 
 module.exports = ManageEmployeePage;
 
-},{"../../actions/employeeActions":212,"../../stores/companyStore":253,"../../stores/employeeStore":254,"./employeeForm":232,"react":208,"react-router":38}],236:[function(require,module,exports){
+},{"../../actions/employeeActions":212,"../../stores/companyStore":252,"../../stores/employeeStore":253,"./employeeForm":231,"react":208,"react-router":38}],235:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -68124,11 +68154,21 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
                     ), 
 
-                    React.createElement("div", {className: "col-lg-6 col-md-12 col-sm-12 text-right"}, 
-                        React.createElement("input", {type: "submit", 
-                            value: "Save", 
-                            className: "btn btn-default btn-block", 
-                             onClick: this.props.onSave})
+                    React.createElement("div", {className: "col-lg-6 col-md-12 col-sm-12"}, 
+                        React.createElement("div", {className: "row"}, 
+                            React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-6"}, 
+                                React.createElement("button", {className: "btn btn-default btn-block", 
+                                    onClick: this.props.cancel}, 
+                                    "Cancel"
+								)
+                            ), 
+                            React.createElement("div", {className: "col-lg-6 col-md-6 col-sm-6"}, 
+                                React.createElement("input", {type: "submit", 
+                                    value: "Save", 
+                                    className: "btn btn-default btn-block", 
+                                    onClick: this.props.onSave})
+                            )
+                        )
                     )
                 )
             )
@@ -68138,7 +68178,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/checkboxInput":219,"../common/selectInput":224,"../common/textInput":225,"../common/textareaInput":226,"react":208}],237:[function(require,module,exports){
+},{"../common/checkboxInput":218,"../common/selectInput":223,"../common/textInput":224,"../common/textareaInput":225,"react":208}],236:[function(require,module,exports){
 "use strict";
 
 var moment = require('moment');
@@ -68213,7 +68253,7 @@ var ListViewList = React.createClass({displayName: "ListViewList",
 
 module.exports = ListViewList;
 
-},{"../../actions/listViewActions":214,"moment":11,"react":208,"react-router":38}],238:[function(require,module,exports){
+},{"../../actions/listViewActions":214,"moment":11,"react":208,"react-router":38}],237:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -68433,7 +68473,7 @@ var ListViewPage = React.createClass({displayName: "ListViewPage",
 
 module.exports = ListViewPage;
 
-},{"../../actions/listViewActions":214,"../../constants/apis":246,"../../stores/listViewStore":255,"../common/paginator":222,"../common/selectInput":224,"../common/textInput":225,"./listViewList":237,"json2csv":9,"moment":11,"react":208,"react-router":38,"toastr":210}],239:[function(require,module,exports){
+},{"../../actions/listViewActions":214,"../../constants/apis":245,"../../stores/listViewStore":254,"../common/paginator":221,"../common/selectInput":223,"../common/textInput":224,"./listViewList":236,"json2csv":9,"moment":11,"react":208,"react-router":38,"toastr":210}],238:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -68581,6 +68621,9 @@ var ManageListView = React.createClass({displayName: "ManageListView",
         }
 
         this.setState({ dirty: false });
+    },
+
+    cancelState: function () {
         this.transitionTo('listView');
     },
 
@@ -68600,7 +68643,8 @@ var ManageListView = React.createClass({displayName: "ManageListView",
                             errors: this.state.errors, 
                             currentRoute: this.state.currentRoute, 
                             withLeaveField: this.state.withLeaveField, 
-                            leaveOptions: this.state.leaveOptions})
+                            leaveOptions: this.state.leaveOptions, 
+                            cancel: this.cancelState})
                     ), 
                     React.createElement("div", {className: "col-lg-6 col-md-7 col-sm-12"}, 
                         React.createElement(EmployeeChecklist, {
@@ -68622,7 +68666,8 @@ var ManageListView = React.createClass({displayName: "ManageListView",
                             record: this.state.record, 
                             onChange: this.setListViewState, 
                             onSave: this.saveListView, 
-                            errors: this.state.errors})
+                            errors: this.state.errors, 
+                            cancel: this.cancelState})
                     )
                 )
             );
@@ -68632,7 +68677,7 @@ var ManageListView = React.createClass({displayName: "ManageListView",
 
 module.exports = ManageListView;
 
-},{"../../actions/listViewActions":214,"../../stores/employeeStore":254,"../../stores/listViewStore":255,"../employees/employeeChecklist":231,"./listViewForm":236,"moment":11,"react":208,"react-router":38}],240:[function(require,module,exports){
+},{"../../actions/listViewActions":214,"../../stores/employeeStore":253,"../../stores/listViewStore":254,"../employees/employeeChecklist":230,"./listViewForm":235,"moment":11,"react":208,"react-router":38}],239:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -68692,7 +68737,7 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
 module.exports = EmployeeForm;
 
-},{"../common/passwordInput":223,"../common/textInput":225,"react":208}],241:[function(require,module,exports){
+},{"../common/passwordInput":222,"../common/textInput":224,"react":208}],240:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -68817,7 +68862,7 @@ var ManageLoginPage = React.createClass({displayName: "ManageLoginPage",
 
 module.exports = ManageLoginPage;
 
-},{"../../actions/loginActions":215,"../../constants/apis":246,"../../stores/loginStore":256,"./loginForm":240,"react":208,"react-router":38,"toastr":210}],242:[function(require,module,exports){
+},{"../../actions/loginActions":215,"../../constants/apis":245,"../../stores/loginStore":255,"./loginForm":239,"react":208,"react-router":38,"toastr":210}],241:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -68834,7 +68879,7 @@ var NotFoundPage = React.createClass({displayName: "NotFoundPage",
 
 module.exports = NotFoundPage;
 
-},{"react":208}],243:[function(require,module,exports){
+},{"react":208}],242:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -68883,7 +68928,7 @@ var WhoIsInList = React.createClass({displayName: "WhoIsInList",
 
 module.exports = WhoIsInList;
 
-},{"moment":11,"react":208}],244:[function(require,module,exports){
+},{"moment":11,"react":208}],243:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -68971,14 +69016,13 @@ var WhoIsInPage = React.createClass({displayName: "WhoIsInPage",
 
 module.exports = WhoIsInPage;
 
-},{"../../actions/whoIsInActions":216,"../../stores/whoIsInStore":257,"../common/paginator":222,"./whoIsInList":243,"react":208,"react-router":38}],245:[function(require,module,exports){
+},{"../../actions/whoIsInActions":216,"../../stores/whoIsInStore":256,"../common/paginator":221,"./whoIsInList":242,"react":208,"react-router":38}],244:[function(require,module,exports){
 "use strict";
 
 var keyMirror = require('react/lib/keyMirror');
 
 module.exports = keyMirror({
 	LOG_IN: null,
-	LOG_IN_EXIST: null,
 	LOG_OUT: null,
 
 	INITIALIZE_EMPLOYEES: null,
@@ -68990,19 +69034,22 @@ module.exports = keyMirror({
 	UPDATE_EMPLOYEE: null,
 	DELETE_EMPLOYEE: null,
 	SEARCH_EMPLOYEE: null,
+	ERROR_EMPLOYEE: null,
 
 	CREATE_COMPANY: null,
 	UPDATE_COMPANY: null,
 	DELETE_COMPANY: null,
 	SEARCH_COMPANY: null,
+	ERROR_COMPANY: null,
 
 	CREATE_LISTVIEW: null,
 	UPDATE_LISTVIEW: null,
 	DELETE_LISTVIEW: null,
-	SEARCH_LISTVIEW: null
+	SEARCH_LISTVIEW: null,
+	ERROR_LISTVIEW: null
 });
 
-},{"react/lib/keyMirror":193}],246:[function(require,module,exports){
+},{"react/lib/keyMirror":193}],245:[function(require,module,exports){
 'use strict';
 var config = require('./config.json');
 module.exports = {
@@ -69023,9 +69070,9 @@ module.exports = {
     }
 };
 
-},{"./config.json":247,"./devApi":248,"./prodApis":249}],247:[function(require,module,exports){
+},{"./config.json":246,"./devApi":247,"./prodApis":248}],246:[function(require,module,exports){
 module.exports={"env":{"NODE_ENV":"prod"}}
-},{}],248:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 'use strict';
 
 var LoginStore = require('../stores/loginStore');
@@ -69053,7 +69100,7 @@ var API = {
             localStorage.removeItem('tca_auth');
             alert('Unathorized. Please login to continue.');
             this.redirecting = true;
-            // window.location.assign('/');
+            window.location.assign('/');
         }
     },
     unathorizedHandler: function (xhr) {
@@ -69130,26 +69177,35 @@ var API = {
         });
     },
     deleteData: function (path, id) {
-        swal({
-            title: '',
-            text: 'Are you sure you want to delete this item?',
-            type: 'warning',
-            showCancelButton: true,
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            allowEnterKey: false
-        }).then(function (result) {
-            var url = this.proxy + this.baseURL + path + '/' + id;
-            return $.ajax({
-                url: url,
-                method: 'DELETE',
-                contentType: 'application/json',
-                crossDomain: true,
-                headers: this.headers,
-                success: this.successHandler,
-                error: this.errorHandler.bind(this),
-                statusCode: {
-                    401: this.statusCodeHandler.bind(this)
+        var _this = this;
+        return new Promise(function (resolve, reject) {
+            swal({
+                title: '',
+                text: 'Are you sure you want to delete this item?',
+                type: 'warning',
+                showCancelButton: true,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                allowEnterKey: false
+            }).then(function (result) {
+                if (result.value) {
+                    
+                    var url = _this.proxy + _this.baseURL + path + '/' + id;
+                    return $.ajax({
+                        url: url,
+                        method: 'DELETE',
+                        contentType: 'application/json',
+                        headers: _this.getHeader(),
+                        success: _this.successHandler,
+                        error: _this.errorHandler,
+                        statusCode: {
+                            401: _this.statusCodeHandler
+                        }
+                    }).then(function () {
+                        resolve();
+                    });
+                } else {
+                    reject(null);
                 }
             });
         });
@@ -69173,7 +69229,7 @@ var API = {
 
 module.exports = API;
 
-},{"../stores/loginStore":256,"sweetalert2":209}],249:[function(require,module,exports){
+},{"../stores/loginStore":255,"sweetalert2":209}],248:[function(require,module,exports){
 'use strict';
 
 var LoginStore = require('../stores/loginStore');
@@ -69282,26 +69338,30 @@ var API = {
                 allowOutsideClick: false,
                 allowEscapeKey: false,
                 allowEnterKey: false
-            }).then(function () {
-                var url = _this.proxy + _this.baseURL + path + '/' + id;
-                return $.ajax({
-                    url: url,
-                    method: 'DELETE',
-                    contentType: 'application/json',
-                    headers: _this.getHeader(),
-                    success: _this.successHandler,
-                    error: _this.errorHandler.bind(_this),
-                    statusCode: {
-                        401: _this.statusCodeHandler.bind(_this)
-                    }
-                }).then(function () {
-                    resolve();
-                });
+            }).then(function (result) {
+                if (result.value){
+
+                    var url = _this.proxy + _this.baseURL + path + '/' + id;
+                    return $.ajax({
+                        url: url,
+                        method: 'DELETE',
+                        contentType: 'application/json',
+                        headers: _this.getHeader(),
+                        success: _this.successHandler,
+                        error: _this.errorHandler.bind(_this),
+                        statusCode: {
+                            401: _this.statusCodeHandler.bind(_this)
+                        }
+                    }).then(function () {
+                        resolve();
+                    });
+                } else {
+                    reject(null);
+                }
             }).catch(function (error) {
                 reject(error);
             });
         });
-
     },
     searchData: function (path, keyword) {
         var url = this.proxy + this.baseURL + path + '/search/findByName?name=' + keyword;
@@ -69321,7 +69381,7 @@ var API = {
 
 module.exports = API;
 
-},{"../stores/loginStore":256,"sweetalert2":209}],250:[function(require,module,exports){
+},{"../stores/loginStore":255,"sweetalert2":209}],249:[function(require,module,exports){
 /*
  * Copyright (c) 2015, Facebook, Inc.
  * All rights reserved.
@@ -69339,7 +69399,7 @@ var Dispatcher = require('flux').Dispatcher;
 
 module.exports = new Dispatcher();
 
-},{"flux":5}],251:[function(require,module,exports){
+},{"flux":5}],250:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -69352,7 +69412,7 @@ InitializeActions.initApp();
 Router.run(routes, function(Handler) {
 	React.render(React.createElement(Handler, null), document.getElementById('app'));
 });
-},{"./actions/initializeActions":213,"./routes":252,"react":208,"react-router":38}],252:[function(require,module,exports){
+},{"./actions/initializeActions":213,"./routes":251,"react":208,"react-router":38}],251:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
@@ -69397,7 +69457,7 @@ var routes = (
 
 module.exports = routes;
 
-},{"./components/app":218,"./components/company/companyPage":229,"./components/company/manageCompanyPage":230,"./components/employees/employeePage":234,"./components/employees/manageEmployeePage":235,"./components/listView/listViewPage":238,"./components/listView/manageListView":239,"./components/login/loginPage":241,"./components/notFoundPage":242,"./components/whoIsIn/whoIsInPage":244,"react":208,"react-router":38}],253:[function(require,module,exports){
+},{"./components/app":217,"./components/company/companyPage":228,"./components/company/manageCompanyPage":229,"./components/employees/employeePage":233,"./components/employees/manageEmployeePage":234,"./components/listView/listViewPage":237,"./components/listView/manageListView":238,"./components/login/loginPage":240,"./components/notFoundPage":241,"./components/whoIsIn/whoIsInPage":243,"react":208,"react-router":38}],252:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -69470,14 +69530,14 @@ Dispatcher.register(function (action) {
             break;
 
         case ActionTypes.CREATE_COMPANY:
-            _companies.push(action.data);
+            // _companies.push(action.data);
             CompanyStore.emitChange();
             break;
 
         case ActionTypes.UPDATE_COMPANY:
-            var existingCompany = _.find(_companies, { id: action.data.id });
-            var existingCompanyIndex = _.indexOf(_companies, existingCompany);
-            _companies.splice(existingCompanyIndex, 1, action.data);
+            // var existingCompany = _.find(_companies, { id: action.data.id });
+            // var existingCompanyIndex = _.indexOf(_companies, existingCompany);
+            // _companies.splice(existingCompanyIndex, 1, action.data);
             CompanyStore.emitChange();
             break;
 
@@ -69501,7 +69561,7 @@ Dispatcher.register(function (action) {
 
 module.exports = CompanyStore;
 
-},{"../constants/actionTypes":245,"../dispatcher/appDispatcher":250,"events":2,"lodash":10,"object-assign":12,"toastr":210}],254:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../dispatcher/appDispatcher":249,"events":2,"lodash":10,"object-assign":12,"toastr":210}],253:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -69595,7 +69655,7 @@ Dispatcher.register(function (action) {
 
 module.exports = EmployeeStore;
 
-},{"../constants/actionTypes":245,"../dispatcher/appDispatcher":250,"events":2,"lodash":10,"object-assign":12,"toastr":210}],255:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../dispatcher/appDispatcher":249,"events":2,"lodash":10,"object-assign":12,"toastr":210}],254:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -69684,7 +69744,7 @@ Dispatcher.register(function (action) {
 
 module.exports = ListViewStore;
 
-},{"../constants/actionTypes":245,"../dispatcher/appDispatcher":250,"events":2,"lodash":10,"object-assign":12}],256:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../dispatcher/appDispatcher":249,"events":2,"lodash":10,"object-assign":12}],255:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -69717,13 +69777,6 @@ var LoginStore = assign({}, EventEmitter.prototype, {
 Dispatcher.register(function (action) {
 
     switch (action.type) {
-        case ActionTypes.LOG_IN_EXIST:
-            console.log('LoginStore login exist');
-            _session = action.data;
-            localStorage.setItem('tca_auth', _session);
-            LoginStore.emitChange();
-            break;
-
         case ActionTypes.LOG_IN:
             _session = action.data;
             localStorage.setItem('tca_auth', _session);
@@ -69742,7 +69795,7 @@ Dispatcher.register(function (action) {
 
 module.exports = LoginStore;
 
-},{"../constants/actionTypes":245,"../dispatcher/appDispatcher":250,"events":2,"lodash":10,"object-assign":12}],257:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../dispatcher/appDispatcher":249,"events":2,"lodash":10,"object-assign":12}],256:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -69801,4 +69854,4 @@ Dispatcher.register(function (action) {
 
 module.exports = WhoIsInStore;
 
-},{"../constants/actionTypes":245,"../dispatcher/appDispatcher":250,"events":2,"lodash":10,"object-assign":12}]},{},[251]);
+},{"../constants/actionTypes":244,"../dispatcher/appDispatcher":249,"events":2,"lodash":10,"object-assign":12}]},{},[250]);

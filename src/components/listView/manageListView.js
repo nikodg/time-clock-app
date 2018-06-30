@@ -2,6 +2,8 @@
 
 var React = require('react');
 var Router = require('react-router');
+var Dispatcher = require('../../dispatcher/appDispatcher');
+var ActionTypes = require('../../constants/actionTypes');
 var ListViewForm = require('./listViewForm');
 var ListViewActions = require('../../actions/listViewActions');
 var ListViewStore = require('../../stores/listViewStore');
@@ -15,6 +17,12 @@ var ManageListView = React.createClass({
     ],
 
     statics: {
+        willTransitionTo: function (transition, component) {
+            if (!EmployeeStore.getAllEmployees().length) {
+                // transition.abort();
+                window.location.assign('/#/list-view');
+            }
+        },
         willTransitionFrom: function (transition, component) {
             if (component.state.dirty && !confirm('Leave without saving?')) {
                 transition.abort();
@@ -33,21 +41,20 @@ var ManageListView = React.createClass({
 
         if (currentRoute === '#/absence') {
             record = {
-                dateTimeIn: moment().format('MM/DD/YYYY'),
-                dateTimeOut: moment().format('MM/DD/YYYY'),
+                dateTimeIn: moment().format('YYYY-MM-DD'),
+                dateTimeOut: moment().format('YYYY-MM-DD'),
                 working: false,
                 notes: ''
             };
             withLeaveField = true;
         } else {
             record = {
-                dateTimeIn: moment().format('MM/DD/YYYY hh:mm A'),
-                dateTimeOut: moment().format('MM/DD/YYYY hh:mm A'),
+                dateTimeIn: moment().format('YYYY-MM-DD hh:mm A'),
+                dateTimeOut: moment().format('YYYY-MM-DD hh:mm A'),
                 working: false,
                 notes: ''
             };
         }
-
         
         return {
             record: record,
@@ -58,18 +65,27 @@ var ManageListView = React.createClass({
             selectedEmployees: [],
             withLeaveField: withLeaveField,
             leaveOptions: leaveOptions,
-            currentRoute: ''
+            currentRoute: currentRoute,
+            saving: false
         };
     },
 
     componentWillMount: function () {
 
-        var listViewId = this.props.params.id;
-        
-        if (listViewId) {
+        ListViewStore.addChangeListener(this._onChange);
 
+        var listViewId = this.props.params.id;
+        if (listViewId) {
+            var storeRecord = ListViewStore.getRecordById(listViewId);
             this.setState({ 
-                record: ListViewStore.getRecordById(listViewId)
+
+                record: {
+                    id: storeRecord.id,
+                    dateTimeIn: moment(storeRecord.timeIn).format('YYYY-MM-DD hh:mm A'),
+                    dateTimeOut: moment(storeRecord.timeOut).format('YYYY-MM-DD hh:mm A'),
+                    working: storeRecord.timeOut === null ? true : false,
+                    notes: storeRecord.notes
+                }
             });
 
         } else {
@@ -78,6 +94,14 @@ var ManageListView = React.createClass({
                 withList: true
             });
         }
+    },
+
+    componentWillUnmount: function () {
+        ListViewStore.removeChangeListener(this._onChange);
+    },
+
+    _onChange: function () {
+        this.setState({ saving: false });
     },
 
     setListViewState: function (event) {
@@ -122,14 +146,22 @@ var ManageListView = React.createClass({
     saveListView: function (event) {
         event.preventDefault();
 
+        this.setState({
+            dirty: false,
+            saving: true
+        });
+
         if (!this.listViewFormIsValid()) {
+            this.setState({ saving: false });
             return;
         }
 
         if (this.state.record.id) {
-            ListViewActions.updateListView(this.state.record);
-        } else if (this.state.currentRoute === '#/absence'){
 
+            ListViewActions.updateListView(this.state.record);
+
+        } else if (this.state.currentRoute === '#/absence'){
+            
             var leaveData = {
                 dateFrom: this.state.record.dateTimeIn,
                 dateTo: this.state.record.dateTimeOut,
@@ -143,8 +175,9 @@ var ManageListView = React.createClass({
         } else {
             ListViewActions.createListView(this.state.record, this.state.selectedEmployees);
         }
+    },
 
-        this.setState({ dirty: false });
+    cancelState: function () {
         this.transitionTo('listView');
     },
 
@@ -164,7 +197,9 @@ var ManageListView = React.createClass({
                             errors={this.state.errors}
                             currentRoute={this.state.currentRoute}
                             withLeaveField={this.state.withLeaveField}
-                            leaveOptions={this.state.leaveOptions} />
+                            leaveOptions={this.state.leaveOptions}
+                            cancel={this.cancelState}
+                            saving={this.state.saving} />
                     </div>
                     <div className="col-lg-6 col-md-7 col-sm-12">
                         <EmployeeChecklist
@@ -184,13 +219,27 @@ var ManageListView = React.createClass({
                     <div className="col-lg-6 col-md-5 col-sm-12">
                         <ListViewForm
                             record={this.state.record}
+                            leaveOptions={this.state.leaveOptions}
                             onChange={this.setListViewState}
                             onSave={this.saveListView}
-                            errors={this.state.errors} />
+                            errors={this.state.errors}
+                            cancel={this.cancelState}
+                            saving={this.state.saving} />
                     </div>
                 </div>
             );
         }
+    }
+});
+
+Dispatcher.register(function (action) {
+
+    switch (action.type) {
+        case ActionTypes.ERROR_LISTVIEW:
+            ManageListView._onChange();
+            break;
+
+        default: // No Op
     }
 });
 

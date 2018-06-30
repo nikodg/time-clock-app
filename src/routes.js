@@ -23,9 +23,9 @@ var routes = (
     <Route name="manageEmployee" path="employee/:id" handler={require('./components/employees/manageEmployeePage')} />
 
     {/* Companies */}
-    <Route name="companies" handler={require('./components/company/companyPage')} />
-    <Route name="addCompany" path="company" handler={require('./components/company/manageCompanyPage')} />
-    <Route name="manageCompany" path="company/:id" handler={require('./components/company/manageCompanyPage')} />
+    <Route name="companies" path="super-companies" handler={require('./components/company/companyPage')} />
+    <Route name="addCompany" path="super-company" handler={require('./components/company/manageCompanyPage')} />
+    <Route name="manageCompany" path="super-company/:id" handler={require('./components/company/manageCompanyPage')} />
 
     {/* List View */}
     <Route name="listView" path="list-view" handler={require('./components/listView/listViewPage')} />

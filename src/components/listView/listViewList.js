@@ -3,6 +3,7 @@
 var moment = require('moment');
 var React = require('react');
 var Router = require('react-router');
+var swal = require('sweetalert2');
 var Link = Router.Link;
 var ListViewActions = require('../../actions/listViewActions');
 
@@ -13,7 +14,21 @@ var ListViewList = React.createClass({
 
     deleteListView: function (id, event) {
         event.preventDefault();
-        ListViewActions.deleteListView(id);
+        var _this = this;
+        swal({
+            title: '',
+            text: 'Are you sure you want to delete this record?',
+            type: 'warning',
+            showCancelButton: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            allowEnterKey: false
+        }).then(function (result) {
+            if (result.value) {
+                _this.props.onAction();
+                ListViewActions.deleteListView(id);
+            }
+        });
     },
 
     computeHours: function (timeIn, timeOut) {
@@ -40,8 +55,20 @@ var ListViewList = React.createClass({
                     <td>{listView.undertime}</td>
                     <td>{listView.absent}</td>
                     <td className="text-center action">
-                        <Link to="manageListView" params={{ id: listView.id }}>Edit</Link>
-                        <a href="#" onClick={this.deleteListView.bind(this, listView.id)}>Delete</a>
+                        <Link to="manageListView" title="Edit"
+                            className="btn btn-default action-button"
+                            params={{ id: listView.id }}
+                            disabled={this.props.loader}>
+
+                            <i className="glyphicon glyphicon-pencil"></i>
+                        </Link>
+
+                        <button className="btn btn-default action-button delete-btn"
+                            onClick={this.deleteListView.bind(this, listView.id)}
+                            disabled={this.props.loader} title="Delete">
+
+                            <i className="glyphicon glyphicon-trash"></i>
+                        </button>
                     </td>
                 </tr>
             );

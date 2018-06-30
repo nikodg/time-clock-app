@@ -12,6 +12,7 @@ var _pagination = {
     number: 0,
     size: 10
 };
+var _loader = false;
 
 var WhoIsInStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -23,6 +24,7 @@ var WhoIsInStore = assign({}, EventEmitter.prototype, {
     },
 
     emitChange: function () {
+        _loader = false;
         this.emit(CHANGE_EVENT);
     },
 
@@ -32,6 +34,14 @@ var WhoIsInStore = assign({}, EventEmitter.prototype, {
 
     getPagination: function () {
         return _pagination;
+    },
+
+    getLoader: function () {
+        return _loader;
+    },
+
+    setLoader: function (state) {
+        _loader = state;
     }
 });
 

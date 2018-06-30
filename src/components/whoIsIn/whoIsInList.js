@@ -19,7 +19,9 @@ var WhoIsInList = React.createClass({
             return (
                 <tr key={whoIsIn.time}>
                     <td>{whoIsIn.name}</td>
-                    <td className="text-center">{whoIsIn.status}</td>
+                    <td className={'text-center ' + (whoIsIn.status === 'IN' ? 'employee-in' : 'employee-out')}>
+                        {whoIsIn.status}
+                    </td>
                     <td className="text-center">{whoIsIn.date}</td>
                     <td className="text-center">{formatTime(whoIsIn.date, whoIsIn.time)}</td>
                 </tr>

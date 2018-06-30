@@ -7,11 +7,20 @@ var toastr = require('toastr');
 var CompanyStore = require('../stores/companyStore');
 
 var CompanyActions = {
+    errorHandler: function (message) {
+        toastr.remove();
+        toastr.error(message);
+        Dispatcher.dispatch({
+            type: ActionTypes.ERROR_EMPLOYEES,
+            data: false
+        });
+    },
 
     getCompanies: function (pageNumber, pageSize) {
         CompanyStore.setLoader(true);
         var url = 'companies?page=' + pageNumber + '&size=' + pageSize;
 
+        var _this = this;
         API.getData(url)
             .done(function (data) {
 
@@ -20,11 +29,12 @@ var CompanyActions = {
                     data: data
                 });
             }).fail(function () {
-                toastr.error('Failed to load companies.');
+                _this.errorHandler('Failed to load companies.');
             });
     },
 
     createCompany: function (company) {
+        var _this = this;
         API.postData('companies', company)
             .done(function (response) {
                 toastr.success('Company saved.');
@@ -33,12 +43,13 @@ var CompanyActions = {
                     data: company
                 });
             }).fail(function () {
-                toastr.error('Failed to save company.');
+                _this.errorHandler('Failed to save company.');
             });
     },
 
     updateCompany: function (company) {
 
+        var _this = this;
         API.patchData('companies', company, company.id)
             .done(function (response) {
                 toastr.success('Company updated.');
@@ -47,11 +58,12 @@ var CompanyActions = {
                     data: company
                 });
             }).fail(function () {
-                toastr.error('Failed to update company.');
+                _this.errorHandler('Failed to update company.');
             });
     },
 
     deleteCompany: function (id) {
+        var _this = this;
         API.deleteData('companies', id)
             .done(function (response) {
                 toastr.success('company deleted.');
@@ -60,12 +72,13 @@ var CompanyActions = {
                     data: id
                 });
             }).fail(function () {
-                toastr.error('Failed to delete company.');
+                _this.errorHandler('Failed to delete company.');
             });
     },
 
     searchList: function (keyword) {
         toastr.info('Searching companies...');
+        var _this = this;
         API.searchData('companies', keyword)
             .done(function (response) {
                 Dispatcher.dispatch({
@@ -73,8 +86,7 @@ var CompanyActions = {
                     data: response
                 });
             }).fail(function () {
-                toastr.remove();
-                toastr.error('Failed to search company.');
+                _this.errorHandler('Failed to search company.');
             });
     }
 };

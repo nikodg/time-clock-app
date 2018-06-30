@@ -8,6 +8,7 @@ var _ = require('lodash');
 var CHANGE_EVENT = 'change';
 
 var _session;
+var _companyId;
 
 var LoginStore = assign({}, EventEmitter.prototype, {
     addChangeListener: function (callback) {
@@ -24,28 +25,35 @@ var LoginStore = assign({}, EventEmitter.prototype, {
 
     checkSession: function () {
         return _session;
+    },
+
+    getCompanyID: function () {
+        return _companyId;
     }
 });
 
 Dispatcher.register(function (action) {
 
     switch (action.type) {
-        case ActionTypes.LOG_IN_EXIST:
-            console.log('LoginStore login exist');
-            _session = action.data;
-            localStorage.setItem('tca_auth', _session);
-            LoginStore.emitChange();
-            break;
-
         case ActionTypes.LOG_IN:
-            _session = action.data;
+
+            _session = action.data.session;
+            if (action.data.username === 'csi_admin'){
+                _companyId = 1;
+            } else if (action.data.username === 'ccm_admin') {
+                _companyId = 2;
+            }
+
             localStorage.setItem('tca_auth', _session);
+            localStorage.setItem('tca_name', action.data.username);
             LoginStore.emitChange();
             break;
 
         case ActionTypes.LOG_OUT:
             _session = false;
+            _companyId = false;
             localStorage.removeItem('tca_auth');
+            localStorage.removeItem('tca_name');
             LoginStore.emitChange();
             break;
 
