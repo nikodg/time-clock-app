@@ -78,12 +78,18 @@ var ManageListView = React.createClass({
         var listViewId = this.props.params.id;
         if (listViewId) {
             var storeRecord = ListViewStore.getRecordById(listViewId);
+
+            var dateTimeOut = moment(storeRecord.timeOut).format('YYYY-MM-DD hh:mm A');
+
+            if (!storeRecord.timeOut) {
+                dateTimeOut = moment().format('YYYY-MM-DD hh:mm A');
+            }
             this.setState({ 
 
                 record: {
                     id: storeRecord.id,
                     timeIn: moment(storeRecord.timeIn).format('YYYY-MM-DD hh:mm A'),
-                    timeOut: moment(storeRecord.timeOut).format('YYYY-MM-DD hh:mm A'),
+                    timeOut: dateTimeOut,
                     working: storeRecord.timeOut === null ? true : false,
                     notes: storeRecord.notes
                 }

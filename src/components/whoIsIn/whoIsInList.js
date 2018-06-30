@@ -15,9 +15,9 @@ var WhoIsInList = React.createClass({
             return moment(dateTime).format('hh:mm A');
         };
         
-        var createWhoIsInRow = function (whoIsIn) {
+        var createWhoIsInRow = function (whoIsIn, index) {
             return (
-                <tr key={whoIsIn.time}>
+                <tr key={index}>
                     <td>{whoIsIn.name}</td>
                     <td className={'text-center ' + (whoIsIn.status === 'IN' ? 'employee-in' : 'employee-out')}>
                         {whoIsIn.status}
