@@ -43,43 +43,43 @@ var EmployeeForm = React.createClass({
 
                     <div className={this.props.record.working && !this.props.withLeaveField ? 'col-lg-12' : 'col-lg-6' + ' col-md-12 col-sm-12'}>
                         <TextInput
-                            name="dateTimeIn"
+                            name="timeIn"
                             label="Date &amp; Time In"
-                            value={this.props.record.dateTimeIn}
+                            value={this.props.record.timeIn}
                             onChange={this.props.onChange}
-                            error={this.props.errors.dateTimeIn}
+                            error={this.props.errors.timeIn}
                             flatPickr={this.state.flatPickrFormat}
                             icon='calendar'
-                            id="dateTimeIn" />
+                            id="timeIn" />
 
                     </div>
 
                     <div className={this.props.record.working || this.props.withLeaveField ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}>
 
                         <TextInput
-                            name="dateTimeOut"
+                            name="timeOut"
                             label="Date &amp; Time Out"
-                            value={this.props.record.dateTimeOut}
+                            value={this.props.record.timeOut}
                             onChange={this.props.onChange}
-                            error={this.props.errors.dateTimeOut}
+                            error={this.props.errors.timeOut}
                             disabled={this.props.record.working}
                             flatPickr={this.state.flatPickrFormat}
                             icon='calendar'
-                            id="dateTimeOut" />
+                            id="timeOut" />
 
                     </div>
 
                     <div className={ this.props.withLeaveField ? 'col-lg-6 col-md-12 col-sm-12' : 'hidden' }>
 
                         <TextInput
-                            name="dateTimeOut"
+                            name="timeOut"
                             label="Date &amp; Time Out"
-                            value={this.props.record.dateTimeOut}
+                            value={this.props.record.timeOut}
                             onChange={this.props.onChange}
-                            error={this.props.errors.dateTimeOut}
+                            error={this.props.errors.timeOut}
                             flatPickr={this.state.flatPickrFormat}
                             icon='calendar'
-                            id="dateTimeOut" />
+                            id="timeOut" />
 
                     </div>
 

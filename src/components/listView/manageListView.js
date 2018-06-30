@@ -41,16 +41,16 @@ var ManageListView = React.createClass({
 
         if (currentRoute === '#/absence') {
             record = {
-                dateTimeIn: moment().format('YYYY-MM-DD'),
-                dateTimeOut: moment().format('YYYY-MM-DD'),
+                timeIn: moment().format('YYYY-MM-DD'),
+                timeOut: moment().format('YYYY-MM-DD'),
                 working: false,
                 notes: ''
             };
             withLeaveField = true;
         } else {
             record = {
-                dateTimeIn: moment().format('YYYY-MM-DD hh:mm A'),
-                dateTimeOut: moment().format('YYYY-MM-DD hh:mm A'),
+                timeIn: moment().format('YYYY-MM-DD hh:mm A'),
+                timeOut: moment().format('YYYY-MM-DD hh:mm A'),
                 working: false,
                 notes: ''
             };
@@ -65,6 +65,7 @@ var ManageListView = React.createClass({
             selectedEmployees: [],
             withLeaveField: withLeaveField,
             leaveOptions: leaveOptions,
+            leaveType: 'Holiday',
             currentRoute: currentRoute,
             saving: false
         };
@@ -81,8 +82,8 @@ var ManageListView = React.createClass({
 
                 record: {
                     id: storeRecord.id,
-                    dateTimeIn: moment(storeRecord.timeIn).format('YYYY-MM-DD hh:mm A'),
-                    dateTimeOut: moment(storeRecord.timeOut).format('YYYY-MM-DD hh:mm A'),
+                    timeIn: moment(storeRecord.timeIn).format('YYYY-MM-DD hh:mm A'),
+                    timeOut: moment(storeRecord.timeOut).format('YYYY-MM-DD hh:mm A'),
                     working: storeRecord.timeOut === null ? true : false,
                     notes: storeRecord.notes
                 }
@@ -113,9 +114,14 @@ var ManageListView = React.createClass({
             value = !(value === 'true');
 
             if (value && !this.state.withLeaveField) {
-                this.state.record.dateTimeOut = '';
+                this.state.record.timeOut = '';
             }
         }
+
+        if (field === 'leaveType') {
+            this.setState({ leaveType: value });
+        }
+
         this.state.record[field] = value;
         this.listViewFormIsValid();
         return this.setState({record: this.state.record});
@@ -129,13 +135,13 @@ var ManageListView = React.createClass({
         var formIsValid = true;
         this.state.errors = {}; //clear any previous errors.
 
-        if (this.state.record.dateTimeIn.length < 3) {
-            this.state.errors.dateTimeIn = 'Invalid date and time in.';
+        if (this.state.record.timeIn.length < 3) {
+            this.state.errors.timeIn = 'Invalid date and time in.';
             formIsValid = false;
         }
 
-        if (this.state.record.dateTimeOut.length < 3 && !this.state.record.working) {
-            this.state.errors.dateTimeOut = 'Invalid date and time out.';
+        if (this.state.record.timeOut.length < 3 && !this.state.record.working) {
+            this.state.errors.timeOut = 'Invalid date and time out.';
             formIsValid = false;
         }
 
@@ -163,10 +169,10 @@ var ManageListView = React.createClass({
         } else if (this.state.currentRoute === '#/absence'){
             
             var leaveData = {
-                dateFrom: this.state.record.dateTimeIn,
-                dateTo: this.state.record.dateTimeOut,
+                dateFrom: this.state.record.timeIn,
+                dateTo: this.state.record.timeOut,
                 absent: this.state.record.working ? 4 : 8,
-                leaveType: this.state.record.leaveType,
+                leaveType: this.state.leaveType,
                 notes: this.state.record.notes,
                 employeeList: this.state.selectedEmployees
             };
@@ -198,6 +204,7 @@ var ManageListView = React.createClass({
                             currentRoute={this.state.currentRoute}
                             withLeaveField={this.state.withLeaveField}
                             leaveOptions={this.state.leaveOptions}
+                            leaveType={this.state.leaveType}
                             cancel={this.cancelState}
                             saving={this.state.saving} />
                     </div>
@@ -220,6 +227,7 @@ var ManageListView = React.createClass({
                         <ListViewForm
                             record={this.state.record}
                             leaveOptions={this.state.leaveOptions}
+                            leaveType={this.state.leaveType}
                             onChange={this.setListViewState}
                             onSave={this.saveListView}
                             errors={this.state.errors}

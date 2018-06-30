@@ -4,6 +4,7 @@ var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
 var API = require('../constants/apis').getApi();
 var toastr = require('toastr');
+var moment = require('moment');
 
 var employeeId = function(id){
     return {id: id};
@@ -14,7 +15,13 @@ var ListViewActions = {
     createListView: function (record, employees) {
 
         record.employeeList = employees;
-        API.postData('employeeTimes/addEntry', record)
+
+        var recordCopy = JSON.parse(JSON.stringify(record));
+
+        recordCopy.timeIn = moment(recordCopy.timeIn).format('YYYY-MM-DDTHH:mm:ss');
+        recordCopy.timeOut = moment(recordCopy.timeOut).format('YYYY-MM-DDTHH:mm:ss');
+
+        API.postData('employeeTimes/addEntry', recordCopy)
             .done(function (data) {
 
                 Dispatcher.dispatch({
@@ -66,8 +73,12 @@ var ListViewActions = {
     },
 
     updateListView: function (listView) {
+        var recordCopy = JSON.parse(JSON.stringify(listView));
 
-        API.patchData('employeeTimes', listView, listView.id)
+        recordCopy.timeIn = moment(recordCopy.timeIn).format('YYYY-MM-DDTHH:mm:ss');
+        recordCopy.timeOut = moment(recordCopy.timeOut).format('YYYY-MM-DDTHH:mm:ss');
+
+        API.patchData('employeeTimes', recordCopy, recordCopy.id)
             .done(function (response) {
                 toastr.success('Record updated.');
                 Dispatcher.dispatch({
