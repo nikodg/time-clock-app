@@ -20,6 +20,9 @@ var ListViewActions = {
 
         recordCopy.timeIn = moment(recordCopy.timeIn).format('YYYY-MM-DDTHH:mm:ss');
         recordCopy.timeOut = moment(recordCopy.timeOut).format('YYYY-MM-DDTHH:mm:ss');
+        if (recordCopy.working) {
+            delete recordCopy.timeOut;
+        }
 
         API.postData('employeeTimes/addEntry', recordCopy)
             .done(function (data) {
@@ -77,6 +80,10 @@ var ListViewActions = {
 
         recordCopy.timeIn = moment(recordCopy.timeIn).format('YYYY-MM-DDTHH:mm:ss');
         recordCopy.timeOut = moment(recordCopy.timeOut).format('YYYY-MM-DDTHH:mm:ss');
+
+        if (recordCopy.working){
+            delete recordCopy.timeOut;
+        }
 
         API.patchData('employeeTimes', recordCopy, recordCopy.id)
             .done(function (response) {

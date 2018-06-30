@@ -66489,6 +66489,7 @@ var Dispatcher = require('../dispatcher/appDispatcher');
 var ActionTypes = require('../constants/actionTypes');
 var API = require('../constants/apis').getApi();
 var toastr = require('toastr');
+var moment = require('moment');
 
 var employeeId = function(id){
     return {id: id};
@@ -66499,7 +66500,13 @@ var ListViewActions = {
     createListView: function (record, employees) {
 
         record.employeeList = employees;
-        API.postData('employeeTimes/addEntry', record)
+
+        var recordCopy = JSON.parse(JSON.stringify(record));
+
+        recordCopy.timeIn = moment(recordCopy.timeIn).format('YYYY-MM-DDTHH:mm:ss');
+        recordCopy.timeOut = moment(recordCopy.timeOut).format('YYYY-MM-DDTHH:mm:ss');
+
+        API.postData('employeeTimes/addEntry', recordCopy)
             .done(function (data) {
 
                 Dispatcher.dispatch({
@@ -66551,8 +66558,12 @@ var ListViewActions = {
     },
 
     updateListView: function (listView) {
+        var recordCopy = JSON.parse(JSON.stringify(listView));
 
-        API.patchData('employeeTimes', listView, listView.id)
+        recordCopy.timeIn = moment(recordCopy.timeIn).format('YYYY-MM-DDTHH:mm:ss');
+        recordCopy.timeOut = moment(recordCopy.timeOut).format('YYYY-MM-DDTHH:mm:ss');
+
+        API.patchData('employeeTimes', recordCopy, recordCopy.id)
             .done(function (response) {
                 toastr.success('Record updated.');
                 Dispatcher.dispatch({
@@ -66580,7 +66591,7 @@ var ListViewActions = {
 
 module.exports = ListViewActions;
 
-},{"../constants/actionTypes":244,"../constants/apis":245,"../dispatcher/appDispatcher":249,"toastr":210}],215:[function(require,module,exports){
+},{"../constants/actionTypes":244,"../constants/apis":245,"../dispatcher/appDispatcher":249,"moment":11,"toastr":210}],215:[function(require,module,exports){
 "use strict";
 
 var Dispatcher = require('../dispatcher/appDispatcher');
@@ -68242,43 +68253,43 @@ var EmployeeForm = React.createClass({displayName: "EmployeeForm",
 
                     React.createElement("div", {className: this.props.record.working && !this.props.withLeaveField ? 'col-lg-12' : 'col-lg-6' + ' col-md-12 col-sm-12'}, 
                         React.createElement(TextInput, {
-                            name: "dateTimeIn", 
+                            name: "timeIn", 
                             label: "Date & Time In", 
-                            value: this.props.record.dateTimeIn, 
+                            value: this.props.record.timeIn, 
                             onChange: this.props.onChange, 
-                            error: this.props.errors.dateTimeIn, 
+                            error: this.props.errors.timeIn, 
                             flatPickr: this.state.flatPickrFormat, 
                             icon: "calendar", 
-                            id: "dateTimeIn"})
+                            id: "timeIn"})
 
                     ), 
 
                     React.createElement("div", {className: this.props.record.working || this.props.withLeaveField ? 'hidden' : 'col-lg-6 col-md-12 col-sm-12'}, 
 
                         React.createElement(TextInput, {
-                            name: "dateTimeOut", 
+                            name: "timeOut", 
                             label: "Date & Time Out", 
-                            value: this.props.record.dateTimeOut, 
+                            value: this.props.record.timeOut, 
                             onChange: this.props.onChange, 
-                            error: this.props.errors.dateTimeOut, 
+                            error: this.props.errors.timeOut, 
                             disabled: this.props.record.working, 
                             flatPickr: this.state.flatPickrFormat, 
                             icon: "calendar", 
-                            id: "dateTimeOut"})
+                            id: "timeOut"})
 
                     ), 
 
                     React.createElement("div", {className:  this.props.withLeaveField ? 'col-lg-6 col-md-12 col-sm-12' : 'hidden'}, 
 
                         React.createElement(TextInput, {
-                            name: "dateTimeOut", 
+                            name: "timeOut", 
                             label: "Date & Time Out", 
-                            value: this.props.record.dateTimeOut, 
+                            value: this.props.record.timeOut, 
                             onChange: this.props.onChange, 
-                            error: this.props.errors.dateTimeOut, 
+                            error: this.props.errors.timeOut, 
                             flatPickr: this.state.flatPickrFormat, 
                             icon: "calendar", 
-                            id: "dateTimeOut"})
+                            id: "timeOut"})
 
                     ), 
 
@@ -68716,16 +68727,16 @@ var ManageListView = React.createClass({displayName: "ManageListView",
 
         if (currentRoute === '#/absence') {
             record = {
-                dateTimeIn: moment().format('YYYY-MM-DD'),
-                dateTimeOut: moment().format('YYYY-MM-DD'),
+                timeIn: moment().format('YYYY-MM-DD'),
+                timeOut: moment().format('YYYY-MM-DD'),
                 working: false,
                 notes: ''
             };
             withLeaveField = true;
         } else {
             record = {
-                dateTimeIn: moment().format('YYYY-MM-DD hh:mm A'),
-                dateTimeOut: moment().format('YYYY-MM-DD hh:mm A'),
+                timeIn: moment().format('YYYY-MM-DD hh:mm A'),
+                timeOut: moment().format('YYYY-MM-DD hh:mm A'),
                 working: false,
                 notes: ''
             };
@@ -68740,6 +68751,7 @@ var ManageListView = React.createClass({displayName: "ManageListView",
             selectedEmployees: [],
             withLeaveField: withLeaveField,
             leaveOptions: leaveOptions,
+            leaveType: 'Holiday',
             currentRoute: currentRoute,
             saving: false
         };
@@ -68756,8 +68768,8 @@ var ManageListView = React.createClass({displayName: "ManageListView",
 
                 record: {
                     id: storeRecord.id,
-                    dateTimeIn: moment(storeRecord.timeIn).format('YYYY-MM-DD hh:mm A'),
-                    dateTimeOut: moment(storeRecord.timeOut).format('YYYY-MM-DD hh:mm A'),
+                    timeIn: moment(storeRecord.timeIn).format('YYYY-MM-DD hh:mm A'),
+                    timeOut: moment(storeRecord.timeOut).format('YYYY-MM-DD hh:mm A'),
                     working: storeRecord.timeOut === null ? true : false,
                     notes: storeRecord.notes
                 }
@@ -68788,9 +68800,14 @@ var ManageListView = React.createClass({displayName: "ManageListView",
             value = !(value === 'true');
 
             if (value && !this.state.withLeaveField) {
-                this.state.record.dateTimeOut = '';
+                this.state.record.timeOut = '';
             }
         }
+
+        if (field === 'leaveType') {
+            this.setState({ leaveType: value });
+        }
+
         this.state.record[field] = value;
         this.listViewFormIsValid();
         return this.setState({record: this.state.record});
@@ -68804,13 +68821,13 @@ var ManageListView = React.createClass({displayName: "ManageListView",
         var formIsValid = true;
         this.state.errors = {}; //clear any previous errors.
 
-        if (this.state.record.dateTimeIn.length < 3) {
-            this.state.errors.dateTimeIn = 'Invalid date and time in.';
+        if (this.state.record.timeIn.length < 3) {
+            this.state.errors.timeIn = 'Invalid date and time in.';
             formIsValid = false;
         }
 
-        if (this.state.record.dateTimeOut.length < 3 && !this.state.record.working) {
-            this.state.errors.dateTimeOut = 'Invalid date and time out.';
+        if (this.state.record.timeOut.length < 3 && !this.state.record.working) {
+            this.state.errors.timeOut = 'Invalid date and time out.';
             formIsValid = false;
         }
 
@@ -68838,10 +68855,10 @@ var ManageListView = React.createClass({displayName: "ManageListView",
         } else if (this.state.currentRoute === '#/absence'){
             
             var leaveData = {
-                dateFrom: this.state.record.dateTimeIn,
-                dateTo: this.state.record.dateTimeOut,
+                dateFrom: this.state.record.timeIn,
+                dateTo: this.state.record.timeOut,
                 absent: this.state.record.working ? 4 : 8,
-                leaveType: this.state.record.leaveType,
+                leaveType: this.state.leaveType,
                 notes: this.state.record.notes,
                 employeeList: this.state.selectedEmployees
             };
@@ -68873,6 +68890,7 @@ var ManageListView = React.createClass({displayName: "ManageListView",
                             currentRoute: this.state.currentRoute, 
                             withLeaveField: this.state.withLeaveField, 
                             leaveOptions: this.state.leaveOptions, 
+                            leaveType: this.state.leaveType, 
                             cancel: this.cancelState, 
                             saving: this.state.saving})
                     ), 
@@ -68895,6 +68913,7 @@ var ManageListView = React.createClass({displayName: "ManageListView",
                         React.createElement(ListViewForm, {
                             record: this.state.record, 
                             leaveOptions: this.state.leaveOptions, 
+                            leaveType: this.state.leaveType, 
                             onChange: this.setListViewState, 
                             onSave: this.saveListView, 
                             errors: this.state.errors, 

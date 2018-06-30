@@ -103,6 +103,7 @@ var ManageListView = React.createClass({
 
     _onChange: function () {
         this.setState({ saving: false });
+        this.cancelState();
     },
 
     setListViewState: function (event) {
